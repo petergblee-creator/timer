@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#000000">
+<title>운동 타이머</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--prep:#F5C400;--work:#FF4D2E;--rest:#22C55E;--crest:#3B82F6;--done:#6B7280;--ink:#fff;--bg:#000}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+/* ---------- 실행 화면 ---------- */
+#run{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;transition:background-color .25s}
+#run[data-ph=prep]{background:var(--prep);color:#111}
+#run[data-ph=work]{background:var(--work)}
+#run[data-ph=rest]{background:var(--rest);color:#062}
+#run[data-ph=crest]{background:var(--crest)}
+#run[data-ph=done]{background:var(--done)}
+#run.paused::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(0,0,0,.18) 0 14px,transparent 14px 28px);pointer-events:none}
+#ring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#ring circle{fill:none;stroke-width:6}
+#ring .bgc{stroke:rgba(0,0,0,.18)}
+#ring .fg{stroke:currentColor;stroke-linecap:round;transition:stroke-dashoffset .2s linear}
+.core{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.6vmin;width:76vmin;transform:translateY(-3vmin)}
+#phase{font-size:10vmin;font-weight:900;letter-spacing:-.02em;line-height:1}
+#time{font-size:25vmin;font-weight:900;font-variant-numeric:tabular-nums;line-height:.95;letter-spacing:-.04em}
+#pos{font-size:5.2vmin;font-weight:800;opacity:.92;white-space:nowrap}
+#next{font-size:4.6vmin;opacity:.8;min-height:1.2em;white-space:nowrap}
+#pauseTag{font-size:5vmin;font-weight:900;background:rgba(0,0,0,.55);color:#fff;padding:.5vmin 3vmin;border-radius:99px;display:none}
+#run.paused #pauseTag{display:inline-block}
+.ctrl{position:absolute;z-index:3;left:0;right:0;bottom:7vmin;display:flex;justify-content:center;align-items:flex-end;gap:3vmin}
+.ctrl button{width:14vmin;height:14vmin;border-radius:50%;background:rgba(0,0,0,.28);color:inherit;font-size:7vmin;font-weight:900;display:flex;align-items:center;justify-content:center}
+.ctrl #prev,.ctrl #nxt{margin-bottom:5vmin}
+.ctrl button:active{background:rgba(0,0,0,.5)}
+#run[data-ph=prep] .ctrl button,#run[data-ph=rest] .ctrl button{background:rgba(0,0,0,.14)}
+#menuBtn{position:absolute;z-index:3;top:6vmin;left:50%;transform:translateX(-50%);font-size:4.2vmin;font-weight:700;padding:.6vmin 3.5vmin;border-radius:99px;background:rgba(0,0,0,.25)}
+#total{position:absolute;z-index:3;top:14vmin;left:0;right:0;text-align:center;font-size:4.4vmin;opacity:.8;font-variant-numeric:tabular-nums}
+/* ---------- 설정 화면 ---------- */
+#setup{position:fixed;inset:0;overflow-y:auto;background:#0b0b0b;padding:max(10vmin,18px) 10vmin 14vmin;display:none}
+#setup.on{display:block}
+#setup h1{font-size:max(6.5vmin,18px);text-align:center;margin-bottom:3vmin}
+.row{display:flex;align-items:center;justify-content:space-between;gap:2vmin;padding:2.2vmin 0;border-bottom:1px solid #222}
+.row .lb{font-size:max(5vmin,14px);display:flex;align-items:center;gap:2vmin;min-width:0}
+.row .lb i{width:3.4vmin;min-width:10px;height:3.4vmin;min-height:10px;border-radius:50%;display:inline-block}
+.step{display:flex;align-items:center;gap:1.5vmin}
+.step button{width:max(10vmin,34px);height:max(10vmin,34px);border-radius:50%;background:#262626;font-size:max(6vmin,18px);font-weight:900}
+.step b{min-width:max(14vmin,46px);text-align:center;font-size:max(5.5vmin,16px);font-variant-numeric:tabular-nums}
+.tog{font-size:max(4.5vmin,13px);padding:1.5vmin 3vmin;border-radius:99px;background:#262626}
+.tog.on{background:#F5C400;color:#111;font-weight:800}
+.sum{text-align:center;font-size:max(4.5vmin,13px);color:#aaa;margin:3vmin 0}
+.go{display:block;width:100%;padding:3.5vmin;border-radius:99px;background:#FF4D2E;font-size:max(6.5vmin,18px);font-weight:900;margin-top:2vmin}
+.sec{display:block;width:100%;padding:2.5vmin;border-radius:99px;background:#262626;font-size:max(4.5vmin,14px);margin-top:2vmin}
+.hint{font-size:max(3.8vmin,12px);color:#888;text-align:center;margin-top:3vmin;line-height:1.5}
+@media (min-width:500px){#setup{max-width:520px;margin:0 auto;left:0;right:0}.core{width:min(78vmin,520px)}}
+</style>
+</head>
+<body>
+
+<div id="setup" class="on">
+  <h1>운동 타이머</h1>
+  <div id="rows"></div>
+  <div class="sum" id="sum"></div>
+  <button class="go" id="start">시작</button>
+  <button class="sec" id="resume" hidden>이어서 하기</button>
+  <button class="sec" id="reset">기본값으로</button>
+  <p class="hint">실행 중: 가운데 탭 = 멈춤/계속 · ‹ 이전 단계 · › 다음 단계<br>좌우로 밀어도 이동 · 설정은 이 기기에 저장</p>
+</div>
+
+<div id="run" data-ph="prep" hidden>
+  <svg id="ring" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><circle class="bgc" cx="50" cy="50" r="46"/><circle class="fg" id="arc" cx="50" cy="50" r="46" transform="rotate(-90 50 50)"/></svg>
+  <button id="menuBtn">설정</button>
+  <div id="total"></div>
+  <div class="core" id="core">
+    <div id="phase">준비</div>
+    <div id="time">10</div>
+    <div id="pos"></div>
+    <div id="next"></div>
+    <span id="pauseTag">멈춤</span>
+  </div>
+  <div class="ctrl">
+    <button id="prev" aria-label="이전 단계">‹</button>
+    <button id="pp" aria-label="멈춤 또는 계속">❚❚</button>
+    <button id="nxt" aria-label="다음 단계">›</button>
+  </div>
+</div>
+
+<script>
+(() => {
+const DEF = {cycles: 10, rounds: 4, prep: 10, work: 60, rest: 60, crest: 120, prepEach: false};
+const FIELDS = [
+  ['cycles', '사이클', 1, 1, 99, '', null],
+  ['rounds', '라운드/사이클', 1, 1, 20, '', null],
+  ['prep', '준비', 5, 0, 120, 's', '--prep'],
+  ['work', '운동', 5, 5, 600, 's', '--work'],
+  ['rest', '휴식', 5, 0, 600, 's', '--rest'],
+  ['crest', '사이클 간 휴식', 10, 0, 900, 's', '--crest'],
+];
+const NAMES = {prep: '준비', work: '운동', rest: '휴식', crest: '사이클 휴식', done: '끝'};
+const $ = s => document.querySelector(s);
+const ls = {get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }};
+let cfg = Object.assign({}, DEF, ls.get('wt.cfg', {}));
+const fmt = s => { s = Math.max(0, Math.ceil(s)); const m = Math.floor(s / 60), r = s % 60; return m ? `${m}:${String(r).padStart(2, '0')}` : String(r); };
+const fmtLong = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), r = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(r).padStart(2, '0'); };
+
+/* 단계 목록: 준비 → (운동 → 휴식) × 라운드, 마지막 라운드 뒤엔 휴식 없이 사이클 휴식 → … → 끝 */
+function build(c) {
+  const st = [];
+  for (let cy = 1; cy <= c.cycles; cy++) {
+    if ((cy === 1 || c.prepEach) && c.prep > 0) st.push({ph: 'prep', d: c.prep, cy, r: 1});
+    for (let r = 1; r <= c.rounds; r++) {
+      st.push({ph: 'work', d: c.work, cy, r});
+      if (r < c.rounds && c.rest > 0) st.push({ph: 'rest', d: c.rest, cy, r});
+    }
+    if (cy < c.cycles && c.crest > 0) st.push({ph: 'crest', d: c.crest, cy, r: c.rounds});
+  }
+  st.push({ph: 'done', d: 0, cy: c.cycles, r: c.rounds});
+  return st;
+}
+
+/* ---------- 설정 화면 ---------- */
+function paintSetup() {
+  $('#rows').innerHTML = FIELDS.map(([k, n, , , , u, col]) => `<div class="row"><span class="lb">${col ? `<i style="background:var(${col})"></i>` : ''}${n}</span><span class="step"><button data-k="${k}" data-d="-1">−</button><b>${u ? fmt(cfg[k]) + (cfg[k] >= 60 ? '' : '초') : cfg[k]}</b><button data-k="${k}" data-d="1">+</button></span></div>`).join('')
+    + `<div class="row"><span class="lb">사이클마다 준비</span><button class="tog ${cfg.prepEach ? 'on' : ''}" id="pe">${cfg.prepEach ? '켜짐' : '꺼짐'}</button></div>`;
+  const st = build(cfg), tot = st.reduce((a, x) => a + x.d, 0);
+  $('#sum').textContent = `총 ${fmtLong(tot)} · 운동 ${cfg.cycles * cfg.rounds}회`;
+  document.querySelectorAll('[data-k]').forEach(b => {
+    let hold = null;
+    const bump = () => { const f = FIELDS.find(x => x[0] === b.dataset.k); cfg[f[0]] = Math.min(f[4], Math.max(f[3], cfg[f[0]] + f[2] * +b.dataset.d)); ls.set('wt.cfg', cfg); paintSetup(); };
+    b.onclick = bump;
+  });
+  $('#pe').onclick = () => { cfg.prepEach = !cfg.prepEach; ls.set('wt.cfg', cfg); paintSetup(); };
+  $('#resume').hidden = !S.steps;
+}
+$('#reset').onclick = () => { cfg = Object.assign({}, DEF); ls.set('wt.cfg', cfg); paintSetup(); };
+
+/* ---------- 타이머 ---------- */
+const S = {steps: null, i: 0, endAt: 0, left: 0, paused: false, t0: 0, raf: 0, lastSec: -1};
+let audio = null, wake = null;
+function beep(f = 880, ms = 120, vol = .25) {
+  try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); const o = audio.createOscillator(), g = audio.createGain(); o.frequency.value = f; g.gain.value = vol; o.connect(g); g.connect(audio.destination); o.start(); o.stop(audio.currentTime + ms / 1000); } catch (e) {}
+}
+const vib = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+const CUE = {work: [[600], 1046], rest: [[200, 100, 200], 660], crest: [[200, 100, 200, 100, 200], 523], prep: [[150], 784], done: [[800, 200, 800], 392]};
+async function keepAwake() { try { if ('wakeLock' in navigator) { wake = await navigator.wakeLock.request('screen'); } } catch (e) {} }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.steps && !S.paused) { keepAwake(); tick(); } });
+
+function enter(i, silent) {
+  S.i = Math.max(0, Math.min(S.steps.length - 1, i));
+  const s = S.steps[S.i];
+  S.left = s.d; S.endAt = performance.now() + s.d * 1000; S.lastSec = -1;
+  if (!silent) { const c = CUE[s.ph]; vib(c[0]); beep(c[1], 220, .35); }
+  paint();
+}
+function start(resume) {
+  if (!resume || !S.steps) { S.steps = build(cfg); S.t0 = Date.now(); enter(0); }
+  S.paused = false;
+  $('#setup').classList.remove('on'); $('#run').hidden = false;
+  keepAwake(); beep(1, 1, 0); loop();
+}
+function loop() { cancelAnimationFrame(S.raf); const f = () => { tick(); S.raf = requestAnimationFrame(f); }; S.raf = requestAnimationFrame(f); }
+function tick() {
+  if (!S.steps || S.paused) return;
+  const s = S.steps[S.i]; if (s.ph === 'done') return;
+  let now = performance.now();
+  while (now >= S.endAt && S.steps[S.i].ph !== 'done') {           // 화면이 꺼졌다 켜져도 밀린 단계를 따라잡음
+    const over = now - S.endAt; enter(S.i + 1, over > 1500); S.endAt -= over; if (S.steps[S.i].ph === 'done') break;
+  }
+  if (S.steps[S.i].ph === 'done') return paint();
+  S.left = (S.endAt - now) / 1000;
+  const sec = Math.ceil(S.left);
+  if (sec !== S.lastSec) { S.lastSec = sec; if (sec <= 3 && sec >= 1) { beep(740, 90, .22); vib(60); } paint(); }
+  else paintArc();
+}
+function paintArc() {
+  const s = S.steps[S.i], C = 2 * Math.PI * 46, frac = s.d ? Math.max(0, Math.min(1, S.left / s.d)) : 0;
+  const a = $('#arc'); a.style.strokeDasharray = C; a.style.strokeDashoffset = C * (1 - frac);
+}
+function paint() {
+  const s = S.steps[S.i], n = S.steps[S.i + 1];
+  const run = $('#run'); run.dataset.ph = s.ph; run.classList.toggle('paused', S.paused);
+  $('#phase').textContent = NAMES[s.ph];
+  $('#time').textContent = s.ph === 'done' ? '✓' : fmt(S.paused ? S.left : S.left);
+  $('#pos').textContent = s.ph === 'done' ? `${cfg.cycles}사이클 완료` : `사이클 ${s.cy}/${cfg.cycles} · 라운드 ${s.r}/${cfg.rounds}`;
+  $('#next').textContent = n ? `다음 ${NAMES[n.ph]}${n.d ? ' ' + fmt(n.d) : ''}` : '';
+  const remain = S.steps.slice(S.i + 1).reduce((a, x) => a + x.d, 0) + Math.max(0, S.left);
+  $('#total').textContent = s.ph === 'done' ? `총 ${fmtLong((Date.now() - S.t0) / 1000)}` : `남은 ${fmtLong(remain)}`;
+  $('#pp').textContent = S.paused ? '▶' : '❚❚';
+  paintArc();
+}
+function togglePause() {
+  if (!S.steps) return;
+  if (S.steps[S.i].ph === 'done') { enter(0); S.t0 = Date.now(); S.paused = false; return paint(); }
+  if (S.paused) { S.paused = false; S.endAt = performance.now() + S.left * 1000; vib(80); }
+  else { tick(); S.paused = true; vib([80, 80, 80]); }
+  paint();
+}
+function go(d) {
+  if (!S.steps) return;
+  const s = S.steps[S.i], elapsed = s.d - S.left;
+  if (d < 0 && elapsed > 3 && s.ph !== 'done') enter(S.i);   // 3초 넘게 지났으면 현재 단계 처음으로
+  else enter(S.i + d);
+  if (S.paused) { S.left = S.steps[S.i].d; paint(); }
+}
+$('#start').onclick = () => start(false);
+$('#resume').onclick = () => start(true);
+$('#pp').onclick = e => { e.stopPropagation(); togglePause(); };
+$('#prev').onclick = e => { e.stopPropagation(); go(-1); };
+$('#nxt').onclick = e => { e.stopPropagation(); go(1); };
+$('#core').onclick = togglePause;
+$('#menuBtn').onclick = e => { e.stopPropagation(); if (!S.paused) togglePause(); $('#run').hidden = true; $('#setup').classList.add('on'); paintSetup(); };
+/* 좌우 스와이프 = 이전/다음 */
+let sx = null, sy = null;
+$('#run').addEventListener('touchstart', e => { const t = e.touches[0]; sx = t.clientX; sy = t.clientY; }, {passive: true});
+$('#run').addEventListener('touchend', e => { if (sx == null) return; const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1); }, {passive: true});
+/* 키보드(폰 블루투스 키보드·테스트용) */
+document.addEventListener('keydown', e => { if ($('#run').hidden) return; if (e.key === ' ' || e.key === 'Enter') togglePause(); if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); });
+paintSetup();
+})();
+</script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script></body>
+</html>
