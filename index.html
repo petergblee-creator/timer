@@ -14,7 +14,7 @@ button,select,input,textarea{font:inherit;color:inherit;border:0;background:none
 button{cursor:pointer}
 a{color:#F5C400}
 /* ---------- 실행 화면 ---------- */
-#run{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;transition:background-color .25s;overflow:hidden}
+#run{position:fixed;inset:0;display:flex;flex-direction:column;align-items:stretch;transition:background-color .25s;overflow:hidden}
 #run[data-ph=prep]{background:var(--prep);color:#111}
 #run[data-ph=work]{background:var(--work)}
 #run[data-ph=rest]{background:var(--rest);color:#062}
@@ -22,29 +22,27 @@ a{color:#F5C400}
 #run[data-ph=done]{background:var(--done)}
 #bgimg{position:absolute;inset:0;background:center/cover no-repeat;pointer-events:none;z-index:0}
 #run.paused::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(0,0,0,.18) 0 14px,transparent 14px 28px);pointer-events:none;z-index:1}
-#ring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+#ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:min(100%,92vw);max-width:100%;aspect-ratio:1;pointer-events:none;z-index:-1}
 #ring circle{fill:none;stroke-width:5}
 #ring .bgc{stroke:rgba(0,0,0,.18)}
 #ring .fg{stroke:currentColor;stroke-linecap:round;transition:stroke-dashoffset .2s linear}
-.core{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.5vmin;width:80vmin;transform:translateY(-9vmin)}
+.core{position:relative;z-index:2;flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:.5vmin;padding:0 4vmin}
 #exn{font-size:9vmin;font-weight:900;line-height:1.05;text-shadow:0 2px 10px rgba(0,0,0,.35)}
 #phase{font-size:5.5vmin;font-weight:800;opacity:.9}
-#time{font-size:24vmin;font-weight:900;font-variant-numeric:tabular-nums;line-height:.95;letter-spacing:-.04em;text-shadow:0 3px 14px rgba(0,0,0,.3)}
+#time{font-size:22vmin;font-weight:900;font-variant-numeric:tabular-nums;line-height:.95;letter-spacing:-.04em;text-shadow:0 3px 14px rgba(0,0,0,.3)}
 #pos{font-size:5.4vmin;font-weight:900;white-space:nowrap}
 #prog{font-size:4.2vmin;font-weight:700;opacity:.9;white-space:nowrap}
 #next{font-size:4vmin;opacity:.8;min-height:1.2em;white-space:nowrap}
 #pauseTag{font-size:5vmin;font-weight:900;background:rgba(0,0,0,.55);color:#fff;padding:.5vmin 3vmin;border-radius:99px;display:none}
 #run.paused #pauseTag{display:inline-block}
-#cap{position:absolute;z-index:3;left:4vmin;right:4vmin;bottom:27vmin;text-align:center;font-size:6.4vmin;font-weight:900;line-height:1.25;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.85),0 0 2px #000;transition:opacity .35s;word-break:keep-all}
+#cap{position:relative;z-index:3;margin:0 4vmin 2vmin;text-align:center;font-size:6.4vmin;font-weight:900;line-height:1.3;min-height:1.3em;white-space:nowrap;overflow:hidden;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.85),0 0 2px #000;transition:opacity .35s;font-family:var(--capf,inherit)}
 #cap.fade{opacity:0}
-#run[data-ph=done] #cap{bottom:30vmin}
-.ctrl{position:absolute;z-index:3;left:0;right:0;bottom:6vmin;display:flex;justify-content:center;align-items:flex-end;gap:3vmin}
+.ctrl{position:relative;z-index:3;padding-bottom:max(5vmin,env(safe-area-inset-bottom));display:flex;justify-content:center;align-items:flex-end;gap:3vmin}
 .ctrl button{width:14vmin;height:14vmin;border-radius:50%;background:rgba(0,0,0,.3);color:inherit;font-size:7vmin;font-weight:900;display:flex;align-items:center;justify-content:center}
 .ctrl #prev,.ctrl #nxt{margin-bottom:5vmin}
 .ctrl button:active{background:rgba(0,0,0,.5)}
-.tb{position:absolute;z-index:4;top:5vmin;left:4vmin;right:4vmin;display:flex;justify-content:space-between;gap:2vmin}
+.tb{position:relative;z-index:4;padding:max(4vmin,env(safe-area-inset-top)) 4vmin 0;display:flex;justify-content:space-between;gap:2vmin}
 .tb button{font-size:4.2vmin;font-weight:800;padding:.8vmin 3vmin;border-radius:99px;background:rgba(0,0,0,.3)}
-#total{position:absolute;z-index:3;top:14vmin;left:0;right:0;text-align:center;font-size:4.2vmin;opacity:.85;font-variant-numeric:tabular-nums;font-weight:700}
 #left{position:absolute;inset:0;z-index:9;background:rgba(0,0,0,.88);color:#fff;padding:8vmin 6vmin;overflow-y:auto}
 #left h3{font-size:5.5vmin;margin-bottom:3vmin}
 #left .it{display:flex;justify-content:space-between;gap:3vmin;font-size:5vmin;padding:2.2vmin 0;border-bottom:1px solid #333}
@@ -95,7 +93,8 @@ details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
 .sec{display:block;width:100%;padding:10px;border-radius:99px;background:#262626;font-size:14px;margin-top:8px}
 .hint{font-size:12px;color:#888;text-align:center;margin-top:12px;line-height:1.5}
 .fn{font-size:12px;color:#aaa;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-@media (min-width:560px){.core{width:min(80vmin,560px)}}
+/* 펼친 화면·가로 분할: 버튼을 오른쪽 세로로 */
+@media (min-aspect-ratio:9/10){.ctrl{position:absolute;right:3vmin;top:50%;transform:translateY(-50%);flex-direction:column;align-items:center;padding:0;gap:2.5vmin}.ctrl #prev,.ctrl #nxt{margin:0}.ctrl button{width:12vmin;height:12vmin;font-size:6vmin}.core,#cap{margin-right:18vmin}#cap{margin-left:4vmin}}
 </style>
 </head>
 <body>
@@ -103,7 +102,7 @@ details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
 <div id="setup" class="on">
  <button class="fsb" data-fs>⛶</button>
  <div class="wrap">
-  <h2>오늘 할 운동 <small class="g">누르면 추가 · 길게 누르면 이름 바꾸기/지우기</small></h2>
+  <h2>오늘 할 운동 <small class="g">칩 누르면 추가 · 아래 종목 「고치기」에서 부위 바꾸기 · 「빼기」로 제거</small></h2>
   <div class="chips pal" id="pal"></div>
   <div id="rtList"></div>
   <div id="rows"></div>
@@ -134,15 +133,13 @@ details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
 
 <div id="run" data-ph="prep" hidden>
   <div id="bgimg"></div>
-  <svg id="ring" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><circle class="bgc" cx="50" cy="50" r="47"/><circle class="fg" id="arc" cx="50" cy="50" r="47" transform="rotate(-90 50 50)"/></svg>
   <div class="tb"><button id="muteBtn">소리</button><button id="leftBtn">남은</button><button id="menuBtn">설정</button><button data-fs>⛶</button></div>
-  <div id="total"></div>
   <div class="core" id="core">
+    <svg id="ring" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><circle class="bgc" cx="50" cy="50" r="47"/><circle class="fg" id="arc" cx="50" cy="50" r="47" transform="rotate(-90 50 50)"/></svg>
     <div id="exn"></div>
     <div id="phase">준비</div>
     <div id="time">10</div>
     <div id="pos"></div>
-    <div id="prog"></div>
     <div id="next"></div>
     <span id="pauseTag">멈춤</span>
   </div>
@@ -303,6 +300,17 @@ function attachFile(blob, name) {
 idb.get('music').then(r => { if (r && r.blob) { attachFile(r.blob, r.name); paintMusic(); } }).catch(() => {});
 function fileStart() { if (!fileEl) return; fileOn = true; try { fileEl.currentTime = vc.fs || 0; } catch (e) {} fileEl.volume = Math.min(1, mVol()); fileEl.play().catch(() => {}); }
 function fileStop() { if (fileEl && fileOn) { fileOn = false; fileEl.pause(); } }
+/* ---- 자막 글꼴 ---- */
+const FONTS = [['', '기본'], ['Black Han Sans', '검은고딕'], ['Do Hyeon', '도현'], ['Jua', '주아'], ['my', '내 글꼴']];
+let myFont = '';
+function applyFont() {
+  const f = vc.capFont || '';
+  if (f && f !== 'my' && !document.getElementById('gf-' + f)) { const l = document.createElement('link'); l.id = 'gf-' + f; l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?family=' + f.replace(/ /g, '+') + '&display=swap'; document.head.appendChild(l); }
+  document.documentElement.style.setProperty('--capf', f === 'my' ? (myFont ? '"MyCap"' : 'inherit') : f ? `"${f}"` : 'inherit');
+  if (document.fonts) document.fonts.ready.then(fitCap);
+}
+async function loadMyFont(blob) { try { const ff = new FontFace('MyCap', await blob.arrayBuffer()); await ff.load(); document.fonts.add(ff); myFont = blob.name || '내 글꼴'; } catch (e) { myFont = ''; alert('글꼴 파일을 읽지 못했습니다 (ttf·otf·woff만 가능)'); } applyFont(); }
+idb.get('font').then(r => { if (r) loadMyFont(r).then(paintCap); else applyFont(); }).catch(() => applyFont());
 let bgURL = '';
 function setBg(blob) { if (bgURL) URL.revokeObjectURL(bgURL); bgURL = blob ? URL.createObjectURL(blob) : ''; paintBg(); }
 function paintBg() { const b = $('#bgimg'); b.style.backgroundImage = bgURL ? `url("${bgURL}")` : 'none'; b.style.opacity = vc.bgOp; }
@@ -376,7 +384,7 @@ function paintPal() {
 }
 const itemSum = it => it.rounds * it.sets === 1 ? `${fmtS(it.work)} 한 번` : `${it.rounds}라운드 × ${it.sets}세트 · 운동 ${fmtS(it.work)} / 쉬기 ${fmtS(it.rest)}${it.rounds > 1 ? ` · 라운드 사이 ${fmtS(it.rrest)}` : ''}`;
 function paintRt() {
-  $('#rtList').innerHTML = cfg.rt.length ? cfg.rt.map((it, i) => `<div class="rt"><div class="hd" data-ri="${i}"><b>${i + 1}. ${it.nm}</b><span>${itemSum(it)}</span><em>${openItem === i ? '접기' : '고치기'}</em></div>${openItem === i ? `<div class="bd">${IF.map(([k, n]) => `<div class="row"><span class="lb">${n}</span><span class="step"><button data-ik="${k}" data-ii="${i}" data-d="-1">−</button><b>${k === 'rounds' || k === 'sets' ? it[k] : fmtS(it[k])}</b><button data-ik="${k}" data-ii="${i}" data-d="1">+</button></span></div>`).join('')}<div class="row"><span class="chips" style="justify-content:flex-start"><button class="mini" data-mv="-1" data-ii="${i}">위로</button><button class="mini" data-mv="1" data-ii="${i}">아래로</button></span><button class="mini" data-del="${i}">빼기</button></div></div>` : ''}</div>`).join('')
+  $('#rtList').innerHTML = cfg.rt.length ? cfg.rt.map((it, i) => `<div class="rt"><div class="hd" data-ri="${i}"><b>${i + 1}. ${it.nm}</b><span>${itemSum(it)}</span><em>${openItem === i ? '접기' : '고치기'}</em><button class="mini" data-del="${i}">빼기</button></div>${openItem === i ? `<div class="bd"><div class="row"><span class="lb">부위</span><span class="chips">${cfg.pal.map(n => `<button class="chip ${n === it.nm ? 'on' : ''}" data-sw="${n}" data-ii="${i}">${n}</button>`).join('')}<button class="chip add" data-ren="${i}">이름 직접</button></span></div>${IF.map(([k, n]) => `<div class="row"><span class="lb">${n}</span><span class="step"><button data-ik="${k}" data-ii="${i}" data-d="-1">−</button><b>${k === 'rounds' || k === 'sets' ? it[k] : fmtS(it[k])}</b><button data-ik="${k}" data-ii="${i}" data-d="1">+</button></span></div>`).join('')}<div class="row"><span class="chips" style="justify-content:flex-start"><button class="mini" data-mv="-1" data-ii="${i}">위로</button><button class="mini" data-mv="1" data-ii="${i}">아래로</button></span></div></div>` : ''}</div>`).join('')
     : `<p class="hint">위에서 운동을 눌러 추가하세요</p>`;
   $('#rtList').querySelectorAll('[data-ri]').forEach(h => { const i = +h.dataset.ri; longPress(h,
     () => editName(cfg.rt[i].nm, v => { cfg.rt[i].nm = v; saveC(); paintSetup(); }, () => { cfg.rt.splice(i, 1); openItem = -1; saveC(); paintSetup(); }),
@@ -387,7 +395,10 @@ function paintRt() {
     it[f[0]] = Math.min(f[4], Math.max(f[3], it[f[0]] + st * +b.dataset.d)); saveC(); paintSetup();
   });
   $('#rtList').querySelectorAll('[data-mv]').forEach(b => b.onclick = () => { const i = +b.dataset.ii, j = i + +b.dataset.mv; if (j < 0 || j >= cfg.rt.length) return; [cfg.rt[i], cfg.rt[j]] = [cfg.rt[j], cfg.rt[i]]; openItem = j; saveC(); paintSetup(); });
-  $('#rtList').querySelectorAll('[data-del]').forEach(b => b.onclick = () => { cfg.rt.splice(+b.dataset.del, 1); openItem = -1; saveC(); paintSetup(); });
+  $('#rtList').querySelectorAll('[data-sw]').forEach(b => b.onclick = () => { const it = cfg.rt[+b.dataset.ii], n = b.dataset.sw, kind = x => /러닝|달리기|유산소|걷기/.test(x) ? 'run' : /스트레칭/.test(x) ? 'st' : 'w';
+    if (kind(n) !== kind(it.nm)) Object.assign(it, itemFor(n)); else it.nm = n; saveC(); paintSetup(); });
+  $('#rtList').querySelectorAll('[data-ren]').forEach(b => b.onclick = () => { const i = +b.dataset.ren, v = (prompt('종목 이름', cfg.rt[i].nm) || '').trim(); if (v) { cfg.rt[i].nm = v; saveC(); paintSetup(); } });
+  $('#rtList').querySelectorAll('[data-del]').forEach(b => b.onclick = e => { e.stopPropagation(); if (!confirm(`「${cfg.rt[+b.dataset.del].nm}」 빼기?`)) return; cfg.rt.splice(+b.dataset.del, 1); openItem = -1; saveC(); paintSetup(); });
 }
 function stepper(k, label, val, sub) { return `<div class="row"><span class="lb">${label}${sub ? ` <small>${sub}</small>` : ''}</span><span class="step"><button data-v="${k}" data-d="-1">−</button><b>${val}</b><button data-v="${k}" data-d="1">+</button></span></div>`; }
 function tog(k, label, on, sub) { return `<div class="row"><span class="lb">${label}${sub ? ` <small>${sub}</small>` : ''}</span><button class="tog ${on ? 'on' : ''}" data-t="${k}">${on ? '켜짐' : '꺼짐'}</button></div>`; }
@@ -432,9 +443,13 @@ function paintCap() {
   const L = [['mix', '한·영 번갈아'], ['ko', '한글'], ['en', '영어']];
   box.innerHTML = tog('capOn', '응원 자막', vc.capOn, '화면에 크게')
     + (vc.capOn ? `<div class="row"><span class="lb">　언어</span><span class="chips">${L.map(([k, l]) => `<button class="chip ${vc.capLang === k ? 'on' : ''}" data-cl="${k}">${l}</button>`).join('')}</span></div>` + stepper('capSec', '　바뀌는 간격', vc.capSec + '초') : '')
+    + (vc.capOn ? `<div class="row"><span class="lb">　글꼴</span><span class="chips">${FONTS.map(([k, l]) => `<button class="chip ${(vc.capFont || '') === k ? 'on' : ''}" data-cf="${k}" style="${k && k !== 'my' ? `font-family:'${k}'` : k === 'my' && myFont ? 'font-family:MyCap' : ''}">${l}</button>`).join('')}</span><input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2,font/*" hidden></div>` + (myFont ? `<div class="row"><span class="lb">　내 글꼴 <span class="fn">${myFont}</span></span><button class="tog" id="fontRe">바꾸기</button></div>` : '') : '')
     + `<div class="row"><span class="lb">배경 사진 <small>${bgURL ? '넣음' : '없음'}</small></span><span class="chips"><button class="tog" id="bgPick">사진 넣기</button>${bgURL ? '<button class="tog" id="bgDel">빼기</button>' : ''}</span><input type="file" id="bgFile" accept="image/*" hidden></div>`
     + (bgURL ? stepper('bgOp', '　진하기', Math.round(vc.bgOp * 100) + '%', '낮을수록 희미') : '');
   box.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { vc[b.dataset.t] = !vc[b.dataset.t]; saveV(); paintCap(); });
+  box.querySelectorAll('[data-cf]').forEach(b => b.onclick = () => { const k = b.dataset.cf; if (k === 'my' && !myFont) { $('#fontFile').click(); return; } vc.capFont = k; saveV(); applyFont(); paintCap(); });
+  if ($('#fontFile')) $('#fontFile').onchange = async e => { const f = e.target.files[0]; if (!f) return; await idb.put('font', f); await loadMyFont(f); vc.capFont = 'my'; saveV(); applyFont(); paintCap(); };
+  if ($('#fontRe')) $('#fontRe').onclick = () => $('#fontFile').click();
   box.querySelectorAll('[data-cl]').forEach(b => b.onclick = () => { vc.capLang = b.dataset.cl; saveV(); paintCap(); });
   box.querySelectorAll('[data-v]').forEach(bindV);
   $('#bgPick').onclick = () => $('#bgFile').click();
@@ -508,7 +523,7 @@ const C = {t: 0, n: 0, list: [], ph: ''};
 function capList(s) {
   const it = cfg.rt[s.ex] || {}, prev = cfg.rt[s.ex - 1] || {};
   const lines = s.ph === 'work' ? CAPS(isOne(s) ? 'long' : 'work') : isRest(s.ph) ? CAPS('rest') : [];
-  const head = s.ph === 'work' ? [`지금은 ${it.nm}`, `Now: ${it.nm}`] : s.ph === 'rrest' ? [`${it.nm} ${s.r}라운드 끝 · ${it.rounds - s.r}라운드 남음`, `Round ${s.r} done. ${it.rounds - s.r} to go.`]
+  const head = s.ph === 'work' ? [`지금은 ${it.nm}`, `Now: ${it.nm}`] : s.ph === 'rrest' ? [`${it.nm} ${s.r}라운드 끝!`, `Round ${s.r} done.`]
     : s.ph === 'irest' ? [`${prev.nm} 끝! 다음은 ${it.nm}`, `${prev.nm} done. Next: ${it.nm}`] : s.ph === 'prep' ? [`오늘 첫 운동: ${it.nm}`, `First up: ${it.nm}`]
     : s.ph === 'done' ? ['오늘 운동 끝! 수고했다', 'Mission complete.'] : null;
   const all = head ? [head].concat(lines) : lines;
@@ -518,8 +533,15 @@ function capStart(s) {
   clearInterval(C.t); C.n = 0; C.list = vc.capOn ? capList(s) : []; showCap();
   if (C.list.length > 1) C.t = setInterval(() => { C.n = (C.n + 1) % C.list.length; showCap(); }, vc.capSec * 1000);
 }
-function showCap() { const el = $('#cap'); if (!C.list.length) { el.textContent = ''; return; } el.classList.add('fade'); setTimeout(() => { el.textContent = C.list[C.n]; el.classList.remove('fade'); }, 250); }
-function sayCap(text) { if (!vc.capOn || !text) return; const el = $('#cap'); el.classList.add('fade'); setTimeout(() => { el.textContent = text; el.classList.remove('fade'); }, 200); }
+function fitCap() {
+  const el = $('#cap'), base = Math.min(innerWidth, innerHeight) * .064;
+  el.style.fontSize = base + 'px';
+  if (el.scrollWidth > el.clientWidth && el.clientWidth) el.style.fontSize = Math.max(11, base * el.clientWidth / el.scrollWidth * .97) + 'px';
+}
+addEventListener('resize', fitCap);
+function capText(t) { const el = $('#cap'); el.classList.add('fade'); setTimeout(() => { el.textContent = t; fitCap(); el.classList.remove('fade'); }, 220); }
+function showCap() { if (!C.list.length) { $('#cap').textContent = ''; return; } capText(C.list[C.n]); }
+function sayCap(text) { if (vc.capOn && text) capText(text); }
 
 function enter(i, silent) {
   S.i = Math.max(0, Math.min(S.steps.length - 1, i));
@@ -576,12 +598,9 @@ function paint() {
   $('#exn').textContent = s.ph === 'done' ? '오늘 운동 끝' : s.ph === 'irest' ? `다음: ${it.nm}` : it.nm;
   $('#phase').textContent = NAMES[s.ph];
   $('#time').textContent = s.ph === 'done' ? '✓' : fmt(S.left);
-  $('#pos').textContent = s.ph === 'done' ? `${cfg.rt.length}종목 완료` : s.ph === 'irest' || s.ph === 'prep' ? `${it.rounds}라운드 × ${it.sets}세트` : isOne(s) ? '한 번에' : `${s.r}/${it.rounds}라운드 · ${s.s}/${it.sets}세트`;
-  const pg = progress();
-  $('#prog').textContent = s.ph === 'done' ? `전체 ${pg.total}세트 완료` : `종목 ${s.ex + 1}/${cfg.rt.length} · 지금까지 ${pg.doneN}세트 · 남은 ${pg.total - pg.doneN}세트`;
+  $('#pos').textContent = s.ph === 'done' ? `${cfg.rt.length}종목 완료` : s.ph === 'irest' || s.ph === 'prep' ? `${it.rounds}라운드 × ${it.sets}세트` : isOne(s) ? '한 번에'
+    : s.ph === 'work' ? `${s.r}라운드 · ${s.s}세트째` : s.ph === 'rrest' ? `${s.r}라운드 끝 · ${s.s}세트 했다` : `${s.r}라운드 · ${s.s}세트 했다`;
   $('#next').textContent = n ? `다음 ${n.ph === 'work' && n.ex !== s.ex ? (cfg.rt[n.ex] || {}).nm : NAMES[n.ph]}${n.d ? ' ' + fmt(n.d) : ''}` : '';
-  const remain = S.steps.slice(S.i + 1).reduce((a, x) => a + x.d, 0) + Math.max(0, S.left);
-  $('#total').textContent = s.ph === 'done' ? `총 ${fmtLong((Date.now() - S.t0) / 1000)}` : `전체 남은 ${fmtLong(remain)}`;
   $('#pp').textContent = S.paused ? '▶' : '❚❚';
   paintArc();
   if (!$('#left').hidden) paintLeft();
