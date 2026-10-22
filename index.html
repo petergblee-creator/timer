@@ -10,7 +10,8 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
 html,body{height:100%;background:var(--bg);color:var(--ink);font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
-button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button,select,input,textarea{font:inherit;color:inherit;border:0;background:none}
+button{cursor:pointer}
 /* ---------- 실행 화면 ---------- */
 #run{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;transition:background-color .25s}
 #run[data-ph=prep]{background:var(--prep);color:#111}
@@ -36,41 +37,71 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 .ctrl button:active{background:rgba(0,0,0,.5)}
 #run[data-ph=prep] .ctrl button,#run[data-ph=rest] .ctrl button{background:rgba(0,0,0,.14)}
 #menuBtn{position:absolute;z-index:3;top:6vmin;left:50%;transform:translateX(-50%);font-size:4.2vmin;font-weight:700;padding:.6vmin 3.5vmin;border-radius:99px;background:rgba(0,0,0,.25)}
+#muteBtn{position:absolute;z-index:3;top:6vmin;left:6vmin;font-size:4.2vmin;font-weight:700;padding:.6vmin 2.6vmin;border-radius:99px;background:rgba(0,0,0,.25)}
+.fsb{position:absolute;z-index:4;top:6vmin;right:6vmin;font-size:4.2vmin;padding:.6vmin 2.4vmin;border-radius:99px;background:rgba(0,0,0,.25)}
 #total{position:absolute;z-index:3;top:14vmin;left:0;right:0;text-align:center;font-size:4.4vmin;opacity:.8;font-variant-numeric:tabular-nums}
 /* ---------- 설정 화면 ---------- */
-#setup{position:fixed;inset:0;overflow-y:auto;background:#0b0b0b;padding:max(10vmin,18px) 10vmin 14vmin;display:none}
+#setup{position:fixed;inset:0;overflow-y:auto;background:#0b0b0b;padding:max(8vmin,16px) max(6vmin,14px) 14vmin;display:none}
 #setup.on{display:block}
-#setup h1{font-size:max(6.5vmin,18px);text-align:center;margin-bottom:3vmin}
-.row{display:flex;align-items:center;justify-content:space-between;gap:2vmin;padding:2.2vmin 0;border-bottom:1px solid #222}
-.row .lb{font-size:max(5vmin,14px);display:flex;align-items:center;gap:2vmin;min-width:0}
-.row .lb i{width:3.4vmin;min-width:10px;height:3.4vmin;min-height:10px;border-radius:50%;display:inline-block}
-.step{display:flex;align-items:center;gap:1.5vmin}
-.step button{width:max(10vmin,34px);height:max(10vmin,34px);border-radius:50%;background:#262626;font-size:max(6vmin,18px);font-weight:900}
-.step b{min-width:max(14vmin,46px);text-align:center;font-size:max(5.5vmin,16px);font-variant-numeric:tabular-nums}
-.tog{font-size:max(4.5vmin,13px);padding:1.5vmin 3vmin;border-radius:99px;background:#262626}
+#setup h1{font-size:max(6vmin,17px);text-align:center;margin-bottom:2vmin}
+#setup .fsb{position:absolute;top:12px;right:12px;font-size:15px;padding:4px 10px;background:#262626}
+h2{font-size:13px;color:#F5C400;margin:18px 0 2px;letter-spacing:.02em}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #1d1d1d;flex-wrap:wrap}
+.row .lb{font-size:14px;display:flex;align-items:center;gap:7px;min-width:0}
+.row .lb i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.row .lb small{color:#888;font-size:11px}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:32px;height:32px;border-radius:50%;background:#262626;font-size:17px;font-weight:900}
+.step b{min-width:46px;text-align:center;font-size:15px;font-variant-numeric:tabular-nums}
+.tog{font-size:13px;padding:5px 12px;border-radius:99px;background:#262626}
 .tog.on{background:#F5C400;color:#111;font-weight:800}
-.sum{text-align:center;font-size:max(4.5vmin,13px);color:#aaa;margin:3vmin 0}
-.go{display:block;width:100%;padding:3.5vmin;border-radius:99px;background:#FF4D2E;font-size:max(6.5vmin,18px);font-weight:900;margin-top:2vmin}
-.sec{display:block;width:100%;padding:2.5vmin;border-radius:99px;background:#262626;font-size:max(4.5vmin,14px);margin-top:2vmin}
-.hint{font-size:max(3.8vmin,12px);color:#888;text-align:center;margin-top:3vmin;line-height:1.5}
-@media (min-width:500px){#setup{max-width:520px;margin:0 auto;left:0;right:0}.core{width:min(78vmin,520px)}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.chip{font-size:13px;padding:6px 11px;border-radius:99px;background:#262626;white-space:nowrap}
+.chip.on{background:#FF4D2E;font-weight:800}
+.chip.rs.on{background:#22C55E;color:#062}
+.chip.play::after{content:" ♪";animation:bl .6s infinite alternate}
+@keyframes bl{to{opacity:.2}}
+select{background:#262626;border-radius:8px;padding:5px 6px;font-size:12px;max-width:52vw}
+.ph{display:block;width:100%;margin-top:4px;background:#161616;border:1px solid #262626;border-radius:8px;padding:6px 8px;font-size:13px;user-select:text;-webkit-user-select:text}
+details{border-bottom:1px solid #1d1d1d;padding:7px 0}
+summary{font-size:14px;cursor:pointer}
+details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
+.sum{text-align:center;font-size:13px;color:#aaa;margin:14px 0 8px}
+.go{display:block;width:100%;padding:13px;border-radius:99px;background:#FF4D2E;font-size:18px;font-weight:900;margin-top:6px}
+.sec{display:block;width:100%;padding:10px;border-radius:99px;background:#262626;font-size:14px;margin-top:8px}
+.hint{font-size:12px;color:#888;text-align:center;margin-top:12px;line-height:1.5}
+.fn{font-size:12px;color:#aaa;max-width:60vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (min-width:560px){#setup>.wrap{max-width:560px;margin:0 auto}.core{width:min(78vmin,520px)}}
 </style>
 </head>
 <body>
 
 <div id="setup" class="on">
+ <button class="fsb" data-fs>⛶</button>
+ <div class="wrap">
   <h1>운동 타이머</h1>
+  <h2>시간</h2>
   <div id="rows"></div>
   <div class="sum" id="sum"></div>
   <button class="go" id="start">시작</button>
   <button class="sec" id="resume" hidden>이어서 하기</button>
-  <button class="sec" id="reset">기본값으로</button>
-  <p class="hint">실행 중: 가운데 탭 = 멈춤/계속 · ‹ 이전 단계 · › 다음 단계<br>좌우로 밀어도 이동 · 설정은 이 기기에 저장</p>
+
+  <h2>음악 — 누르면 바로 들려줌 (다시 누르면 정지)</h2>
+  <div id="mrows"></div>
+  <h2>음성 안내</h2>
+  <div id="vrows"></div>
+  <details id="phr"><summary>문구 고치기 <small style="color:#888">{초}=구간 길이 · {남}=남은 시간</small></summary><div id="phrBox"></div></details>
+
+  <button class="sec" id="reset">시간만 기본값으로</button>
+  <p class="hint">실행 중: 가운데 탭 = 멈춤/계속 · ‹ 이전 단계 · › 다음 단계 · 좌우로 밀어도 이동<br>목소리 종류는 폰에 깔린 한국어 음성에 따라 다름 · 설정은 이 기기에 저장</p>
+ </div>
 </div>
 
 <div id="run" data-ph="prep" hidden>
   <svg id="ring" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><circle class="bgc" cx="50" cy="50" r="46"/><circle class="fg" id="arc" cx="50" cy="50" r="46" transform="rotate(-90 50 50)"/></svg>
+  <button id="muteBtn">소리</button>
   <button id="menuBtn">설정</button>
+  <button class="fsb" data-fs>⛶</button>
   <div id="total"></div>
   <div class="core" id="core">
     <div id="phase">준비</div>
@@ -97,12 +128,33 @@ const FIELDS = [
   ['rest', '휴식', 5, 0, 600, 's', '--rest'],
   ['crest', '사이클 간 휴식', 10, 0, 900, 's', '--crest'],
 ];
+/* 음성·음악 기본값 */
+const PH_DEF = {
+  workStart: '{초}! 운동 시작! 집중해서 다 털어버려!',
+  workWarn: '{남}! 끝까지 밀어붙여! 멈추지 마!',
+  restStart: '휴식이에요. 스트레칭도 딴 동작도 하지 말고, 방금 쓴 근육을 그냥 놓아주세요.',
+  restHalf: '절반 지났어요. 어깨 힘 빼고, 숨 길게. 근육을 풀어주세요.',
+  restWarn: '{남} 남았어요. 숨 고르고, 다음 세트 준비해요!',
+  crestStart: '사이클 휴식이에요. {초} 동안 물 한 모금 마시고, 쓴 근육을 놓아주세요.',
+};
+const VDEF = {
+  wMusic: 'A', rMusic: 'none', mvol: .55, vvol: 1,
+  wOn: true, wSay: true, wWarn: 15,
+  rOn: true, rHalf: true, rWarn: 10,
+  wVoice: '', rVoice: '', wPitch: .6, rPitch: 1.2,
+  fs: 0, fe: 0, muted: false, ph: {}
+};
 const NAMES = {prep: '준비', work: '운동', rest: '휴식', crest: '사이클 휴식', done: '끝'};
 const $ = s => document.querySelector(s);
 const ls = {get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }};
 let cfg = Object.assign({}, DEF, ls.get('wt.cfg', {}));
+let vc = Object.assign({}, VDEF, ls.get('wt.voice', {}));
+const P = k => (vc.ph && vc.ph[k]) || PH_DEF[k];
+const saveV = () => ls.set('wt.voice', vc);
 const fmt = s => { s = Math.max(0, Math.ceil(s)); const m = Math.floor(s / 60), r = s % 60; return m ? `${m}:${String(r).padStart(2, '0')}` : String(r); };
 const fmtLong = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), r = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(r).padStart(2, '0'); };
+const sayDur = s => { s = Math.round(s); const m = Math.floor(s / 60), r = s % 60; return (m ? m + '분' : '') + (r ? (m ? ' ' : '') + r + '초' : ''); };
+const fill = (t, d, left) => t.replace(/\{초\}/g, sayDur(d)).replace(/\{남\}/g, sayDur(left || 0));
 
 /* 단계 목록: 준비 → (운동 → 휴식) × 라운드, 마지막 라운드 뒤엔 휴식 없이 사이클 휴식 → … → 끝 */
 function build(c) {
@@ -119,47 +171,260 @@ function build(c) {
   return st;
 }
 
-/* ---------- 설정 화면 ---------- */
+/* ================= 소리 엔진 ================= */
+let audio = null, master = null, mg = null, noiseBuf = null;
+function ensureAudio() {
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    if (!master) { master = audio.createGain(); master.connect(audio.destination); mg = audio.createGain(); mg.gain.value = 0; mg.connect(master); }
+    if (audio.state === 'suspended') audio.resume();
+  } catch (e) {}
+}
+function beep(f = 880, ms = 120, vol = .25) {
+  if (vc.muted) return;
+  try { ensureAudio(); const o = audio.createOscillator(), g = audio.createGain(); o.frequency.value = f; g.gain.value = vol; o.connect(g); g.connect(master); o.start(); o.stop(audio.currentTime + ms / 1000); } catch (e) {}
+}
+function noise() { if (!noiseBuf) { const n = audio.sampleRate; noiseBuf = audio.createBuffer(1, n, n); const d = noiseBuf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1; } return noiseBuf; }
+function env(node, t, v, dec) { const g = audio.createGain(); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.001, t + dec); node.connect(g); g.connect(mg); return g; }
+function kick(t, v) { const o = audio.createOscillator(); o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(40, t + .2); env(o, t, v * 1.1, .38); o.start(t); o.stop(t + .4); }
+function snare(t, v, len = .17) {
+  const s = audio.createBufferSource(); s.buffer = noise(); const f = audio.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 2200; f.Q.value = .6; s.connect(f); env(f, t, v * .9, len); s.start(t, Math.random() * .5); s.stop(t + len + .03);
+  const o = audio.createOscillator(); o.type = 'triangle'; o.frequency.setValueAtTime(230, t); o.frequency.exponentialRampToValueAtTime(160, t + .06); env(o, t, v * .45, .09); o.start(t); o.stop(t + .1);
+}
+function tom(t, v, f0 = 95) { const o = audio.createOscillator(); o.frequency.setValueAtTime(f0 * 1.7, t); o.frequency.exponentialRampToValueAtTime(f0, t + .12); env(o, t, v, .55); o.start(t); o.stop(t + .6); }
+function hat(t, v) { const s = audio.createBufferSource(); s.buffer = noise(); const f = audio.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 7500; s.connect(f); env(f, t, v * .35, .045); s.start(t, Math.random() * .5); s.stop(t + .06); }
+function bass(t, v, f, dur) { const o = audio.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; const lp = audio.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 380; o.connect(lp); const g = audio.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v * .32, t + .02); g.gain.setValueAtTime(v * .32, t + dur * .7); g.gain.linearRampToValueAtTime(0, t + dur); lp.connect(g); g.connect(mg); o.start(t); o.stop(t + dur + .02); }
+function pad(t, fs, dur) { fs.forEach(f => { const o = audio.createOscillator(); o.type = 'sine'; o.frequency.value = f; const g = audio.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.09, t + dur * .3); g.gain.linearRampToValueAtTime(0, t + dur); o.connect(g); g.connect(mg); o.start(t); o.stop(t + dur + .05); }); }
+/* 16분음표 16칸 = 1마디. X=강하게 x=보통 r=두두(32분 연타) */
+const PAT = {
+  A: {nm: 'A 행진', bpm: 114, tr: {snare: 'X.rrX.x.X.rrXxXx', kick: 'X.......X.......', tom: '..............x.'}},
+  B: {nm: 'B 전투', bpm: 88, tr: {kick: 'X..x..X...x.X...', tom: '....X.......X.x.', snare: '.......X.....rrX'}, bass: [55, 55, 49, 52]},
+  C: {nm: 'C 질주', bpm: 150, tr: {kick: 'X...X...X...X...', snare: '....X.......X..r', hat: 'xXxXxXxXxXxXxXxX'}, bassP: 'x.x.x.x.x.x.x.x.', bf: [55, 55, 65, 49]},
+  calm: {nm: '잔잔', bpm: 60, pad: [[220, 277, 330], [196, 247, 294], [175, 220, 262], [196, 247, 294]]},
+};
+const INST = {kick, snare, tom, hat};
+const M = {style: null, step: 0, n: 0, next: 0, timer: 0, hot: false, duck: false};
+const mVol = () => vc.muted ? 0 : vc.mvol * (M.duck ? .3 : 1);
+function setMg(v, ramp = .15) { if (!mg) return; const t = audio.currentTime; mg.gain.cancelScheduledValues(t); mg.gain.setValueAtTime(mg.gain.value, t); mg.gain.linearRampToValueAtTime(v, t + ramp); }
+function playStep(p, s, t, spb) {
+  for (const k in (p.tr || {})) {
+    const ch = p.tr[k][s]; if (ch === '.') continue;
+    const v = ch === 'X' ? 1 : .6;
+    if (ch === 'r') { INST[k](t, .55); INST[k](t + spb / 2, .45); } else INST[k](t, v);
+  }
+  const bar = Math.floor(M.n / 16);
+  if (p.bass && s === 0) bass(t, 1, p.bass[bar % p.bass.length], spb * 16 * .95);
+  if (p.bassP && p.bassP[s] === 'x') bass(t, .8, p.bf[bar % p.bf.length], spb * 1.6);
+  if (p.pad && s === 0) pad(t, p.pad[bar % p.pad.length], spb * 16 * 1.05);
+  if (M.hot && !p.pad) { snare(t, .22, .06); snare(t + spb / 2, .18, .05); if (s % 4 === 0) kick(t, .7); }
+}
+function sched() {
+  const p = PAT[M.style]; if (!p) return; const spb = 60 / p.bpm / 4;
+  while (M.next < audio.currentTime + .15) { playStep(p, M.step, M.next, spb); M.next += spb; M.step = (M.step + 1) % 16; M.n++; }
+}
+function musicStart(style) {
+  musicStop(true);
+  if (!style || style === 'none') return;
+  if (style === 'file') return fileStart();
+  ensureAudio(); if (!audio) return;
+  M.style = style; M.step = 0; M.n = 0; M.hot = false; M.next = audio.currentTime + .06;
+  setMg(mVol(), .05); sched(); M.timer = setInterval(sched, 25);
+}
+function musicStop(quick) {
+  clearInterval(M.timer); M.timer = 0; M.style = null; M.hot = false;
+  if (mg) setMg(0, quick ? .05 : .4);
+  fileStop();
+}
+function duck(on) { M.duck = on; if (M.style) setMg(mVol(), .2); if (fileEl && fileOn) fileEl.volume = Math.min(1, mVol()); }
+
+/* ---- 내 음악 파일 (이 기기 IndexedDB에 보관) ---- */
+const idb = {
+  db: null,
+  open() { return this.db ? Promise.resolve(this.db) : new Promise((res, rej) => { const r = indexedDB.open('wt', 1); r.onupgradeneeded = () => r.result.createObjectStore('f'); r.onsuccess = () => res(this.db = r.result); r.onerror = () => rej(r.error); }); },
+  async put(k, v) { const d = await this.open(); return new Promise(r => { const t = d.transaction('f', 'readwrite'); t.objectStore('f').put(v, k); t.oncomplete = () => r(true); t.onerror = () => r(false); }); },
+  async get(k) { const d = await this.open(); return new Promise(r => { const q = d.transaction('f').objectStore('f').get(k); q.onsuccess = () => r(q.result); q.onerror = () => r(null); }); },
+};
+let fileEl = null, fileName = '', fileOn = false, fileDur = 0;
+function attachFile(blob, name) {
+  if (fileEl) { fileEl.pause(); URL.revokeObjectURL(fileEl.src); }
+  fileEl = new Audio(URL.createObjectURL(blob)); fileEl.preload = 'auto'; fileName = name;
+  fileEl.addEventListener('loadedmetadata', () => { fileDur = fileEl.duration || 0; paintMusic(); });
+  fileEl.addEventListener('timeupdate', () => { const end = vc.fe > vc.fs ? vc.fe : fileDur; if (fileOn && end && fileEl.currentTime >= end - .05) fileEl.currentTime = vc.fs; });
+  fileEl.addEventListener('ended', () => { if (fileOn) { fileEl.currentTime = vc.fs; fileEl.play().catch(() => {}); } });
+}
+idb.get('music').then(r => { if (r && r.blob) { attachFile(r.blob, r.name); paintMusic(); } }).catch(() => {});
+function fileStart() { if (!fileEl) return; fileOn = true; try { fileEl.currentTime = vc.fs || 0; } catch (e) {} fileEl.volume = Math.min(1, mVol()); fileEl.play().catch(() => {}); }
+function fileStop() { if (fileEl && fileOn) { fileOn = false; fileEl.pause(); } }
+
+/* ---- 목소리 (폰의 한국어 음성 사용) ---- */
+let voices = [];
+function loadVoices() { try { voices = speechSynthesis.getVoices().filter(v => /^ko/i.test(v.lang)); } catch (e) { voices = []; } }
+if ('speechSynthesis' in window) { loadVoices(); speechSynthesis.onvoiceschanged = () => { loadVoices(); paintVoice(); }; }
+const MALE = /male\b|남|man|InJoon|Hyunsu|Minsang|Bong|ko-kr-x-kod|ko-kr-x-koc|ko-KR-Standard-C|ko-KR-Standard-D|Wavenet-C|Wavenet-D/i;
+const FEMALE = /female|여|SunHi|Yuna|Heami|Seoyeon|JiMin|ko-kr-x-koa|ko-kr-x-kob|Standard-A|Standard-B/i;
+function pickVoice(role) {
+  const name = role === 'work' ? vc.wVoice : vc.rVoice;
+  return voices.find(v => v.name === name) || voices.find(v => (role === 'work' ? MALE : FEMALE).test(v.name) && !(role === 'work' ? /female/i : /\bmale\b/i).test(v.name)) || voices[0] || null;
+}
+function say(text, role, done) {
+  if (vc.muted || !('speechSynthesis' in window) || !text) { done && done(); return; }
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text); u.lang = 'ko-KR';
+    const v = pickVoice(role); if (v) u.voice = v;
+    u.pitch = role === 'work' ? vc.wPitch : vc.rPitch; u.rate = role === 'work' ? 1.12 : 1.0; u.volume = vc.vvol;
+    let fin = false; const end = () => { if (fin) return; fin = true; duck(false); done && done(); };
+    u.onstart = () => duck(true); u.onend = end; u.onerror = end;
+    speechSynthesis.speak(u);
+    setTimeout(end, 1200 + text.length * 160);   // 일부 폰에서 onend가 안 오는 경우 대비
+  } catch (e) { done && done(); }
+}
+
+/* ---- 미리 듣기 ---- */
+let pv = {kind: null, t: 0};
+function stopPreview() { clearTimeout(pv.t); pv.kind = null; musicStop(); try { speechSynthesis.cancel(); } catch (e) {} paintMusic(); }
+function preview(kind, style) {
+  const same = pv.kind === kind + style; stopPreview(); if (same) return;
+  ensureAudio(); pv.kind = kind + style; paintMusic();
+  const my = pv.kind, alive = () => pv.kind === my;
+  if (kind === 'w') {
+    musicStart(style);
+    pv.t = setTimeout(() => alive() && say(vc.wOn && vc.wSay ? fill(P('workStart'), 45) : '', 'work', () => {
+      pv.t = setTimeout(() => { if (!alive()) return; M.hot = true; say(vc.wOn ? fill(P('workWarn'), 45, 15) : '', 'work', () => { pv.t = setTimeout(() => alive() && stopPreview(), 3500); }); }, 2500);
+    }), 600);
+  } else {
+    musicStart(style);
+    pv.t = setTimeout(() => alive() && say(vc.rOn ? fill(P('restStart'), 60) : '', 'rest', () => {
+      pv.t = setTimeout(() => alive() && say(vc.rOn && vc.rHalf ? fill(P('restHalf'), 60, 30) : '', 'rest', () => { pv.t = setTimeout(() => alive() && stopPreview(), 2500); }), 1500);
+    }), 500);
+  }
+}
+
+/* ================= 설정 화면 ================= */
+function stepper(k, label, val, sub) { return `<div class="row"><span class="lb">${label}${sub ? ` <small>${sub}</small>` : ''}</span><span class="step"><button data-v="${k}" data-d="-1">−</button><b>${val}</b><button data-v="${k}" data-d="1">+</button></span></div>`; }
+function tog(k, label, on, sub) { return `<div class="row"><span class="lb">${label}${sub ? ` <small>${sub}</small>` : ''}</span><button class="tog ${on ? 'on' : ''}" data-t="${k}">${on ? '켜짐' : '꺼짐'}</button></div>`; }
+const VSTEP = {wWarn: [5, 0, 60], rWarn: [5, 0, 60], mvol: [.1, 0, 1], vvol: [.1, .1, 1], wPitch: [.1, .1, 2], rPitch: [.1, .1, 2], fs: [5, 0, 3600], fe: [5, 0, 3600]};
 function paintSetup() {
   $('#rows').innerHTML = FIELDS.map(([k, n, , , , u, col]) => `<div class="row"><span class="lb">${col ? `<i style="background:var(${col})"></i>` : ''}${n}</span><span class="step"><button data-k="${k}" data-d="-1">−</button><b>${u ? fmt(cfg[k]) + (cfg[k] >= 60 ? '' : '초') : cfg[k]}</b><button data-k="${k}" data-d="1">+</button></span></div>`).join('')
     + `<div class="row"><span class="lb">사이클마다 준비</span><button class="tog ${cfg.prepEach ? 'on' : ''}" id="pe">${cfg.prepEach ? '켜짐' : '꺼짐'}</button></div>`;
   const st = build(cfg), tot = st.reduce((a, x) => a + x.d, 0);
   $('#sum').textContent = `총 ${fmtLong(tot)} · 운동 ${cfg.cycles * cfg.rounds}회`;
   document.querySelectorAll('[data-k]').forEach(b => {
-    let hold = null;
-    const bump = () => { const f = FIELDS.find(x => x[0] === b.dataset.k); cfg[f[0]] = Math.min(f[4], Math.max(f[3], cfg[f[0]] + f[2] * +b.dataset.d)); ls.set('wt.cfg', cfg); paintSetup(); };
-    b.onclick = bump;
+    b.onclick = () => { const f = FIELDS.find(x => x[0] === b.dataset.k); cfg[f[0]] = Math.min(f[4], Math.max(f[3], cfg[f[0]] + f[2] * +b.dataset.d)); ls.set('wt.cfg', cfg); paintSetup(); };
   });
   $('#pe').onclick = () => { cfg.prepEach = !cfg.prepEach; ls.set('wt.cfg', cfg); paintSetup(); };
   $('#resume').hidden = !S.steps;
+  paintMusic(); paintVoice();
+}
+function chip(kind, style, label, sel) { const playing = pv.kind === kind + style; return `<button class="chip ${kind === 'r' ? 'rs' : ''} ${sel ? 'on' : ''} ${playing ? 'play' : ''}" data-m="${kind}" data-s="${style}">${label}</button>`; }
+function paintMusic() {
+  const box = $('#mrows'); if (!box) return;
+  const w = [['A', 'A 행진'], ['B', 'B 전투'], ['C', 'C 질주'], ['file', '내 음악'], ['none', '없음']];
+  const r = [['calm', '잔잔'], ['file', '내 음악'], ['none', '없음']];
+  const end = vc.fe > vc.fs ? vc.fe : fileDur;
+  box.innerHTML = `<div class="row"><span class="lb"><i style="background:var(--work)"></i>운동</span><span class="chips">${w.map(([s, l]) => chip('w', s, l, vc.wMusic === s)).join('')}</span></div>`
+    + `<div class="row"><span class="lb"><i style="background:var(--rest)"></i>휴식</span><span class="chips">${r.map(([s, l]) => chip('r', s, l, vc.rMusic === s)).join('')}</span></div>`
+    + stepper('mvol', '음악 크기', Math.round(vc.mvol * 100) + '%')
+    + `<div class="row"><span class="lb">내 음악 <span class="fn">${fileName ? fileName : '없음'}</span></span><button class="tog" id="pick">파일 넣기</button><input type="file" id="file" accept="audio/*" hidden></div>`
+    + (fileName ? stepper('fs', '하이라이트 시작', fmt(vc.fs)) + stepper('fe', '하이라이트 끝', vc.fe > vc.fs ? fmt(vc.fe) : '끝까지', fileDur ? '곡 ' + fmt(fileDur) : '')
+      + `<div class="row"><span class="lb">구간 ${fmt(vc.fs)}~${end ? fmt(end) : '끝'} 반복</span>${chip('f', 'file', '구간 듣기', false)}</div>` : '');
+  box.querySelectorAll('[data-m]').forEach(b => b.onclick = () => {
+    const k = b.dataset.m, s = b.dataset.s;
+    if (k === 'f') return preview('f', 'file');
+    if (s === 'file' && !fileEl) { $('#file').click(); return; }
+    if (k === 'w') vc.wMusic = s; else vc.rMusic = s; saveV();
+    if (s === 'none') { stopPreview(); return; }
+    preview(k, s);
+  });
+  box.querySelectorAll('[data-v]').forEach(bindV);
+  $('#pick').onclick = () => $('#file').click();
+  $('#file').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    attachFile(f, f.name); vc.fs = 0; vc.fe = 0; saveV();
+    await idb.put('music', {blob: f, name: f.name}); paintMusic();
+  };
+}
+function bindV(b) {
+  b.onclick = () => {
+    const k = b.dataset.v, [st, mn, mx] = VSTEP[k];
+    let v = Math.round((vc[k] + st * +b.dataset.d) * 100) / 100;
+    if (k === 'fe' && vc.fe <= vc.fs && +b.dataset.d > 0) v = vc.fs + 5;   // '끝까지' → 시작+5초
+    if (k === 'fe' && v <= vc.fs) v = 0;
+    if ((k === 'fs' || k === 'fe') && fileDur) v = Math.min(v, Math.floor(fileDur));
+    vc[k] = Math.min(mx, Math.max(mn, v)); saveV();
+    if (k === 'mvol' && (M.style || fileOn)) { setMg(mVol(), .1); if (fileEl) fileEl.volume = Math.min(1, mVol()); }
+    paintMusic(); paintVoice();
+  };
+}
+function vSelect(k) {
+  if (!voices.length) return `<small style="color:#888">이 기기 기본 음성</small>`;
+  const cur = pickVoice(k === 'wVoice' ? 'work' : 'rest');
+  return `<select data-sel="${k}">${voices.map(v => `<option value="${v.name}" ${cur && cur.name === v.name ? 'selected' : ''}>${v.name.replace(/Korean|한국어|\(.*?\)/g, '').trim() || v.name}</option>`).join('')}</select>`;
+}
+function paintVoice() {
+  const box = $('#vrows'); if (!box) return;
+  box.innerHTML = tog('wOn', '운동 음성', vc.wOn, '남자·박력')
+    + (vc.wOn ? tog('wSay', '　시작 때 「45초!」', vc.wSay) + stepper('wWarn', '　남은 시간 알림', vc.wWarn ? vc.wWarn + '초' : '끔', '0=끔')
+      + `<div class="row"><span class="lb">　목소리</span>${vSelect('wVoice')}</div>` + stepper('wPitch', '　굵기', vc.wPitch.toFixed(1), '낮을수록 굵음') : '')
+    + tog('rOn', '휴식 음성', vc.rOn, '여자·응원')
+    + (vc.rOn ? tog('rHalf', '　50% 지점 알림', vc.rHalf) + stepper('rWarn', '　남은 시간 알림', vc.rWarn ? vc.rWarn + '초' : '끔', '0=끔')
+      + `<div class="row"><span class="lb">　목소리</span>${vSelect('rVoice')}</div>` + stepper('rPitch', '　높이', vc.rPitch.toFixed(1), '높을수록 밝음') : '')
+    + stepper('vvol', '음성 크기', Math.round(vc.vvol * 100) + '%')
+    + `<div class="row"><span class="lb">목소리만 들어보기</span><span class="chips"><button class="chip" id="tw">운동</button><button class="chip rs" id="tr">휴식</button></span></div>`;
+  box.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { vc[b.dataset.t] = !vc[b.dataset.t]; saveV(); paintVoice(); });
+  box.querySelectorAll('[data-v]').forEach(bindV);
+  box.querySelectorAll('[data-sel]').forEach(s => s.onchange = () => { vc[s.dataset.sel] = s.value; saveV(); });
+  $('#tw').onclick = () => say(fill(P('workStart'), cfg.work), 'work');
+  $('#tr').onclick = () => say(fill(P('restStart'), cfg.rest), 'rest');
+}
+function paintPhrases() {
+  const L = {workStart: '운동 시작', workWarn: '운동 남은 시간', restStart: '휴식 시작', restHalf: '휴식 50%', restWarn: '휴식 남은 시간', crestStart: '사이클 휴식 시작'};
+  $('#phrBox').innerHTML = Object.keys(L).map(k => `<label>${L[k]}</label><textarea class="ph" rows="2" data-p="${k}">${P(k)}</textarea>`).join('') + `<button class="sec" id="phReset">문구 기본값으로</button>`;
+  $('#phrBox').querySelectorAll('[data-p]').forEach(t => t.oninput = () => { vc.ph = vc.ph || {}; vc.ph[t.dataset.p] = t.value; saveV(); });
+  $('#phReset').onclick = () => { vc.ph = {}; saveV(); paintPhrases(); };
 }
 $('#reset').onclick = () => { cfg = Object.assign({}, DEF); ls.set('wt.cfg', cfg); paintSetup(); };
 
-/* ---------- 타이머 ---------- */
-const S = {steps: null, i: 0, endAt: 0, left: 0, paused: false, t0: 0, raf: 0, lastSec: -1};
-let audio = null, wake = null;
-function beep(f = 880, ms = 120, vol = .25) {
-  try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); const o = audio.createOscillator(), g = audio.createGain(); o.frequency.value = f; g.gain.value = vol; o.connect(g); g.connect(audio.destination); o.start(); o.stop(audio.currentTime + ms / 1000); } catch (e) {}
-}
+/* ================= 타이머 ================= */
+const S = {steps: null, i: 0, endAt: 0, left: 0, paused: false, t0: 0, raf: 0, lastSec: -1, said: {}};
+let wake = null;
 const vib = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
 const CUE = {work: [[600], 1046], rest: [[200, 100, 200], 660], crest: [[200, 100, 200, 100, 200], 523], prep: [[150], 784], done: [[800, 200, 800], 392]};
 async function keepAwake() { try { if ('wakeLock' in navigator) { wake = await navigator.wakeLock.request('screen'); } } catch (e) {} }
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.steps && !S.paused) { keepAwake(); tick(); } });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.steps && !S.paused) { keepAwake(); ensureAudio(); tick(); } });
 
+function phaseSound(s, silent) {
+  if (s.ph === 'work') { musicStart(vc.wMusic); if (!silent && vc.wOn && vc.wSay) setTimeout(() => say(fill(P('workStart'), s.d), 'work'), 250); }
+  else if (s.ph === 'rest' || s.ph === 'crest') { musicStart(vc.rMusic); if (!silent && vc.rOn) setTimeout(() => say(fill(P(s.ph === 'crest' ? 'crestStart' : 'restStart'), s.d), 'rest'), 300); }
+  else { musicStop(); if (!silent && s.ph === 'done' && vc.wOn) say('끝! 수고했다!', 'work'); }
+}
 function enter(i, silent) {
   S.i = Math.max(0, Math.min(S.steps.length - 1, i));
   const s = S.steps[S.i];
-  S.left = s.d; S.endAt = performance.now() + s.d * 1000; S.lastSec = -1;
+  S.left = s.d; S.endAt = performance.now() + s.d * 1000; S.lastSec = -1; S.said = {};
   if (!silent) { const c = CUE[s.ph]; vib(c[0]); beep(c[1], 220, .35); }
+  if (!S.paused) phaseSound(s, silent);
   paint();
 }
 function start(resume) {
-  if (!resume || !S.steps) { S.steps = build(cfg); S.t0 = Date.now(); enter(0); }
-  S.paused = false;
+  stopPreview(); ensureAudio();
+  if (fileEl) { const v = fileEl.volume; fileEl.volume = 0; fileEl.play().then(() => { if (!fileOn) fileEl.pause(); fileEl.volume = v; }).catch(() => {}); }  // 폰 자동재생 허용 받기
+  if (!resume || !S.steps) { S.steps = build(cfg); S.t0 = Date.now(); S.paused = false; enter(0); }
+  else { S.paused = false; S.endAt = performance.now() + S.left * 1000; phaseSound(S.steps[S.i], true); }
   $('#setup').classList.remove('on'); $('#run').hidden = false;
-  keepAwake(); beep(1, 1, 0); loop();
+  keepAwake(); loop(); paintMute();
 }
 function loop() { cancelAnimationFrame(S.raf); const f = () => { tick(); S.raf = requestAnimationFrame(f); }; S.raf = requestAnimationFrame(f); }
+setInterval(() => { if (document.visibilityState !== 'visible') tick(); }, 250);   // 화면 꺼져도 음성 시점 놓치지 않게
+function cues(s, sec) {
+  const once = (k, fn) => { if (!S.said[k]) { S.said[k] = 1; fn(); } };
+  if (s.ph === 'work' && vc.wOn && vc.wWarn && sec === vc.wWarn && s.d >= vc.wWarn + 5) once('w', () => { M.hot = true; say(fill(P('workWarn'), s.d, sec), 'work'); });
+  if ((s.ph === 'rest' || s.ph === 'crest') && vc.rOn) {
+    const half = Math.ceil(s.d / 2);
+    if (vc.rHalf && sec === half && s.d >= 20 && Math.abs(half - vc.rWarn) > 6) once('h', () => say(fill(P('restHalf'), s.d, sec), 'rest'));
+    if (vc.rWarn && sec === vc.rWarn && s.d >= vc.rWarn + 8) once('r', () => say(fill(P('restWarn'), s.d, sec), 'rest'));
+  }
+}
 function tick() {
   if (!S.steps || S.paused) return;
   const s = S.steps[S.i]; if (s.ph === 'done') return;
@@ -170,7 +435,7 @@ function tick() {
   if (S.steps[S.i].ph === 'done') return paint();
   S.left = (S.endAt - now) / 1000;
   const sec = Math.ceil(S.left);
-  if (sec !== S.lastSec) { S.lastSec = sec; if (sec <= 3 && sec >= 1) { beep(740, 90, .22); vib(60); } paint(); }
+  if (sec !== S.lastSec) { S.lastSec = sec; cues(S.steps[S.i], sec); if (sec <= 3 && sec >= 1) { beep(740, 90, .22); vib(60); } paint(); }
   else paintArc();
 }
 function paintArc() {
@@ -181,7 +446,7 @@ function paint() {
   const s = S.steps[S.i], n = S.steps[S.i + 1];
   const run = $('#run'); run.dataset.ph = s.ph; run.classList.toggle('paused', S.paused);
   $('#phase').textContent = NAMES[s.ph];
-  $('#time').textContent = s.ph === 'done' ? '✓' : fmt(S.paused ? S.left : S.left);
+  $('#time').textContent = s.ph === 'done' ? '✓' : fmt(S.left);
   $('#pos').textContent = s.ph === 'done' ? `${cfg.cycles}사이클 완료` : `사이클 ${s.cy}/${cfg.cycles} · 라운드 ${s.r}/${cfg.rounds}`;
   $('#next').textContent = n ? `다음 ${NAMES[n.ph]}${n.d ? ' ' + fmt(n.d) : ''}` : '';
   const remain = S.steps.slice(S.i + 1).reduce((a, x) => a + x.d, 0) + Math.max(0, S.left);
@@ -191,9 +456,9 @@ function paint() {
 }
 function togglePause() {
   if (!S.steps) return;
-  if (S.steps[S.i].ph === 'done') { enter(0); S.t0 = Date.now(); S.paused = false; return paint(); }
-  if (S.paused) { S.paused = false; S.endAt = performance.now() + S.left * 1000; vib(80); }
-  else { tick(); S.paused = true; vib([80, 80, 80]); }
+  if (S.steps[S.i].ph === 'done') { S.paused = false; enter(0); S.t0 = Date.now(); return paint(); }
+  if (S.paused) { S.paused = false; S.endAt = performance.now() + S.left * 1000; vib(80); ensureAudio(); phaseSound(S.steps[S.i], true); }
+  else { tick(); S.paused = true; vib([80, 80, 80]); musicStop(); try { speechSynthesis.cancel(); } catch (e) {} }
   paint();
 }
 function go(d) {
@@ -203,6 +468,8 @@ function go(d) {
   else enter(S.i + d);
   if (S.paused) { S.left = S.steps[S.i].d; paint(); }
 }
+function paintMute() { $('#muteBtn').textContent = vc.muted ? '소리 끔' : '소리'; $('#muteBtn').style.opacity = vc.muted ? .55 : 1; }
+$('#muteBtn').onclick = e => { e.stopPropagation(); vc.muted = !vc.muted; saveV(); paintMute(); if (vc.muted) { musicStop(); try { speechSynthesis.cancel(); } catch (x) {} } else if (!S.paused && S.steps) phaseSound(S.steps[S.i], true); };
 $('#start').onclick = () => start(false);
 $('#resume').onclick = () => start(true);
 $('#pp').onclick = e => { e.stopPropagation(); togglePause(); };
@@ -210,6 +477,8 @@ $('#prev').onclick = e => { e.stopPropagation(); go(-1); };
 $('#nxt').onclick = e => { e.stopPropagation(); go(1); };
 $('#core').onclick = togglePause;
 $('#menuBtn').onclick = e => { e.stopPropagation(); if (!S.paused) togglePause(); $('#run').hidden = true; $('#setup').classList.add('on'); paintSetup(); };
+document.querySelectorAll('[data-fs]').forEach(b => b.onclick = e => { e.stopPropagation(); try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (x) {} });
+$('#phr').addEventListener('toggle', () => { if ($('#phr').open) paintPhrases(); });
 /* 좌우 스와이프 = 이전/다음 */
 let sx = null, sy = null;
 $('#run').addEventListener('touchstart', e => { const t = e.touches[0]; sx = t.clientX; sy = t.clientY; }, {passive: true});
