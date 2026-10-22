@@ -12,66 +12,90 @@
 html,body{height:100%;background:var(--bg);color:var(--ink);font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
 button,select,input,textarea{font:inherit;color:inherit;border:0;background:none}
 button{cursor:pointer}
+a{color:#F5C400}
 /* ---------- 실행 화면 ---------- */
-#run{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;transition:background-color .25s}
+#run{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;transition:background-color .25s;overflow:hidden}
 #run[data-ph=prep]{background:var(--prep);color:#111}
 #run[data-ph=work]{background:var(--work)}
 #run[data-ph=rest]{background:var(--rest);color:#062}
-#run[data-ph=crest]{background:var(--crest)}
+#run[data-ph=rrest],#run[data-ph=irest]{background:var(--crest)}
 #run[data-ph=done]{background:var(--done)}
-#run.paused::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(0,0,0,.18) 0 14px,transparent 14px 28px);pointer-events:none}
-#ring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-#ring circle{fill:none;stroke-width:6}
+#bgimg{position:absolute;inset:0;background:center/cover no-repeat;pointer-events:none;z-index:0}
+#run.paused::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(0,0,0,.18) 0 14px,transparent 14px 28px);pointer-events:none;z-index:1}
+#ring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+#ring circle{fill:none;stroke-width:5}
 #ring .bgc{stroke:rgba(0,0,0,.18)}
 #ring .fg{stroke:currentColor;stroke-linecap:round;transition:stroke-dashoffset .2s linear}
-.core{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.6vmin;width:76vmin;transform:translateY(-3vmin)}
-#phase{font-size:10vmin;font-weight:900;letter-spacing:-.02em;line-height:1}
-#time{font-size:25vmin;font-weight:900;font-variant-numeric:tabular-nums;line-height:.95;letter-spacing:-.04em}
-#pos{font-size:5.2vmin;font-weight:800;opacity:.92;white-space:nowrap}
-#next{font-size:4.6vmin;opacity:.8;min-height:1.2em;white-space:nowrap}
+.core{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.5vmin;width:80vmin;transform:translateY(-9vmin)}
+#exn{font-size:9vmin;font-weight:900;line-height:1.05;text-shadow:0 2px 10px rgba(0,0,0,.35)}
+#phase{font-size:5.5vmin;font-weight:800;opacity:.9}
+#time{font-size:24vmin;font-weight:900;font-variant-numeric:tabular-nums;line-height:.95;letter-spacing:-.04em;text-shadow:0 3px 14px rgba(0,0,0,.3)}
+#pos{font-size:5.4vmin;font-weight:900;white-space:nowrap}
+#prog{font-size:4.2vmin;font-weight:700;opacity:.9;white-space:nowrap}
+#next{font-size:4vmin;opacity:.8;min-height:1.2em;white-space:nowrap}
 #pauseTag{font-size:5vmin;font-weight:900;background:rgba(0,0,0,.55);color:#fff;padding:.5vmin 3vmin;border-radius:99px;display:none}
 #run.paused #pauseTag{display:inline-block}
-.ctrl{position:absolute;z-index:3;left:0;right:0;bottom:7vmin;display:flex;justify-content:center;align-items:flex-end;gap:3vmin}
-.ctrl button{width:14vmin;height:14vmin;border-radius:50%;background:rgba(0,0,0,.28);color:inherit;font-size:7vmin;font-weight:900;display:flex;align-items:center;justify-content:center}
+#cap{position:absolute;z-index:3;left:4vmin;right:4vmin;bottom:27vmin;text-align:center;font-size:6.4vmin;font-weight:900;line-height:1.25;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.85),0 0 2px #000;transition:opacity .35s;word-break:keep-all}
+#cap.fade{opacity:0}
+#run[data-ph=done] #cap{bottom:30vmin}
+.ctrl{position:absolute;z-index:3;left:0;right:0;bottom:6vmin;display:flex;justify-content:center;align-items:flex-end;gap:3vmin}
+.ctrl button{width:14vmin;height:14vmin;border-radius:50%;background:rgba(0,0,0,.3);color:inherit;font-size:7vmin;font-weight:900;display:flex;align-items:center;justify-content:center}
 .ctrl #prev,.ctrl #nxt{margin-bottom:5vmin}
 .ctrl button:active{background:rgba(0,0,0,.5)}
-#run[data-ph=prep] .ctrl button,#run[data-ph=rest] .ctrl button{background:rgba(0,0,0,.14)}
-#menuBtn{position:absolute;z-index:3;top:6vmin;left:50%;transform:translateX(-50%);font-size:4.2vmin;font-weight:700;padding:.6vmin 3.5vmin;border-radius:99px;background:rgba(0,0,0,.25)}
-#muteBtn{position:absolute;z-index:3;top:6vmin;left:6vmin;font-size:4.2vmin;font-weight:700;padding:.6vmin 2.6vmin;border-radius:99px;background:rgba(0,0,0,.25)}
-.fsb{position:absolute;z-index:4;top:6vmin;right:6vmin;font-size:4.2vmin;padding:.6vmin 2.4vmin;border-radius:99px;background:rgba(0,0,0,.25)}
-#total{position:absolute;z-index:3;top:14vmin;left:0;right:0;text-align:center;font-size:4.4vmin;opacity:.8;font-variant-numeric:tabular-nums}
+.tb{position:absolute;z-index:4;top:5vmin;left:4vmin;right:4vmin;display:flex;justify-content:space-between;gap:2vmin}
+.tb button{font-size:4.2vmin;font-weight:800;padding:.8vmin 3vmin;border-radius:99px;background:rgba(0,0,0,.3)}
+#total{position:absolute;z-index:3;top:14vmin;left:0;right:0;text-align:center;font-size:4.2vmin;opacity:.85;font-variant-numeric:tabular-nums;font-weight:700}
+#left{position:absolute;inset:0;z-index:9;background:rgba(0,0,0,.88);color:#fff;padding:8vmin 6vmin;overflow-y:auto}
+#left h3{font-size:5.5vmin;margin-bottom:3vmin}
+#left .it{display:flex;justify-content:space-between;gap:3vmin;font-size:5vmin;padding:2.2vmin 0;border-bottom:1px solid #333}
+#left .it.cur{color:#F5C400;font-weight:900}
+#left .it.ok{opacity:.45;text-decoration:line-through}
+#left p{font-size:4vmin;color:#aaa;margin-top:4vmin;text-align:center}
 /* ---------- 설정 화면 ---------- */
-#setup{position:fixed;inset:0;overflow-y:auto;background:#0b0b0b;padding:max(8vmin,16px) max(6vmin,14px) 14vmin;display:none}
+#setup{position:fixed;inset:0;overflow-y:auto;background:#0b0b0b;padding:14px 14px 60px;display:none}
 #setup.on{display:block}
-#setup h1{font-size:max(6vmin,17px);text-align:center;margin-bottom:2vmin}
-#setup .fsb{position:absolute;top:12px;right:12px;font-size:15px;padding:4px 10px;background:#262626}
-h2{font-size:13px;color:#F5C400;margin:18px 0 2px;letter-spacing:.02em}
+#setup .fsb{position:absolute;top:10px;right:12px;font-size:15px;padding:4px 10px;border-radius:99px;background:#262626}
+.wrap{max-width:560px;margin:0 auto}
+h2{font-size:13px;color:#F5C400;margin:16px 0 2px}
+h2:first-child{margin-top:4px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #1d1d1d;flex-wrap:wrap}
 .row .lb{font-size:14px;display:flex;align-items:center;gap:7px;min-width:0}
 .row .lb i{width:10px;height:10px;border-radius:50%;display:inline-block}
-.row .lb small{color:#888;font-size:11px}
-.step{display:flex;align-items:center;gap:6px}
-.step button{width:32px;height:32px;border-radius:50%;background:#262626;font-size:17px;font-weight:900}
-.step b{min-width:46px;text-align:center;font-size:15px;font-variant-numeric:tabular-nums}
+.row .lb small,small.g{color:#888;font-size:11px}
+.step{display:flex;align-items:center;gap:5px}
+.step button{width:30px;height:30px;border-radius:50%;background:#262626;font-size:16px;font-weight:900}
+.step b{min-width:44px;text-align:center;font-size:14px;font-variant-numeric:tabular-nums}
 .tog{font-size:13px;padding:5px 12px;border-radius:99px;background:#262626}
 .tog.on{background:#F5C400;color:#111;font-weight:800}
 .chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.pal{justify-content:flex-start;padding:6px 0}
 .chip{font-size:13px;padding:6px 11px;border-radius:99px;background:#262626;white-space:nowrap}
 .chip.on{background:#FF4D2E;font-weight:800}
 .chip.rs.on{background:#22C55E;color:#062}
+.chip.add{border:1px dashed #555;background:none}
 .chip.play::after{content:" ♪";animation:bl .6s infinite alternate}
 @keyframes bl{to{opacity:.2}}
+.rt{border:1px solid #262626;border-radius:12px;margin:6px 0;overflow:hidden}
+.rt .hd{display:flex;align-items:center;gap:8px;padding:9px 10px;cursor:pointer}
+.rt .hd b{font-size:15px}
+.rt .hd span{font-size:12px;color:#aaa;flex:1;min-width:0}
+.rt .hd em{font-style:normal;font-size:11px;color:#666}
+.rt .bd{padding:0 10px 6px;background:#111}
+.rt .bd .row{border-color:#1a1a1a}
+.mini{font-size:12px;padding:5px 10px;border-radius:99px;background:#262626}
 select{background:#262626;border-radius:8px;padding:5px 6px;font-size:12px;max-width:52vw}
 .ph{display:block;width:100%;margin-top:4px;background:#161616;border:1px solid #262626;border-radius:8px;padding:6px 8px;font-size:13px;user-select:text;-webkit-user-select:text}
 details{border-bottom:1px solid #1d1d1d;padding:7px 0}
 summary{font-size:14px;cursor:pointer}
 details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
-.sum{text-align:center;font-size:13px;color:#aaa;margin:14px 0 8px}
+.guide{font-size:12px;color:#bbb;line-height:1.6;padding:6px 0 4px}
+.guide ol{padding-left:18px}
+.sum{text-align:center;font-size:13px;color:#aaa;margin:12px 0 6px}
 .go{display:block;width:100%;padding:13px;border-radius:99px;background:#FF4D2E;font-size:18px;font-weight:900;margin-top:6px}
 .sec{display:block;width:100%;padding:10px;border-radius:99px;background:#262626;font-size:14px;margin-top:8px}
 .hint{font-size:12px;color:#888;text-align:center;margin-top:12px;line-height:1.5}
-.fn{font-size:12px;color:#aaa;max-width:60vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-@media (min-width:560px){#setup>.wrap{max-width:560px;margin:0 auto}.core{width:min(78vmin,520px)}}
+.fn{font-size:12px;color:#aaa;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (min-width:560px){.core{width:min(80vmin,560px)}}
 </style>
 </head>
 <body>
@@ -79,8 +103,9 @@ details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
 <div id="setup" class="on">
  <button class="fsb" data-fs>⛶</button>
  <div class="wrap">
-  <h1>운동 타이머</h1>
-  <h2>시간</h2>
+  <h2>오늘 할 운동 <small class="g">누르면 추가 · 길게 누르면 이름 바꾸기/지우기</small></h2>
+  <div class="chips pal" id="pal"></div>
+  <div id="rtList"></div>
   <div id="rows"></div>
   <div class="sum" id="sum"></div>
   <button class="go" id="start">시작</button>
@@ -88,86 +113,117 @@ details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
 
   <h2>음악 — 누르면 바로 들려줌 (다시 누르면 정지)</h2>
   <div id="mrows"></div>
+  <h2>자막·배경</h2>
+  <div id="crows"></div>
   <h2>음성 안내</h2>
   <div id="vrows"></div>
-  <details id="phr"><summary>문구 고치기 <small style="color:#888">{초}=구간 길이 · {남}=남은 시간</small></summary><div id="phrBox"></div></details>
+  <details id="vguide"><summary>목소리 바꾸기 (갤럭시)</summary>
+   <div class="guide"><ol>
+    <li><a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank" rel="noopener">구글 음성 서비스(Speech Services by Google)</a> 설치·업데이트</li>
+    <li>폰 <b>설정 → 일반 → 텍스트 음성 변환</b> (검색창에 「텍스트 음성」 입력해도 됨)</li>
+    <li><b>기본 엔진</b> → 「Google 음성 인식 및 합성」 선택</li>
+    <li>엔진 옆 ⚙ → <b>음성 데이터 설치</b> → 한국어 → 목소리 받기 (남자 목소리 포함)</li>
+    <li>이 앱을 껐다 켜고 아래 「목소리」 목록에서 고르기</li>
+   </ol>삼성 엔진을 쓰려면 3번에서 「삼성 TTS 엔진」 → ⚙ → 음성 데이터 설치.</div></details>
+  <details id="phr"><summary>말·자막 문구 고치기</summary><div id="phrBox"></div></details>
 
-  <button class="sec" id="reset">시간만 기본값으로</button>
-  <p class="hint">실행 중: 가운데 탭 = 멈춤/계속 · ‹ 이전 단계 · › 다음 단계 · 좌우로 밀어도 이동<br>목소리 종류는 폰에 깔린 한국어 음성에 따라 다름 · 설정은 이 기기에 저장</p>
+  <button class="sec" id="reset">운동 목록 기본값으로</button>
+  <p class="hint">실행 중: 가운데 탭 = 멈춤/계속 · ‹ 이전 · › 다음 · 좌우로 밀어도 이동 · 「남은」 = 남은 운동 보기<br>설정·사진·음악은 이 기기에만 저장</p>
  </div>
 </div>
 
 <div id="run" data-ph="prep" hidden>
-  <svg id="ring" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><circle class="bgc" cx="50" cy="50" r="46"/><circle class="fg" id="arc" cx="50" cy="50" r="46" transform="rotate(-90 50 50)"/></svg>
-  <button id="muteBtn">소리</button>
-  <button id="menuBtn">설정</button>
-  <button class="fsb" data-fs>⛶</button>
+  <div id="bgimg"></div>
+  <svg id="ring" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><circle class="bgc" cx="50" cy="50" r="47"/><circle class="fg" id="arc" cx="50" cy="50" r="47" transform="rotate(-90 50 50)"/></svg>
+  <div class="tb"><button id="muteBtn">소리</button><button id="leftBtn">남은</button><button id="menuBtn">설정</button><button data-fs>⛶</button></div>
   <div id="total"></div>
   <div class="core" id="core">
+    <div id="exn"></div>
     <div id="phase">준비</div>
     <div id="time">10</div>
     <div id="pos"></div>
+    <div id="prog"></div>
     <div id="next"></div>
     <span id="pauseTag">멈춤</span>
   </div>
+  <div id="cap"></div>
   <div class="ctrl">
     <button id="prev" aria-label="이전 단계">‹</button>
     <button id="pp" aria-label="멈춤 또는 계속">❚❚</button>
     <button id="nxt" aria-label="다음 단계">›</button>
   </div>
+  <div id="left" hidden></div>
 </div>
 
 <script>
 (() => {
-const DEF = {cycles: 10, rounds: 4, prep: 10, work: 60, rest: 60, crest: 120, prepEach: false};
-const FIELDS = [
-  ['cycles', '사이클', 1, 1, 99, '', null],
-  ['rounds', '라운드/사이클', 1, 1, 20, '', null],
-  ['prep', '준비', 5, 0, 120, 's', '--prep'],
-  ['work', '운동', 5, 5, 600, 's', '--work'],
-  ['rest', '휴식', 5, 0, 600, 's', '--rest'],
-  ['crest', '사이클 간 휴식', 10, 0, 900, 's', '--crest'],
-];
-/* 음성·음악 기본값 */
+/* ================= 운동 목록 ================= */
+const PAL_DEF = ['등운동', '이두운동', '삼두운동', '가슴운동', '어깨운동', '하체운동', '복근운동', '스트레칭', '러닝'];
+const itemFor = nm => /러닝|달리기|유산소|걷기/.test(nm) ? {nm, rounds: 1, sets: 1, work: 1800, rest: 0, rrest: 0}
+  : /스트레칭/.test(nm) ? {nm, rounds: 1, sets: 1, work: 300, rest: 0, rrest: 0}
+  : {nm, rounds: 5, sets: 4, work: 45, rest: 15, rrest: 120};
+const RT_DEF = [itemFor('등운동'), itemFor('이두운동'), itemFor('스트레칭'), itemFor('러닝')];
+const DEF = {prep: 10, irest: 120, rt: RT_DEF, pal: PAL_DEF};
+const IF = [['rounds', '라운드', 1, 1, 30], ['sets', '라운드당 세트', 1, 1, 20], ['work', '운동', 5, 5, 7200], ['rest', '세트 사이 휴식', 5, 0, 600], ['rrest', '라운드 사이 휴식', 10, 0, 900]];
+/* 말·자막 문구 — {종목} {라운드} {세트} {초}=구간 길이 {남}=남은 시간 {남은라운드} {다음종목} */
 const PH_DEF = {
-  workStart: '{초}! 운동 시작! 집중해서 다 털어버려!',
-  workWarn: '{남}! 끝까지 밀어붙여! 멈추지 마!',
-  restStart: '휴식이에요. 스트레칭도 딴 동작도 하지 말고, 방금 쓴 근육을 그냥 놓아주세요.',
-  restHalf: '절반 지났어요. 어깨 힘 빼고, 숨 길게. 근육을 풀어주세요.',
-  restWarn: '{남} 남았어요. 숨 고르고, 다음 세트 준비해요!',
-  crestStart: '사이클 휴식이에요. {초} 동안 물 한 모금 마시고, 쓴 근육을 놓아주세요.',
+  workStart: '{종목} {라운드}라운드 {세트}세트! {초}! 털어버려!',
+  workWarn: '{남}! 끝까지 밀어붙여!',
+  restStart: '{초} 휴식. 쓴 근육을 그냥 놓아주세요.',
+  restWarn: '{남} 남았어요. 다음 세트 준비!',
+  rrestStart: '{라운드}라운드 끝! {남은라운드}라운드 남았어요. {초} 동안 근육을 놓아주세요.',
+  irestStart: '{종목} 끝! 다음은 {다음종목}. {초} 쉬어요.',
+  oneStart: '{종목} 시작! {초}. 자기 페이스로!',
+  done: '오늘 운동 끝! 수고했다!',
+};
+const CAP_DEF = {
+  work: '지금 이 세트만 생각해 | Lock in. This set is all that matters.\n자세 지키고 한 번 더 | One more rep. Hold your form.\n털어버려! | Leave nothing behind!\n숨 내쉬면서 당겨 | Exhale and drive.\n멈추지 마 | Don\'t you dare stop.',
+  rest: '근육을 놓아줘. 스트레칭 말고 그냥 풀어 | Let it go. Just release the muscle.\n어깨 힘 빼고 숨 길게 | Drop the shoulders. Long exhale.\n물 한 모금 | Sip of water.\n심장 내려오는 거 느껴 | Feel your heart rate settle.',
+  long: '내 페이스 유지 | Hold your pace.\n호흡 일정하게 | Steady breathing.\n여기서 몸이 만들어진다 | This is where the body is built.',
 };
 const VDEF = {
   wMusic: 'A', rMusic: 'none', mvol: .55, vvol: 1,
   wOn: true, wSay: true, wWarn: 15,
-  rOn: true, rHalf: true, rWarn: 10,
+  rOn: true, rHalf: false, rWarn: 10,
   wVoice: '', rVoice: '', wPitch: .6, rPitch: 1.2,
-  fs: 0, fe: 0, muted: false, ph: {}
+  fs: 0, fe: 0, muted: false, ph2: {}, cap2: {},
+  capOn: true, capLang: 'mix', capSec: 5, bgOp: .3
 };
-const NAMES = {prep: '준비', work: '운동', rest: '휴식', crest: '사이클 휴식', done: '끝'};
+const NAMES = {prep: '준비', work: '운동', rest: '휴식', rrest: '라운드 휴식', irest: '종목 휴식', done: '끝'};
 const $ = s => document.querySelector(s);
 const ls = {get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }};
-let cfg = Object.assign({}, DEF, ls.get('wt.cfg', {}));
+const clone = o => JSON.parse(JSON.stringify(o));
+let cfg = Object.assign(clone(DEF), ls.get('wt.cfg2', {}));
+if (!ls.get('wt.cfg2', null)) { const old = ls.get('wt.cfg', null); if (old && old.prep != null) cfg.prep = old.prep; }
 let vc = Object.assign({}, VDEF, ls.get('wt.voice', {}));
-const P = k => (vc.ph && vc.ph[k]) || PH_DEF[k];
-const saveV = () => ls.set('wt.voice', vc);
+const saveC = () => ls.set('wt.cfg2', cfg), saveV = () => ls.set('wt.voice', vc);
+const P = k => (vc.ph2 && vc.ph2[k]) || PH_DEF[k];
+const CAPS = k => ((vc.cap2 && vc.cap2[k]) || CAP_DEF[k]).split('\n').map(l => l.split('|').map(x => x.trim())).filter(x => x[0]);
 const fmt = s => { s = Math.max(0, Math.ceil(s)); const m = Math.floor(s / 60), r = s % 60; return m ? `${m}:${String(r).padStart(2, '0')}` : String(r); };
 const fmtLong = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), r = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(r).padStart(2, '0'); };
+const fmtS = s => s >= 60 ? fmt(s) : s + '초';
 const sayDur = s => { s = Math.round(s); const m = Math.floor(s / 60), r = s % 60; return (m ? m + '분' : '') + (r ? (m ? ' ' : '') + r + '초' : ''); };
-const fill = (t, d, left) => t.replace(/\{초\}/g, sayDur(d)).replace(/\{남\}/g, sayDur(left || 0));
+function fill(t, s, left) {
+  const it = cfg.rt[s.ex] || {}, prev = cfg.rt[s.ex - 1] || {};
+  const v = {'종목': s.ph === 'irest' ? prev.nm || '' : it.nm || '', '라운드': s.r, '세트': s.s, '초': sayDur(s.d), '남': sayDur(left || 0), '남은라운드': (it.rounds || 0) - (s.r || 0), '다음종목': it.nm || ''};
+  return t.replace(/\{(종목|라운드|세트|초|남|남은라운드|다음종목)\}/g, (_, k) => v[k]);
+}
 
-/* 단계 목록: 준비 → (운동 → 휴식) × 라운드, 마지막 라운드 뒤엔 휴식 없이 사이클 휴식 → … → 끝 */
+/* 단계 목록: 준비 → [종목: (운동 → 세트 휴식) × 세트, 라운드 휴식] × 라운드 → 종목 휴식 → 다음 종목 … → 끝 */
 function build(c) {
   const st = [];
-  for (let cy = 1; cy <= c.cycles; cy++) {
-    if ((cy === 1 || c.prepEach) && c.prep > 0) st.push({ph: 'prep', d: c.prep, cy, r: 1});
-    for (let r = 1; r <= c.rounds; r++) {
-      st.push({ph: 'work', d: c.work, cy, r});
-      if (r < c.rounds && c.rest > 0) st.push({ph: 'rest', d: c.rest, cy, r});
+  c.rt.forEach((it, ex) => {
+    if (ex === 0 && c.prep > 0) st.push({ph: 'prep', d: c.prep, ex, r: 1, s: 1});
+    if (ex > 0 && c.irest > 0) st.push({ph: 'irest', d: c.irest, ex, r: 1, s: 1});
+    for (let r = 1; r <= it.rounds; r++) {
+      for (let s = 1; s <= it.sets; s++) {
+        st.push({ph: 'work', d: it.work, ex, r, s});
+        if (s < it.sets && it.rest > 0) st.push({ph: 'rest', d: it.rest, ex, r, s});
+      }
+      if (r < it.rounds && it.rrest > 0) st.push({ph: 'rrest', d: it.rrest, ex, r, s: it.sets});
     }
-    if (cy < c.cycles && c.crest > 0) st.push({ph: 'crest', d: c.crest, cy, r: c.rounds});
-  }
-  st.push({ph: 'done', d: 0, cy: c.cycles, r: c.rounds});
+  });
+  st.push({ph: 'done', d: 0, ex: c.rt.length - 1, r: 0, s: 0});
   return st;
 }
 
@@ -197,10 +253,10 @@ function bass(t, v, f, dur) { const o = audio.createOscillator(); o.type = 'sawt
 function pad(t, fs, dur) { fs.forEach(f => { const o = audio.createOscillator(); o.type = 'sine'; o.frequency.value = f; const g = audio.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.09, t + dur * .3); g.gain.linearRampToValueAtTime(0, t + dur); o.connect(g); g.connect(mg); o.start(t); o.stop(t + dur + .05); }); }
 /* 16분음표 16칸 = 1마디. X=강하게 x=보통 r=두두(32분 연타) */
 const PAT = {
-  A: {nm: 'A 행진', bpm: 114, tr: {snare: 'X.rrX.x.X.rrXxXx', kick: 'X.......X.......', tom: '..............x.'}},
-  B: {nm: 'B 전투', bpm: 88, tr: {kick: 'X..x..X...x.X...', tom: '....X.......X.x.', snare: '.......X.....rrX'}, bass: [55, 55, 49, 52]},
-  C: {nm: 'C 질주', bpm: 150, tr: {kick: 'X...X...X...X...', snare: '....X.......X..r', hat: 'xXxXxXxXxXxXxXxX'}, bassP: 'x.x.x.x.x.x.x.x.', bf: [55, 55, 65, 49]},
-  calm: {nm: '잔잔', bpm: 60, pad: [[220, 277, 330], [196, 247, 294], [175, 220, 262], [196, 247, 294]]},
+  A: {bpm: 114, tr: {snare: 'X.rrX.x.X.rrXxXx', kick: 'X.......X.......', tom: '..............x.'}},
+  B: {bpm: 88, tr: {kick: 'X..x..X...x.X...', tom: '....X.......X.x.', snare: '.......X.....rrX'}, bass: [55, 55, 49, 52]},
+  C: {bpm: 150, tr: {kick: 'X...X...X...X...', snare: '....X.......X..r', hat: 'xXxXxXxXxXxXxXxX'}, bassP: 'x.x.x.x.x.x.x.x.', bf: [55, 55, 65, 49]},
+  calm: {bpm: 60, pad: [[220, 277, 330], [196, 247, 294], [175, 220, 262], [196, 247, 294]]},
 };
 const INST = {kick, snare, tom, hat};
 const M = {style: null, step: 0, n: 0, next: 0, timer: 0, hot: false, duck: false};
@@ -209,8 +265,7 @@ function setMg(v, ramp = .15) { if (!mg) return; const t = audio.currentTime; mg
 function playStep(p, s, t, spb) {
   for (const k in (p.tr || {})) {
     const ch = p.tr[k][s]; if (ch === '.') continue;
-    const v = ch === 'X' ? 1 : .6;
-    if (ch === 'r') { INST[k](t, .55); INST[k](t + spb / 2, .45); } else INST[k](t, v);
+    if (ch === 'r') { INST[k](t, .55); INST[k](t + spb / 2, .45); } else INST[k](t, ch === 'X' ? 1 : .6);
   }
   const bar = Math.floor(M.n / 16);
   if (p.bass && s === 0) bass(t, 1, p.bass[bar % p.bass.length], spb * 16 * .95);
@@ -218,10 +273,7 @@ function playStep(p, s, t, spb) {
   if (p.pad && s === 0) pad(t, p.pad[bar % p.pad.length], spb * 16 * 1.05);
   if (M.hot && !p.pad) { snare(t, .22, .06); snare(t + spb / 2, .18, .05); if (s % 4 === 0) kick(t, .7); }
 }
-function sched() {
-  const p = PAT[M.style]; if (!p) return; const spb = 60 / p.bpm / 4;
-  while (M.next < audio.currentTime + .15) { playStep(p, M.step, M.next, spb); M.next += spb; M.step = (M.step + 1) % 16; M.n++; }
-}
+function sched() { const p = PAT[M.style]; if (!p) return; const spb = 60 / p.bpm / 4; while (M.next < audio.currentTime + .15) { playStep(p, M.step, M.next, spb); M.next += spb; M.step = (M.step + 1) % 16; M.n++; } }
 function musicStart(style) {
   musicStop(true);
   if (!style || style === 'none') return;
@@ -230,18 +282,14 @@ function musicStart(style) {
   M.style = style; M.step = 0; M.n = 0; M.hot = false; M.next = audio.currentTime + .06;
   setMg(mVol(), .05); sched(); M.timer = setInterval(sched, 25);
 }
-function musicStop(quick) {
-  clearInterval(M.timer); M.timer = 0; M.style = null; M.hot = false;
-  if (mg) setMg(0, quick ? .05 : .4);
-  fileStop();
-}
+function musicStop(quick) { clearInterval(M.timer); M.timer = 0; M.style = null; M.hot = false; if (mg) setMg(0, quick ? .05 : .4); fileStop(); }
 function duck(on) { M.duck = on; if (M.style) setMg(mVol(), .2); if (fileEl && fileOn) fileEl.volume = Math.min(1, mVol()); }
 
-/* ---- 내 음악 파일 (이 기기 IndexedDB에 보관) ---- */
+/* ---- 이 기기에 파일 보관 (IndexedDB) ---- */
 const idb = {
   db: null,
   open() { return this.db ? Promise.resolve(this.db) : new Promise((res, rej) => { const r = indexedDB.open('wt', 1); r.onupgradeneeded = () => r.result.createObjectStore('f'); r.onsuccess = () => res(this.db = r.result); r.onerror = () => rej(r.error); }); },
-  async put(k, v) { const d = await this.open(); return new Promise(r => { const t = d.transaction('f', 'readwrite'); t.objectStore('f').put(v, k); t.oncomplete = () => r(true); t.onerror = () => r(false); }); },
+  async put(k, v) { const d = await this.open(); return new Promise(r => { const t = d.transaction('f', 'readwrite'); v == null ? t.objectStore('f').delete(k) : t.objectStore('f').put(v, k); t.oncomplete = () => r(true); t.onerror = () => r(false); }); },
   async get(k) { const d = await this.open(); return new Promise(r => { const q = d.transaction('f').objectStore('f').get(k); q.onsuccess = () => r(q.result); q.onerror = () => r(null); }); },
 };
 let fileEl = null, fileName = '', fileOn = false, fileDur = 0;
@@ -255,12 +303,16 @@ function attachFile(blob, name) {
 idb.get('music').then(r => { if (r && r.blob) { attachFile(r.blob, r.name); paintMusic(); } }).catch(() => {});
 function fileStart() { if (!fileEl) return; fileOn = true; try { fileEl.currentTime = vc.fs || 0; } catch (e) {} fileEl.volume = Math.min(1, mVol()); fileEl.play().catch(() => {}); }
 function fileStop() { if (fileEl && fileOn) { fileOn = false; fileEl.pause(); } }
+let bgURL = '';
+function setBg(blob) { if (bgURL) URL.revokeObjectURL(bgURL); bgURL = blob ? URL.createObjectURL(blob) : ''; paintBg(); }
+function paintBg() { const b = $('#bgimg'); b.style.backgroundImage = bgURL ? `url("${bgURL}")` : 'none'; b.style.opacity = vc.bgOp; }
+idb.get('bg').then(r => { if (r) { setBg(r); paintCap(); } }).catch(() => {});
 
-/* ---- 목소리 (폰의 한국어 음성 사용) ---- */
+/* ---- 목소리 (폰의 한국어 음성) ---- */
 let voices = [];
 function loadVoices() { try { voices = speechSynthesis.getVoices().filter(v => /^ko/i.test(v.lang)); } catch (e) { voices = []; } }
 if ('speechSynthesis' in window) { loadVoices(); speechSynthesis.onvoiceschanged = () => { loadVoices(); paintVoice(); }; }
-const MALE = /male\b|남|man|InJoon|Hyunsu|Minsang|Bong|ko-kr-x-kod|ko-kr-x-koc|ko-KR-Standard-C|ko-KR-Standard-D|Wavenet-C|Wavenet-D/i;
+const MALE = /\bmale\b|남|man\b|InJoon|Hyunsu|Minsang|ko-kr-x-koc|ko-kr-x-kod|Standard-C|Standard-D|Wavenet-C|Wavenet-D/i;
 const FEMALE = /female|여|SunHi|Yuna|Heami|Seoyeon|JiMin|ko-kr-x-koa|ko-kr-x-kob|Standard-A|Standard-B/i;
 function pickVoice(role) {
   const name = role === 'work' ? vc.wVoice : vc.rVoice;
@@ -276,45 +328,80 @@ function say(text, role, done) {
     let fin = false; const end = () => { if (fin) return; fin = true; duck(false); done && done(); };
     u.onstart = () => duck(true); u.onend = end; u.onerror = end;
     speechSynthesis.speak(u);
-    setTimeout(end, 1200 + text.length * 160);   // 일부 폰에서 onend가 안 오는 경우 대비
+    setTimeout(end, 1200 + text.length * 160);
   } catch (e) { done && done(); }
 }
 
 /* ---- 미리 듣기 ---- */
 let pv = {kind: null, t: 0};
+const demo = ph => ({ph, d: ph === 'work' ? 45 : 15, ex: 0, r: 2, s: 3});
 function stopPreview() { clearTimeout(pv.t); pv.kind = null; musicStop(); try { speechSynthesis.cancel(); } catch (e) {} paintMusic(); }
 function preview(kind, style) {
   const same = pv.kind === kind + style; stopPreview(); if (same) return;
   ensureAudio(); pv.kind = kind + style; paintMusic();
   const my = pv.kind, alive = () => pv.kind === my;
+  musicStart(style);
   if (kind === 'w') {
-    musicStart(style);
-    pv.t = setTimeout(() => alive() && say(vc.wOn && vc.wSay ? fill(P('workStart'), 45) : '', 'work', () => {
-      pv.t = setTimeout(() => { if (!alive()) return; M.hot = true; say(vc.wOn ? fill(P('workWarn'), 45, 15) : '', 'work', () => { pv.t = setTimeout(() => alive() && stopPreview(), 3500); }); }, 2500);
+    pv.t = setTimeout(() => alive() && say(vc.wOn && vc.wSay ? fill(P('workStart'), demo('work')) : '', 'work', () => {
+      pv.t = setTimeout(() => { if (!alive()) return; M.hot = true; say(vc.wOn ? fill(P('workWarn'), demo('work'), 15) : '', 'work', () => { pv.t = setTimeout(() => alive() && stopPreview(), 3500); }); }, 2500);
     }), 600);
   } else {
-    musicStart(style);
-    pv.t = setTimeout(() => alive() && say(vc.rOn ? fill(P('restStart'), 60) : '', 'rest', () => {
-      pv.t = setTimeout(() => alive() && say(vc.rOn && vc.rHalf ? fill(P('restHalf'), 60, 30) : '', 'rest', () => { pv.t = setTimeout(() => alive() && stopPreview(), 2500); }), 1500);
+    pv.t = setTimeout(() => alive() && say(vc.rOn ? fill(P('restStart'), demo('rest')) : '', 'rest', () => {
+      pv.t = setTimeout(() => alive() && say(vc.rOn ? fill(P('restWarn'), demo('rest'), 10) : '', 'rest', () => { pv.t = setTimeout(() => alive() && stopPreview(), 2500); }), 1500);
     }), 500);
   }
 }
 
 /* ================= 설정 화면 ================= */
+function longPress(el, onLong, onTap) {
+  let t = 0, fired = false;
+  const down = () => { fired = false; t = setTimeout(() => { fired = true; vib(30); onLong(); }, 550); };
+  const up = () => clearTimeout(t);
+  el.addEventListener('touchstart', down, {passive: true}); el.addEventListener('mousedown', down);
+  ['touchend', 'touchmove', 'mouseup', 'mouseleave'].forEach(e => el.addEventListener(e, up));
+  el.addEventListener('contextmenu', e => e.preventDefault());
+  el.addEventListener('click', () => { if (!fired && onTap) onTap(); });
+}
+function editName(cur, onSet, onDel) {
+  const v = prompt('이름 바꾸기 (비우고 확인 = 지우기)', cur);
+  if (v === null) return; v.trim() ? onSet(v.trim()) : (confirm(`「${cur}」 지울까요?`) && onDel());
+}
+let openItem = -1;
+function paintPal() {
+  $('#pal').innerHTML = cfg.pal.map((n, i) => `<button class="chip" data-pi="${i}">＋${n}</button>`).join('') + `<button class="chip add" id="palAdd">새 종목</button>`;
+  $('#pal').querySelectorAll('[data-pi]').forEach(b => { const i = +b.dataset.pi; longPress(b,
+    () => editName(cfg.pal[i], v => { cfg.pal[i] = v; saveC(); paintPal(); }, () => { cfg.pal.splice(i, 1); saveC(); paintPal(); }),
+    () => { cfg.rt.push(itemFor(cfg.pal[i])); openItem = cfg.rt.length - 1; saveC(); paintSetup(); }); });
+  $('#palAdd').onclick = () => { const v = (prompt('새 종목 이름 (예: 등운동, 러닝)') || '').trim(); if (!v) return; cfg.pal.push(v); cfg.rt.push(itemFor(v)); openItem = cfg.rt.length - 1; saveC(); paintSetup(); };
+}
+const itemSum = it => it.rounds * it.sets === 1 ? `${fmtS(it.work)} 한 번` : `${it.rounds}라운드 × ${it.sets}세트 · 운동 ${fmtS(it.work)} / 쉬기 ${fmtS(it.rest)}${it.rounds > 1 ? ` · 라운드 사이 ${fmtS(it.rrest)}` : ''}`;
+function paintRt() {
+  $('#rtList').innerHTML = cfg.rt.length ? cfg.rt.map((it, i) => `<div class="rt"><div class="hd" data-ri="${i}"><b>${i + 1}. ${it.nm}</b><span>${itemSum(it)}</span><em>${openItem === i ? '접기' : '고치기'}</em></div>${openItem === i ? `<div class="bd">${IF.map(([k, n]) => `<div class="row"><span class="lb">${n}</span><span class="step"><button data-ik="${k}" data-ii="${i}" data-d="-1">−</button><b>${k === 'rounds' || k === 'sets' ? it[k] : fmtS(it[k])}</b><button data-ik="${k}" data-ii="${i}" data-d="1">+</button></span></div>`).join('')}<div class="row"><span class="chips" style="justify-content:flex-start"><button class="mini" data-mv="-1" data-ii="${i}">위로</button><button class="mini" data-mv="1" data-ii="${i}">아래로</button></span><button class="mini" data-del="${i}">빼기</button></div></div>` : ''}</div>`).join('')
+    : `<p class="hint">위에서 운동을 눌러 추가하세요</p>`;
+  $('#rtList').querySelectorAll('[data-ri]').forEach(h => { const i = +h.dataset.ri; longPress(h,
+    () => editName(cfg.rt[i].nm, v => { cfg.rt[i].nm = v; saveC(); paintSetup(); }, () => { cfg.rt.splice(i, 1); openItem = -1; saveC(); paintSetup(); }),
+    () => { openItem = openItem === i ? -1 : i; paintRt(); }); });
+  $('#rtList').querySelectorAll('[data-ik]').forEach(b => b.onclick = () => {
+    const it = cfg.rt[+b.dataset.ii], f = IF.find(x => x[0] === b.dataset.ik);
+    let st = f[2]; if ((f[0] === 'work') && it.work >= 300) st = 60;
+    it[f[0]] = Math.min(f[4], Math.max(f[3], it[f[0]] + st * +b.dataset.d)); saveC(); paintSetup();
+  });
+  $('#rtList').querySelectorAll('[data-mv]').forEach(b => b.onclick = () => { const i = +b.dataset.ii, j = i + +b.dataset.mv; if (j < 0 || j >= cfg.rt.length) return; [cfg.rt[i], cfg.rt[j]] = [cfg.rt[j], cfg.rt[i]]; openItem = j; saveC(); paintSetup(); });
+  $('#rtList').querySelectorAll('[data-del]').forEach(b => b.onclick = () => { cfg.rt.splice(+b.dataset.del, 1); openItem = -1; saveC(); paintSetup(); });
+}
 function stepper(k, label, val, sub) { return `<div class="row"><span class="lb">${label}${sub ? ` <small>${sub}</small>` : ''}</span><span class="step"><button data-v="${k}" data-d="-1">−</button><b>${val}</b><button data-v="${k}" data-d="1">+</button></span></div>`; }
 function tog(k, label, on, sub) { return `<div class="row"><span class="lb">${label}${sub ? ` <small>${sub}</small>` : ''}</span><button class="tog ${on ? 'on' : ''}" data-t="${k}">${on ? '켜짐' : '꺼짐'}</button></div>`; }
-const VSTEP = {wWarn: [5, 0, 60], rWarn: [5, 0, 60], mvol: [.1, 0, 1], vvol: [.1, .1, 1], wPitch: [.1, .1, 2], rPitch: [.1, .1, 2], fs: [5, 0, 3600], fe: [5, 0, 3600]};
+const VSTEP = {wWarn: [5, 0, 60], rWarn: [5, 0, 60], mvol: [.1, 0, 1], vvol: [.1, .1, 1], wPitch: [.1, .1, 2], rPitch: [.1, .1, 2], fs: [5, 0, 3600], fe: [5, 0, 3600], capSec: [1, 3, 15], bgOp: [.05, .05, .9]};
 function paintSetup() {
-  $('#rows').innerHTML = FIELDS.map(([k, n, , , , u, col]) => `<div class="row"><span class="lb">${col ? `<i style="background:var(${col})"></i>` : ''}${n}</span><span class="step"><button data-k="${k}" data-d="-1">−</button><b>${u ? fmt(cfg[k]) + (cfg[k] >= 60 ? '' : '초') : cfg[k]}</b><button data-k="${k}" data-d="1">+</button></span></div>`).join('')
-    + `<div class="row"><span class="lb">사이클마다 준비</span><button class="tog ${cfg.prepEach ? 'on' : ''}" id="pe">${cfg.prepEach ? '켜짐' : '꺼짐'}</button></div>`;
-  const st = build(cfg), tot = st.reduce((a, x) => a + x.d, 0);
-  $('#sum').textContent = `총 ${fmtLong(tot)} · 운동 ${cfg.cycles * cfg.rounds}회`;
-  document.querySelectorAll('[data-k]').forEach(b => {
-    b.onclick = () => { const f = FIELDS.find(x => x[0] === b.dataset.k); cfg[f[0]] = Math.min(f[4], Math.max(f[3], cfg[f[0]] + f[2] * +b.dataset.d)); ls.set('wt.cfg', cfg); paintSetup(); };
-  });
-  $('#pe').onclick = () => { cfg.prepEach = !cfg.prepEach; ls.set('wt.cfg', cfg); paintSetup(); };
+  paintPal(); paintRt();
+  $('#rows').innerHTML = `<div class="row"><span class="lb"><i style="background:var(--prep)"></i>준비</span><span class="step"><button data-g="prep" data-d="-1">−</button><b>${fmtS(cfg.prep)}</b><button data-g="prep" data-d="1">+</button></span></div>`
+    + `<div class="row"><span class="lb"><i style="background:var(--crest)"></i>종목 사이 휴식</span><span class="step"><button data-g="irest" data-d="-1">−</button><b>${fmtS(cfg.irest)}</b><button data-g="irest" data-d="1">+</button></span></div>`;
+  $('#rows').querySelectorAll('[data-g]').forEach(b => b.onclick = () => { const k = b.dataset.g, st = k === 'prep' ? 5 : 10; cfg[k] = Math.min(900, Math.max(0, cfg[k] + st * +b.dataset.d)); saveC(); paintSetup(); });
+  const st = build(cfg), tot = st.reduce((a, x) => a + x.d, 0), sets = st.filter(x => x.ph === 'work').length;
+  $('#sum').textContent = `총 ${fmtLong(tot)} · ${cfg.rt.length}종목 · 운동 ${sets}세트`;
+  $('#start').disabled = !cfg.rt.length; $('#start').style.opacity = cfg.rt.length ? 1 : .4;
   $('#resume').hidden = !S.steps;
-  paintMusic(); paintVoice();
+  paintMusic(); paintCap(); paintVoice();
 }
 function chip(kind, style, label, sel) { const playing = pv.kind === kind + style; return `<button class="chip ${kind === 'r' ? 'rs' : ''} ${sel ? 'on' : ''} ${playing ? 'play' : ''}" data-m="${kind}" data-s="${style}">${label}</button>`; }
 function paintMusic() {
@@ -325,7 +412,7 @@ function paintMusic() {
   box.innerHTML = `<div class="row"><span class="lb"><i style="background:var(--work)"></i>운동</span><span class="chips">${w.map(([s, l]) => chip('w', s, l, vc.wMusic === s)).join('')}</span></div>`
     + `<div class="row"><span class="lb"><i style="background:var(--rest)"></i>휴식</span><span class="chips">${r.map(([s, l]) => chip('r', s, l, vc.rMusic === s)).join('')}</span></div>`
     + stepper('mvol', '음악 크기', Math.round(vc.mvol * 100) + '%')
-    + `<div class="row"><span class="lb">내 음악 <span class="fn">${fileName ? fileName : '없음'}</span></span><button class="tog" id="pick">파일 넣기</button><input type="file" id="file" accept="audio/*" hidden></div>`
+    + `<div class="row"><span class="lb">내 음악 <span class="fn">${fileName || '없음'}</span></span><button class="tog" id="pick">파일 넣기</button><input type="file" id="file" accept="audio/*" hidden></div>`
     + (fileName ? stepper('fs', '하이라이트 시작', fmt(vc.fs)) + stepper('fe', '하이라이트 끝', vc.fe > vc.fs ? fmt(vc.fe) : '끝까지', fileDur ? '곡 ' + fmt(fileDur) : '')
       + `<div class="row"><span class="lb">구간 ${fmt(vc.fs)}~${end ? fmt(end) : '끝'} 반복</span>${chip('f', 'file', '구간 듣기', false)}</div>` : '');
   box.querySelectorAll('[data-m]').forEach(b => b.onclick = () => {
@@ -338,98 +425,135 @@ function paintMusic() {
   });
   box.querySelectorAll('[data-v]').forEach(bindV);
   $('#pick').onclick = () => $('#file').click();
-  $('#file').onchange = async e => {
-    const f = e.target.files[0]; if (!f) return;
-    attachFile(f, f.name); vc.fs = 0; vc.fe = 0; saveV();
-    await idb.put('music', {blob: f, name: f.name}); paintMusic();
-  };
+  $('#file').onchange = async e => { const f = e.target.files[0]; if (!f) return; attachFile(f, f.name); vc.fs = 0; vc.fe = 0; saveV(); await idb.put('music', {blob: f, name: f.name}); paintMusic(); };
+}
+function paintCap() {
+  const box = $('#crows'); if (!box) return;
+  const L = [['mix', '한·영 번갈아'], ['ko', '한글'], ['en', '영어']];
+  box.innerHTML = tog('capOn', '응원 자막', vc.capOn, '화면에 크게')
+    + (vc.capOn ? `<div class="row"><span class="lb">　언어</span><span class="chips">${L.map(([k, l]) => `<button class="chip ${vc.capLang === k ? 'on' : ''}" data-cl="${k}">${l}</button>`).join('')}</span></div>` + stepper('capSec', '　바뀌는 간격', vc.capSec + '초') : '')
+    + `<div class="row"><span class="lb">배경 사진 <small>${bgURL ? '넣음' : '없음'}</small></span><span class="chips"><button class="tog" id="bgPick">사진 넣기</button>${bgURL ? '<button class="tog" id="bgDel">빼기</button>' : ''}</span><input type="file" id="bgFile" accept="image/*" hidden></div>`
+    + (bgURL ? stepper('bgOp', '　진하기', Math.round(vc.bgOp * 100) + '%', '낮을수록 희미') : '');
+  box.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { vc[b.dataset.t] = !vc[b.dataset.t]; saveV(); paintCap(); });
+  box.querySelectorAll('[data-cl]').forEach(b => b.onclick = () => { vc.capLang = b.dataset.cl; saveV(); paintCap(); });
+  box.querySelectorAll('[data-v]').forEach(bindV);
+  $('#bgPick').onclick = () => $('#bgFile').click();
+  $('#bgFile').onchange = async e => { const f = e.target.files[0]; if (!f) return; setBg(f); await idb.put('bg', f); paintCap(); };
+  if ($('#bgDel')) $('#bgDel').onclick = async () => { setBg(null); await idb.put('bg', null); paintCap(); };
 }
 function bindV(b) {
   b.onclick = () => {
     const k = b.dataset.v, [st, mn, mx] = VSTEP[k];
     let v = Math.round((vc[k] + st * +b.dataset.d) * 100) / 100;
-    if (k === 'fe' && vc.fe <= vc.fs && +b.dataset.d > 0) v = vc.fs + 5;   // '끝까지' → 시작+5초
+    if (k === 'fe' && vc.fe <= vc.fs && +b.dataset.d > 0) v = vc.fs + 5;
     if (k === 'fe' && v <= vc.fs) v = 0;
     if ((k === 'fs' || k === 'fe') && fileDur) v = Math.min(v, Math.floor(fileDur));
     vc[k] = Math.min(mx, Math.max(mn, v)); saveV();
     if (k === 'mvol' && (M.style || fileOn)) { setMg(mVol(), .1); if (fileEl) fileEl.volume = Math.min(1, mVol()); }
-    paintMusic(); paintVoice();
+    if (k === 'bgOp') paintBg();
+    paintMusic(); paintCap(); paintVoice();
   };
 }
 function vSelect(k) {
-  if (!voices.length) return `<small style="color:#888">이 기기 기본 음성</small>`;
+  if (!voices.length) return `<small class="g">이 기기 기본 음성</small>`;
   const cur = pickVoice(k === 'wVoice' ? 'work' : 'rest');
   return `<select data-sel="${k}">${voices.map(v => `<option value="${v.name}" ${cur && cur.name === v.name ? 'selected' : ''}>${v.name.replace(/Korean|한국어|\(.*?\)/g, '').trim() || v.name}</option>`).join('')}</select>`;
 }
 function paintVoice() {
   const box = $('#vrows'); if (!box) return;
   box.innerHTML = tog('wOn', '운동 음성', vc.wOn, '남자·박력')
-    + (vc.wOn ? tog('wSay', '　시작 때 「45초!」', vc.wSay) + stepper('wWarn', '　남은 시간 알림', vc.wWarn ? vc.wWarn + '초' : '끔', '0=끔')
+    + (vc.wOn ? tog('wSay', '　시작 때 「등운동 2라운드 3세트! 45초!」', vc.wSay) + stepper('wWarn', '　남은 시간 알림', vc.wWarn ? vc.wWarn + '초' : '끔', '0=끔')
       + `<div class="row"><span class="lb">　목소리</span>${vSelect('wVoice')}</div>` + stepper('wPitch', '　굵기', vc.wPitch.toFixed(1), '낮을수록 굵음') : '')
     + tog('rOn', '휴식 음성', vc.rOn, '여자·응원')
-    + (vc.rOn ? tog('rHalf', '　50% 지점 알림', vc.rHalf) + stepper('rWarn', '　남은 시간 알림', vc.rWarn ? vc.rWarn + '초' : '끔', '0=끔')
+    + (vc.rOn ? stepper('rWarn', '　남은 시간 알림', vc.rWarn ? vc.rWarn + '초' : '끔', '0=끔') + tog('rHalf', '　긴 휴식 50% 알림', vc.rHalf)
       + `<div class="row"><span class="lb">　목소리</span>${vSelect('rVoice')}</div>` + stepper('rPitch', '　높이', vc.rPitch.toFixed(1), '높을수록 밝음') : '')
     + stepper('vvol', '음성 크기', Math.round(vc.vvol * 100) + '%')
-    + `<div class="row"><span class="lb">목소리만 들어보기</span><span class="chips"><button class="chip" id="tw">운동</button><button class="chip rs" id="tr">휴식</button></span></div>`;
+    + `<div class="row"><span class="lb">목소리만 들어보기 <small>${voices.length}개 음성</small></span><span class="chips"><button class="chip" id="tw">운동</button><button class="chip rs" id="tr">휴식</button></span></div>`;
   box.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { vc[b.dataset.t] = !vc[b.dataset.t]; saveV(); paintVoice(); });
   box.querySelectorAll('[data-v]').forEach(bindV);
   box.querySelectorAll('[data-sel]').forEach(s => s.onchange = () => { vc[s.dataset.sel] = s.value; saveV(); });
-  $('#tw').onclick = () => say(fill(P('workStart'), cfg.work), 'work');
-  $('#tr').onclick = () => say(fill(P('restStart'), cfg.rest), 'rest');
+  $('#tw').onclick = () => say(fill(P('workStart'), demo('work')), 'work');
+  $('#tr').onclick = () => say(fill(P('restStart'), demo('rest')), 'rest');
 }
 function paintPhrases() {
-  const L = {workStart: '운동 시작', workWarn: '운동 남은 시간', restStart: '휴식 시작', restHalf: '휴식 50%', restWarn: '휴식 남은 시간', crestStart: '사이클 휴식 시작'};
-  $('#phrBox').innerHTML = Object.keys(L).map(k => `<label>${L[k]}</label><textarea class="ph" rows="2" data-p="${k}">${P(k)}</textarea>`).join('') + `<button class="sec" id="phReset">문구 기본값으로</button>`;
-  $('#phrBox').querySelectorAll('[data-p]').forEach(t => t.oninput = () => { vc.ph = vc.ph || {}; vc.ph[t.dataset.p] = t.value; saveV(); });
-  $('#phReset').onclick = () => { vc.ph = {}; saveV(); paintPhrases(); };
+  const L = {workStart: '운동 시작', workWarn: '운동 남은 시간', restStart: '세트 휴식 시작', restWarn: '휴식 남은 시간', rrestStart: '라운드 휴식 시작', irestStart: '종목 바뀔 때', oneStart: '한 번에 하는 종목(러닝 등) 시작', done: '전부 끝'};
+  $('#phrBox').innerHTML = `<p class="guide">말: {종목} {라운드} {세트} {초}=구간 길이 {남}=남은 시간 {남은라운드} {다음종목}</p>`
+    + Object.keys(L).map(k => `<label>말 · ${L[k]}</label><textarea class="ph" rows="2" data-p="${k}">${P(k)}</textarea>`).join('')
+    + `<p class="guide" style="margin-top:10px">자막: 한 줄에 하나 · 「한글 | English」</p>`
+    + [['work', '운동 중'], ['rest', '휴식 중'], ['long', '러닝·스트레칭 중']].map(([k, n]) => `<label>자막 · ${n}</label><textarea class="ph" rows="5" data-c="${k}">${(vc.cap2 && vc.cap2[k]) || CAP_DEF[k]}</textarea>`).join('')
+    + `<button class="sec" id="phReset">문구 기본값으로</button>`;
+  $('#phrBox').querySelectorAll('[data-p]').forEach(t => t.oninput = () => { vc.ph2 = vc.ph2 || {}; vc.ph2[t.dataset.p] = t.value; saveV(); });
+  $('#phrBox').querySelectorAll('[data-c]').forEach(t => t.oninput = () => { vc.cap2 = vc.cap2 || {}; vc.cap2[t.dataset.c] = t.value; saveV(); });
+  $('#phReset').onclick = () => { vc.ph2 = {}; vc.cap2 = {}; saveV(); paintPhrases(); };
 }
-$('#reset').onclick = () => { cfg = Object.assign({}, DEF); ls.set('wt.cfg', cfg); paintSetup(); };
+$('#reset').onclick = () => { if (!confirm('운동 목록을 기본값(등·이두·스트레칭·러닝)으로 바꿀까요?')) return; cfg = Object.assign(clone(DEF), {pal: cfg.pal}); openItem = -1; saveC(); paintSetup(); };
 
 /* ================= 타이머 ================= */
 const S = {steps: null, i: 0, endAt: 0, left: 0, paused: false, t0: 0, raf: 0, lastSec: -1, said: {}};
 let wake = null;
-const vib = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
-const CUE = {work: [[600], 1046], rest: [[200, 100, 200], 660], crest: [[200, 100, 200, 100, 200], 523], prep: [[150], 784], done: [[800, 200, 800], 392]};
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const CUE = {work: [[600], 1046], rest: [[200, 100, 200], 660], rrest: [[200, 100, 200, 100, 200], 523], irest: [[400, 150, 400], 523], prep: [[150], 784], done: [[800, 200, 800], 392]};
 async function keepAwake() { try { if ('wakeLock' in navigator) { wake = await navigator.wakeLock.request('screen'); } } catch (e) {} }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.steps && !S.paused) { keepAwake(); ensureAudio(); tick(); } });
+const isOne = s => { const it = cfg.rt[s.ex]; return it && it.rounds * it.sets === 1; };
+const isRest = ph => ph === 'rest' || ph === 'rrest' || ph === 'irest';
 
 function phaseSound(s, silent) {
-  if (s.ph === 'work') { musicStart(vc.wMusic); if (!silent && vc.wOn && vc.wSay) setTimeout(() => say(fill(P('workStart'), s.d), 'work'), 250); }
-  else if (s.ph === 'rest' || s.ph === 'crest') { musicStart(vc.rMusic); if (!silent && vc.rOn) setTimeout(() => say(fill(P(s.ph === 'crest' ? 'crestStart' : 'restStart'), s.d), 'rest'), 300); }
-  else { musicStop(); if (!silent && s.ph === 'done' && vc.wOn) say('끝! 수고했다!', 'work'); }
+  if (s.ph === 'work') { musicStart(vc.wMusic); if (!silent && vc.wOn && vc.wSay) setTimeout(() => say(fill(P(isOne(s) ? 'oneStart' : 'workStart'), s), 'work'), 250); }
+  else if (isRest(s.ph)) { musicStart(vc.rMusic); if (!silent && vc.rOn) setTimeout(() => say(fill(P(s.ph === 'rest' ? 'restStart' : s.ph + 'Start'), s), 'rest'), 300); }
+  else { musicStop(); if (!silent && s.ph === 'done' && vc.wOn) say(P('done'), 'work'); }
 }
+/* ---- 자막 ---- */
+const C = {t: 0, n: 0, list: [], ph: ''};
+function capList(s) {
+  const it = cfg.rt[s.ex] || {}, prev = cfg.rt[s.ex - 1] || {};
+  const lines = s.ph === 'work' ? CAPS(isOne(s) ? 'long' : 'work') : isRest(s.ph) ? CAPS('rest') : [];
+  const head = s.ph === 'work' ? [`지금은 ${it.nm}`, `Now: ${it.nm}`] : s.ph === 'rrest' ? [`${it.nm} ${s.r}라운드 끝 · ${it.rounds - s.r}라운드 남음`, `Round ${s.r} done. ${it.rounds - s.r} to go.`]
+    : s.ph === 'irest' ? [`${prev.nm} 끝! 다음은 ${it.nm}`, `${prev.nm} done. Next: ${it.nm}`] : s.ph === 'prep' ? [`오늘 첫 운동: ${it.nm}`, `First up: ${it.nm}`]
+    : s.ph === 'done' ? ['오늘 운동 끝! 수고했다', 'Mission complete.'] : null;
+  const all = head ? [head].concat(lines) : lines;
+  return all.map(([ko, en]) => vc.capLang === 'ko' ? [ko] : vc.capLang === 'en' ? [en || ko] : [ko, en || ko]).flat();
+}
+function capStart(s) {
+  clearInterval(C.t); C.n = 0; C.list = vc.capOn ? capList(s) : []; showCap();
+  if (C.list.length > 1) C.t = setInterval(() => { C.n = (C.n + 1) % C.list.length; showCap(); }, vc.capSec * 1000);
+}
+function showCap() { const el = $('#cap'); if (!C.list.length) { el.textContent = ''; return; } el.classList.add('fade'); setTimeout(() => { el.textContent = C.list[C.n]; el.classList.remove('fade'); }, 250); }
+function sayCap(text) { if (!vc.capOn || !text) return; const el = $('#cap'); el.classList.add('fade'); setTimeout(() => { el.textContent = text; el.classList.remove('fade'); }, 200); }
+
 function enter(i, silent) {
   S.i = Math.max(0, Math.min(S.steps.length - 1, i));
   const s = S.steps[S.i];
   S.left = s.d; S.endAt = performance.now() + s.d * 1000; S.lastSec = -1; S.said = {};
   if (!silent) { const c = CUE[s.ph]; vib(c[0]); beep(c[1], 220, .35); }
   if (!S.paused) phaseSound(s, silent);
-  paint();
+  capStart(s); paint();
 }
 function start(resume) {
-  stopPreview(); ensureAudio();
-  if (fileEl) { const v = fileEl.volume; fileEl.volume = 0; fileEl.play().then(() => { if (!fileOn) fileEl.pause(); fileEl.volume = v; }).catch(() => {}); }  // 폰 자동재생 허용 받기
+  if (!cfg.rt.length) return;
+  stopPreview(); ensureAudio(); paintBg();
+  if (fileEl) { const v = fileEl.volume; fileEl.volume = 0; fileEl.play().then(() => { if (!fileOn) fileEl.pause(); fileEl.volume = v; }).catch(() => {}); }
   if (!resume || !S.steps) { S.steps = build(cfg); S.t0 = Date.now(); S.paused = false; enter(0); }
-  else { S.paused = false; S.endAt = performance.now() + S.left * 1000; phaseSound(S.steps[S.i], true); }
+  else { S.paused = false; S.endAt = performance.now() + S.left * 1000; phaseSound(S.steps[S.i], true); capStart(S.steps[S.i]); }
   $('#setup').classList.remove('on'); $('#run').hidden = false;
   keepAwake(); loop(); paintMute();
 }
 function loop() { cancelAnimationFrame(S.raf); const f = () => { tick(); S.raf = requestAnimationFrame(f); }; S.raf = requestAnimationFrame(f); }
-setInterval(() => { if (document.visibilityState !== 'visible') tick(); }, 250);   // 화면 꺼져도 음성 시점 놓치지 않게
+setInterval(() => { if (document.visibilityState !== 'visible') tick(); }, 250);
 function cues(s, sec) {
   const once = (k, fn) => { if (!S.said[k]) { S.said[k] = 1; fn(); } };
-  if (s.ph === 'work' && vc.wOn && vc.wWarn && sec === vc.wWarn && s.d >= vc.wWarn + 5) once('w', () => { M.hot = true; say(fill(P('workWarn'), s.d, sec), 'work'); });
-  if ((s.ph === 'rest' || s.ph === 'crest') && vc.rOn) {
+  if (s.ph === 'work' && vc.wOn && vc.wWarn && sec === vc.wWarn && s.d >= vc.wWarn + 5) once('w', () => { M.hot = true; const t = fill(P('workWarn'), s, sec); say(t, 'work'); sayCap(t); });
+  if (isRest(s.ph) && vc.rOn) {
     const half = Math.ceil(s.d / 2);
-    if (vc.rHalf && sec === half && s.d >= 20 && Math.abs(half - vc.rWarn) > 6) once('h', () => say(fill(P('restHalf'), s.d, sec), 'rest'));
-    if (vc.rWarn && sec === vc.rWarn && s.d >= vc.rWarn + 8) once('r', () => say(fill(P('restWarn'), s.d, sec), 'rest'));
+    if (vc.rHalf && s.ph !== 'rest' && sec === half && s.d >= 40 && Math.abs(half - vc.rWarn) > 6) once('h', () => { const t = `절반 지났어요. ${sayDur(sec)} 남았어요. 근육을 계속 놓아주세요.`; say(t, 'rest'); sayCap(t); });
+    if (vc.rWarn && sec === vc.rWarn && s.d >= vc.rWarn + 5) once('r', () => { const t = fill(P('restWarn'), s, sec); say(t, 'rest'); sayCap(t); });
   }
 }
 function tick() {
   if (!S.steps || S.paused) return;
   const s = S.steps[S.i]; if (s.ph === 'done') return;
   let now = performance.now();
-  while (now >= S.endAt && S.steps[S.i].ph !== 'done') {           // 화면이 꺼졌다 켜져도 밀린 단계를 따라잡음
+  while (now >= S.endAt && S.steps[S.i].ph !== 'done') {
     const over = now - S.endAt; enter(S.i + 1, over > 1500); S.endAt -= over; if (S.steps[S.i].ph === 'done') break;
   }
   if (S.steps[S.i].ph === 'done') return paint();
@@ -439,20 +563,36 @@ function tick() {
   else paintArc();
 }
 function paintArc() {
-  const s = S.steps[S.i], C = 2 * Math.PI * 46, frac = s.d ? Math.max(0, Math.min(1, S.left / s.d)) : 0;
-  const a = $('#arc'); a.style.strokeDasharray = C; a.style.strokeDashoffset = C * (1 - frac);
+  const s = S.steps[S.i], Cc = 2 * Math.PI * 47, frac = s.d ? Math.max(0, Math.min(1, S.left / s.d)) : 0;
+  const a = $('#arc'); a.style.strokeDasharray = Cc; a.style.strokeDashoffset = Cc * (1 - frac);
+}
+function progress() {
+  const work = S.steps.filter(x => x.ph === 'work'), doneN = S.steps.slice(0, S.i).filter(x => x.ph === 'work').length;
+  return {doneN, total: work.length};
 }
 function paint() {
-  const s = S.steps[S.i], n = S.steps[S.i + 1];
+  const s = S.steps[S.i], n = S.steps[S.i + 1], it = cfg.rt[s.ex] || {};
   const run = $('#run'); run.dataset.ph = s.ph; run.classList.toggle('paused', S.paused);
+  $('#exn').textContent = s.ph === 'done' ? '오늘 운동 끝' : s.ph === 'irest' ? `다음: ${it.nm}` : it.nm;
   $('#phase').textContent = NAMES[s.ph];
   $('#time').textContent = s.ph === 'done' ? '✓' : fmt(S.left);
-  $('#pos').textContent = s.ph === 'done' ? `${cfg.cycles}사이클 완료` : `사이클 ${s.cy}/${cfg.cycles} · 라운드 ${s.r}/${cfg.rounds}`;
-  $('#next').textContent = n ? `다음 ${NAMES[n.ph]}${n.d ? ' ' + fmt(n.d) : ''}` : '';
+  $('#pos').textContent = s.ph === 'done' ? `${cfg.rt.length}종목 완료` : s.ph === 'irest' || s.ph === 'prep' ? `${it.rounds}라운드 × ${it.sets}세트` : isOne(s) ? '한 번에' : `${s.r}/${it.rounds}라운드 · ${s.s}/${it.sets}세트`;
+  const pg = progress();
+  $('#prog').textContent = s.ph === 'done' ? `전체 ${pg.total}세트 완료` : `종목 ${s.ex + 1}/${cfg.rt.length} · 지금까지 ${pg.doneN}세트 · 남은 ${pg.total - pg.doneN}세트`;
+  $('#next').textContent = n ? `다음 ${n.ph === 'work' && n.ex !== s.ex ? (cfg.rt[n.ex] || {}).nm : NAMES[n.ph]}${n.d ? ' ' + fmt(n.d) : ''}` : '';
   const remain = S.steps.slice(S.i + 1).reduce((a, x) => a + x.d, 0) + Math.max(0, S.left);
-  $('#total').textContent = s.ph === 'done' ? `총 ${fmtLong((Date.now() - S.t0) / 1000)}` : `남은 ${fmtLong(remain)}`;
+  $('#total').textContent = s.ph === 'done' ? `총 ${fmtLong((Date.now() - S.t0) / 1000)}` : `전체 남은 ${fmtLong(remain)}`;
   $('#pp').textContent = S.paused ? '▶' : '❚❚';
   paintArc();
+  if (!$('#left').hidden) paintLeft();
+}
+function paintLeft() {
+  const s = S.steps[S.i], remain = S.steps.slice(S.i + 1).reduce((a, x) => a + x.d, 0) + Math.max(0, S.left);
+  $('#left').innerHTML = `<h3>오늘 운동 · 남은 ${fmtLong(remain)}</h3>` + cfg.rt.map((it, i) => {
+    const st = s.ph === 'done' || i < s.ex ? 'ok' : i === s.ex && s.ph !== 'irest' ? 'cur' : '';
+    const mine = S.steps.filter(x => x.ph === 'work' && x.ex === i), done = S.steps.slice(0, S.i).filter(x => x.ph === 'work' && x.ex === i).length;
+    return `<div class="it ${st}"><span>${st === 'ok' ? '✓' : st === 'cur' ? '▶' : '·'} ${it.nm}</span><span>${st === 'cur' && !isOne(s) ? `${s.r}/${it.rounds}라운드 · ` : ''}${done}/${mine.length}세트</span></div>`;
+  }).join('') + `<p>아무 곳이나 누르면 닫힘</p>`;
 }
 function togglePause() {
   if (!S.steps) return;
@@ -464,26 +604,26 @@ function togglePause() {
 function go(d) {
   if (!S.steps) return;
   const s = S.steps[S.i], elapsed = s.d - S.left;
-  if (d < 0 && elapsed > 3 && s.ph !== 'done') enter(S.i);   // 3초 넘게 지났으면 현재 단계 처음으로
+  if (d < 0 && elapsed > 3 && s.ph !== 'done') enter(S.i);
   else enter(S.i + d);
   if (S.paused) { S.left = S.steps[S.i].d; paint(); }
 }
 function paintMute() { $('#muteBtn').textContent = vc.muted ? '소리 끔' : '소리'; $('#muteBtn').style.opacity = vc.muted ? .55 : 1; }
 $('#muteBtn').onclick = e => { e.stopPropagation(); vc.muted = !vc.muted; saveV(); paintMute(); if (vc.muted) { musicStop(); try { speechSynthesis.cancel(); } catch (x) {} } else if (!S.paused && S.steps) phaseSound(S.steps[S.i], true); };
+$('#leftBtn').onclick = e => { e.stopPropagation(); paintLeft(); $('#left').hidden = false; };
+$('#left').onclick = e => { e.stopPropagation(); $('#left').hidden = true; };
 $('#start').onclick = () => start(false);
 $('#resume').onclick = () => start(true);
 $('#pp').onclick = e => { e.stopPropagation(); togglePause(); };
 $('#prev').onclick = e => { e.stopPropagation(); go(-1); };
 $('#nxt').onclick = e => { e.stopPropagation(); go(1); };
 $('#core').onclick = togglePause;
-$('#menuBtn').onclick = e => { e.stopPropagation(); if (!S.paused) togglePause(); $('#run').hidden = true; $('#setup').classList.add('on'); paintSetup(); };
+$('#menuBtn').onclick = e => { e.stopPropagation(); if (!S.paused) togglePause(); clearInterval(C.t); $('#run').hidden = true; $('#setup').classList.add('on'); paintSetup(); };
 document.querySelectorAll('[data-fs]').forEach(b => b.onclick = e => { e.stopPropagation(); try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (x) {} });
 $('#phr').addEventListener('toggle', () => { if ($('#phr').open) paintPhrases(); });
-/* 좌우 스와이프 = 이전/다음 */
 let sx = null, sy = null;
 $('#run').addEventListener('touchstart', e => { const t = e.touches[0]; sx = t.clientX; sy = t.clientY; }, {passive: true});
-$('#run').addEventListener('touchend', e => { if (sx == null) return; const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1); }, {passive: true});
-/* 키보드(폰 블루투스 키보드·테스트용) */
+$('#run').addEventListener('touchend', e => { if (sx == null || !$('#left').hidden) return; const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1); }, {passive: true});
 document.addEventListener('keydown', e => { if ($('#run').hidden) return; if (e.key === ' ' || e.key === 'Enter') togglePause(); if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); });
 paintSetup();
 })();
