@@ -92,6 +92,30 @@ details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
 .go{display:block;width:100%;padding:13px;border-radius:99px;background:#FF4D2E;font-size:18px;font-weight:900;margin-top:6px}
 .sec{display:block;width:100%;padding:10px;border-radius:99px;background:#262626;font-size:14px;margin-top:8px}
 .hint{font-size:12px;color:#888;text-align:center;margin-top:12px;line-height:1.5}
+#pal{display:block}
+.wrap>h2:first-child{padding-right:44px}
+.pg{display:flex;gap:6px;align-items:flex-start;padding:2px 0}
+.pgl{flex:none;width:30px;font-size:11px;color:#888;padding-top:7px}
+.pgc{justify-content:flex-start;flex:1}
+.chip.dim{opacity:.55}
+.chip.nx{box-shadow:0 0 0 2px #F5C400 inset}
+.chip.nx::after{content:" 다음";font-size:10px;color:#F5C400}
+.lnav{display:flex;align-items:center;gap:6px;margin:6px 0}
+.lnav .nb{flex:none;width:64px;height:36px;border-radius:10px;background:#262626;font-size:20px;font-weight:900}
+.lnav .ld{flex:1;text-align:center;font-size:14px;font-weight:800}
+.lnav .ld small{display:block;font-size:11px;color:#888;font-weight:400}
+.today{color:#F5C400;font-size:11px;margin-left:4px}
+#logList{transition:transform .22s ease;touch-action:pan-y}
+#logList.drag{transition:none}
+.lg{border:1px solid #262626;border-radius:10px;padding:8px 10px;margin:6px 0;background:#111}
+.lg .t{font-size:12px;color:#aaa;display:flex;justify-content:space-between;gap:6px;align-items:center}
+.lg .t b{color:#fff;font-size:13px}
+.lg .b{font-size:13px;line-height:1.5;margin-top:3px;user-select:text;-webkit-user-select:text}
+.lgd{font-size:12px;color:#F5C400;margin:10px 0 0;font-weight:800}
+.srch{display:block;width:100%;background:#161616;border:1px solid #333;border-radius:8px;padding:7px 9px;font-size:13px;margin:4px 0;user-select:text;-webkit-user-select:text}
+mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternate}
+@keyframes fl{to{background:transparent;color:inherit}}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#F5C400;color:#111;font-weight:800;font-size:13px;padding:7px 14px;border-radius:99px;z-index:99;display:none}
 .fn{font-size:12px;color:#aaa;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* 펼친 화면·가로 분할: 버튼을 오른쪽 세로로 */
 @media (min-aspect-ratio:9/10){.ctrl{position:absolute;right:3vmin;top:50%;transform:translateY(-50%);flex-direction:column;align-items:center;padding:0;gap:2.5vmin}.ctrl #prev,.ctrl #nxt{margin:0}.ctrl button{width:12vmin;height:12vmin;font-size:6vmin}.core,#cap{margin-right:18vmin}#cap{margin-left:4vmin}}
@@ -102,6 +126,8 @@ details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
 <div id="setup" class="on">
  <button class="fsb" data-fs>⛶</button>
  <div class="wrap">
+  <h2>루틴 <small class="g">누르면 오늘 운동을 이걸로 바꿈 · 길게 누르면 이름 바꾸기 · 노란 테두리 = 4분할 다음 차례</small></h2>
+  <div class="chips pal" id="rts"></div>
   <h2>오늘 할 운동 <small class="g">칩 누르면 추가 · 길게 누르면 이름 바꾸기 · 「고치기」에서 부위 바꾸기 · 「빼기」로 제거</small></h2>
   <div class="chips pal" id="pal"></div>
   <div id="rtList"></div>
@@ -109,6 +135,9 @@ details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
   <div class="sum" id="sum"></div>
   <button class="go" id="start">시작</button>
   <button class="sec" id="resume" hidden>이어서 하기</button>
+
+  <h2>운동 기록 <small class="g">끝나면 자동 저장 · 좌우로 밀어 날짜 이동 · 기록 길게 누르면 지우기</small></h2>
+  <div id="logBox"></div>
 
   <h2>음악 — 누르면 바로 들려줌 (다시 누르면 정지)</h2>
   <div id="mrows"></div>
@@ -131,9 +160,10 @@ details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
  </div>
 </div>
 
+<div id="toast"></div>
 <div id="run" data-ph="prep" hidden>
   <div id="bgimg"></div>
-  <div class="tb"><button id="muteBtn">소리</button><button id="leftBtn">남은</button><button id="menuBtn">설정</button><button data-fs>⛶</button></div>
+  <div class="tb"><button id="muteBtn">소리</button><button id="leftBtn">남은</button><button id="cpBtn" hidden>기록 복사</button><button id="menuBtn">설정</button><button data-fs>⛶</button></div>
   <div class="core" id="core">
     <svg id="ring" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><circle class="bgc" cx="50" cy="50" r="47"/><circle class="fg" id="arc" cx="50" cy="50" r="47" transform="rotate(-90 50 50)"/></svg>
     <div id="exn"></div>
@@ -157,12 +187,26 @@ details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
 /* ================= 운동 목록 ================= */
 const PAL_DEF = ['윗등', '아랫등', '이두', '삼두', '윗가슴', '아랫가슴', '앞어깨', '옆어깨', '뒤어깨', '앞하체', '뒤하체', '다리 벌리기', '다리 쪼이기', '복근', '푸크크크', '스트레칭', '러닝'];
 const PAL_V = 2;
+const GRP = [['등', /등/], ['가슴', /가슴/], ['팔', /이두|삼두|팔/], ['어깨', /어깨/], ['하체', /하체|다리|스쿼트|런지|허벅지|엉덩이/]];
+const grpOf = n => (GRP.find(g => g[1].test(n)) || ['기타'])[0];
+const GRP_ORDER = GRP.map(g => g[0]).concat('기타');
+/* 푸크크크 = 푸시업 + 크런치 3종 — 세트마다 동작 이름 안내 */
+const SUBS = it => it.subs || (/푸크크/.test(it.nm || '') ? ['푸시업', '앞 크런치', '오른쪽 크런치', '왼쪽 크런치'] : null);
+const subOf = (it, s) => { const L = it && SUBS(it); return L && s ? L[(s - 1) % L.length] : ''; };
 const itemFor = nm => /러닝|달리기|유산소|걷기/.test(nm) ? {nm, rounds: 1, sets: 1, work: 1800, rest: 0, rrest: 0}
   : /스트레칭/.test(nm) ? {nm, rounds: 1, sets: 1, work: 300, rest: 0, rrest: 0}
   : /푸크크/.test(nm) ? {nm, rounds: 1, sets: 4, work: 45, rest: 15, rrest: 0}
   : {nm, rounds: 5, sets: 4, work: 45, rest: 15, rrest: 120};
 const RT_DEF = [itemFor('윗등'), itemFor('이두'), itemFor('스트레칭'), itemFor('러닝')];
-const DEF = {prep: 10, irest: 120, rt: RT_DEF, pal: PAL_DEF, palV: PAL_V};
+const SPLIT = ['가슴날', '등날', '하체날', '어깨+복부날'];
+const RTS_DEF = [
+  {nm: '가슴날', rt: ['윗가슴', '아랫가슴', '푸크크크', '스트레칭']},
+  {nm: '등날', rt: ['윗등', '아랫등', '이두', '스트레칭']},
+  {nm: '하체날', rt: ['앞하체', '뒤하체', '다리 벌리기', '다리 쪼이기', '스트레칭']},
+  {nm: '어깨+복부날', rt: ['앞어깨', '옆어깨', '뒤어깨', '복근', '푸크크크', '스트레칭']},
+  {nm: '유산소날', rt: ['러닝', '스트레칭']},
+].map(x => ({nm: x.nm, rt: x.rt.map(itemFor)}));
+const DEF = {prep: 10, irest: 120, rt: RT_DEF, pal: PAL_DEF, palV: PAL_V, rts: RTS_DEF, rtName: '', palUse: {}};
 const IF = [['rounds', '라운드', 1, 1, 30], ['sets', '라운드당 세트', 1, 1, 20], ['work', '운동', 5, 5, 7200], ['rest', '세트 사이 휴식', 5, 0, 600], ['rrest', '라운드 사이 휴식', 10, 0, 900]];
 /* 말·자막 문구 — {종목} {라운드} {세트} {초}=구간 길이 {남}=남은 시간 {남은라운드} {다음종목} */
 const PH_DEF = {
@@ -381,16 +425,49 @@ function editName(cur, onSet, onDel) {
 function renPal(i, v) { const old = cfg.pal[i]; cfg.pal[i] = v; cfg.rt.forEach(it => { if (it.nm === old) it.nm = v; }); saveC(); paintSetup(); }
 function delPal(i) { cfg.pal.splice(i, 1); saveC(); paintSetup(); }
 let openItem = -1;
+let palOpen = false;
+const useCnt = n => (cfg.palUse || {})[n] || 0;
+function bump(n) { cfg.palUse = cfg.palUse || {}; cfg.palUse[n] = useCnt(n) + 1; }
+/* 거의 안 쓰는 칩: 전체 20번 넘게 누른 뒤, 한 번도 안 쓴 칩 → ⋯ 안으로 */
+function isFolded(n) { const tot = Object.values(cfg.palUse || {}).reduce((a, b) => a + b, 0); return tot >= 20 && !useCnt(n); }
+function grouped(names, chipFn) {
+  const by = {}; names.forEach(n => { const g = grpOf(n); (by[g] = by[g] || []).push(n); });
+  return GRP_ORDER.filter(g => by[g]).map(g => `<div class="pg"><span class="pgl">${g}</span><span class="chips pgc">${by[g].map(chipFn).join('')}</span></div>`).join('');
+}
 function paintPal() {
-  $('#pal').innerHTML = cfg.pal.map((n, i) => `<button class="chip" data-pi="${i}">＋${n}</button>`).join('') + `<button class="chip add" id="palAdd">새 종목</button>`;
+  const fold = cfg.pal.filter(isFolded), show = palOpen ? cfg.pal : cfg.pal.filter(n => !isFolded(n));
+  $('#pal').innerHTML = grouped(show, n => `<button class="chip ${isFolded(n) ? 'dim' : ''}" data-pi="${cfg.pal.indexOf(n)}">＋${n}</button>`)
+    + `<div class="pg"><span class="pgl"></span><span class="chips pgc">${fold.length ? `<button class="chip" id="palMore">${palOpen ? '접기' : '⋯ ' + fold.length}</button>` : ''}<button class="chip add" id="palAdd">새 종목</button></span></div>`;
   $('#pal').querySelectorAll('[data-pi]').forEach(b => { const i = +b.dataset.pi; longPress(b,
     () => editName(cfg.pal[i], v => renPal(i, v), () => delPal(i)),
-    () => { cfg.rt.push(itemFor(cfg.pal[i])); openItem = cfg.rt.length - 1; saveC(); paintSetup(); }); });
-  $('#palAdd').onclick = () => { const v = (prompt('새 종목 이름 (예: 윗등, 러닝)') || '').trim(); if (!v) return; cfg.pal.push(v); cfg.rt.push(itemFor(v)); openItem = cfg.rt.length - 1; saveC(); paintSetup(); };
+    () => { bump(cfg.pal[i]); cfg.rt.push(itemFor(cfg.pal[i])); openItem = cfg.rt.length - 1; saveC(); paintSetup(); }); });
+  if ($('#palMore')) $('#palMore').onclick = () => { palOpen = !palOpen; paintPal(); };
+  $('#palAdd').onclick = () => { const v = (prompt('새 종목 이름 (예: 윗등, 러닝)') || '').trim(); if (!v) return; cfg.pal.push(v); bump(v); cfg.rt.push(itemFor(v)); openItem = cfg.rt.length - 1; saveC(); paintSetup(); };
+}
+/* ---- 루틴 저장·불러오기 + 4분할 다음 차례 ---- */
+function nextSplit() {
+  const L = getLog().filter(x => SPLIT.includes(x.nm)).sort((a, b) => b.s - a.s)[0];
+  return L ? SPLIT[(SPLIT.indexOf(L.nm) + 1) % SPLIT.length] : SPLIT[0];
+}
+function paintRts() {
+  const nx = nextSplit();
+  $('#rts').innerHTML = cfg.rts.map((x, i) => `<button class="chip ${x.nm === cfg.rtName ? 'on' : ''} ${x.nm === nx ? 'nx' : ''}" data-rs="${i}">${x.nm}</button>`).join('')
+    + `<button class="chip add" id="rtSave">지금 것 저장</button>`;
+  $('#rts').querySelectorAll('[data-rs]').forEach(b => { const i = +b.dataset.rs; longPress(b,
+    () => editName(cfg.rts[i].nm, v => { cfg.rts[i].nm = v; saveC(); paintSetup(); }, () => { cfg.rts.splice(i, 1); saveC(); paintSetup(); }),
+    () => { const x = cfg.rts[i]; cfg.rt = clone(x.rt); cfg.rtName = x.nm; x.rt.forEach(it => bump(it.nm)); openItem = -1; saveC(); paintSetup(); toast(`「${x.nm}」 불러옴`); }); });
+  $('#rtSave').onclick = () => {
+    if (!cfg.rt.length) return toast('오늘 할 운동이 비어 있어요');
+    const v = (prompt('루틴 이름 (예: 등날)', cfg.rtName || '') || '').trim(); if (!v) return;
+    const j = cfg.rts.findIndex(x => x.nm === v);
+    if (j >= 0) { if (!confirm(`「${v}」를 지금 것으로 덮어쓸까요?`)) return; cfg.rts[j].rt = clone(cfg.rt); }
+    else cfg.rts.push({nm: v, rt: clone(cfg.rt)});
+    cfg.rtName = v; saveC(); paintSetup(); toast(`「${v}」 저장`);
+  };
 }
 const itemSum = it => it.rounds * it.sets === 1 ? `${fmtS(it.work)} 한 번` : `${it.rounds}라운드 × ${it.sets}세트 · 운동 ${fmtS(it.work)} / 쉬기 ${fmtS(it.rest)}${it.rounds > 1 ? ` · 라운드 사이 ${fmtS(it.rrest)}` : ''}`;
 function paintRt() {
-  $('#rtList').innerHTML = cfg.rt.length ? cfg.rt.map((it, i) => `<div class="rt"><div class="hd" data-ri="${i}"><b>${i + 1}. ${it.nm}</b><span>${itemSum(it)}</span><em>${openItem === i ? '접기' : '고치기'}</em><button class="mini" data-del="${i}">빼기</button></div>${openItem === i ? `<div class="bd"><div class="row"><span class="lb">부위</span><span class="chips">${cfg.pal.map(n => `<button class="chip ${n === it.nm ? 'on' : ''}" data-sw="${n}" data-pi2="${cfg.pal.indexOf(n)}" data-ii="${i}">${n}</button>`).join('')}<button class="chip add" data-ren="${i}">이름 직접</button></span></div>${IF.map(([k, n]) => `<div class="row"><span class="lb">${n}</span><span class="step"><button data-ik="${k}" data-ii="${i}" data-d="-1">−</button><b>${k === 'rounds' || k === 'sets' ? it[k] : fmtS(it[k])}</b><button data-ik="${k}" data-ii="${i}" data-d="1">+</button></span></div>`).join('')}<div class="row"><span class="chips" style="justify-content:flex-start"><button class="mini" data-mv="-1" data-ii="${i}">위로</button><button class="mini" data-mv="1" data-ii="${i}">아래로</button></span></div></div>` : ''}</div>`).join('')
+  $('#rtList').innerHTML = cfg.rt.length ? cfg.rt.map((it, i) => `<div class="rt"><div class="hd" data-ri="${i}"><b>${i + 1}. ${it.nm}</b><span>${itemSum(it)}</span><em>${openItem === i ? '접기' : '고치기'}</em><button class="mini" data-del="${i}">빼기</button></div>${openItem === i ? `<div class="bd"><div class="row" style="display:block"><span class="lb">부위</span>${grouped(cfg.pal, n => `<button class="chip ${n === it.nm ? 'on' : ''}" data-sw="${n}" data-pi2="${cfg.pal.indexOf(n)}" data-ii="${i}">${n}</button>`)}<div class="pg"><span class="pgl"></span><span class="chips pgc"><button class="chip add" data-ren="${i}">이름 직접</button></span></div></div>${IF.map(([k, n]) => `<div class="row"><span class="lb">${n}</span><span class="step"><button data-ik="${k}" data-ii="${i}" data-d="-1">−</button><b>${k === 'rounds' || k === 'sets' ? it[k] : fmtS(it[k])}</b><button data-ik="${k}" data-ii="${i}" data-d="1">+</button></span></div>`).join('')}<div class="row"><span class="chips" style="justify-content:flex-start"><button class="mini" data-mv="-1" data-ii="${i}">위로</button><button class="mini" data-mv="1" data-ii="${i}">아래로</button></span></div></div>` : ''}</div>`).join('')
     : `<p class="hint">위에서 운동을 눌러 추가하세요</p>`;
   $('#rtList').querySelectorAll('[data-ri]').forEach(h => { const i = +h.dataset.ri; longPress(h,
     () => editName(cfg.rt[i].nm, v => { cfg.rt[i].nm = v; saveC(); paintSetup(); }, () => { cfg.rt.splice(i, 1); openItem = -1; saveC(); paintSetup(); }),
@@ -404,7 +481,7 @@ function paintRt() {
   $('#rtList').querySelectorAll('[data-sw]').forEach(b => { const pi = +b.dataset.pi2; longPress(b,
     () => editName(cfg.pal[pi], v => renPal(pi, v), () => delPal(pi)),
     () => { const it = cfg.rt[+b.dataset.ii], n = b.dataset.sw, kind = x => /러닝|달리기|유산소|걷기/.test(x) ? 'run' : /스트레칭/.test(x) ? 'st' : 'w';
-    if (kind(n) !== kind(it.nm)) Object.assign(it, itemFor(n)); else it.nm = n; saveC(); paintSetup(); }); });
+    bump(n); if (kind(n) !== kind(it.nm)) Object.assign(it, itemFor(n)); else it.nm = n; saveC(); paintSetup(); }); });
   $('#rtList').querySelectorAll('[data-ren]').forEach(b => b.onclick = () => { const i = +b.dataset.ren, v = (prompt('종목 이름', cfg.rt[i].nm) || '').trim(); if (v) { cfg.rt[i].nm = v; saveC(); paintSetup(); } });
   $('#rtList').querySelectorAll('[data-del]').forEach(b => b.onclick = e => { e.stopPropagation(); if (!confirm(`「${cfg.rt[+b.dataset.del].nm}」 빼기?`)) return; cfg.rt.splice(+b.dataset.del, 1); openItem = -1; saveC(); paintSetup(); });
 }
@@ -412,7 +489,7 @@ function stepper(k, label, val, sub) { return `<div class="row"><span class="lb"
 function tog(k, label, on, sub) { return `<div class="row"><span class="lb">${label}${sub ? ` <small>${sub}</small>` : ''}</span><button class="tog ${on ? 'on' : ''}" data-t="${k}">${on ? '켜짐' : '꺼짐'}</button></div>`; }
 const VSTEP = {wWarn: [5, 0, 60], rWarn: [5, 0, 60], mvol: [.1, 0, 1], vvol: [.1, .1, 1], wPitch: [.1, .1, 2], rPitch: [.1, .1, 2], fs: [5, 0, 3600], fe: [5, 0, 3600], capSec: [1, 3, 15], bgOp: [.05, .05, .9]};
 function paintSetup() {
-  paintPal(); paintRt();
+  paintRts(); paintPal(); paintRt(); paintLog();
   $('#rows').innerHTML = `<div class="row"><span class="lb"><i style="background:var(--prep)"></i>준비</span><span class="step"><button data-g="prep" data-d="-1">−</button><b>${fmtS(cfg.prep)}</b><button data-g="prep" data-d="1">+</button></span></div>`
     + `<div class="row"><span class="lb"><i style="background:var(--crest)"></i>종목 사이 휴식</span><span class="step"><button data-g="irest" data-d="-1">−</button><b>${fmtS(cfg.irest)}</b><button data-g="irest" data-d="1">+</button></span></div>`;
   $('#rows').querySelectorAll('[data-g]').forEach(b => b.onclick = () => { const k = b.dataset.g, st = k === 'prep' ? 5 : 10; cfg[k] = Math.min(900, Math.max(0, cfg[k] + st * +b.dataset.d)); saveC(); paintSetup(); });
@@ -509,8 +586,92 @@ function paintPhrases() {
   $('#phrBox').querySelectorAll('[data-c]').forEach(t => t.oninput = () => { vc.cap2 = vc.cap2 || {}; vc.cap2[t.dataset.c] = t.value; saveV(); });
   $('#phReset').onclick = () => { vc.ph2 = {}; vc.cap2 = {}; saveV(); paintPhrases(); };
 }
-$('#reset').onclick = () => { if (!confirm('운동 목록을 기본값(등·이두·스트레칭·러닝)으로 바꿀까요?')) return; cfg = Object.assign(clone(DEF), {pal: cfg.pal}); openItem = -1; saveC(); paintSetup(); };
+$('#reset').onclick = () => { if (!confirm('운동 목록을 기본값(등·이두·스트레칭·러닝)으로 바꿀까요?')) return; cfg = Object.assign(clone(DEF), {pal: cfg.pal, rts: cfg.rts, palUse: cfg.palUse}); openItem = -1; saveC(); paintSetup(); };
 
+
+/* ================= 운동 기록 (이 기기에 날짜별 저장) ================= */
+const getLog = () => ls.get('wt.log', []);
+const DOW = '일월화수목금토';
+const dkey = t => { const d = new Date(t); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); };
+const kDate = k => new Date(Math.floor(k / 10000), Math.floor(k / 100) % 100 - 1, k % 100);
+const md = t => { const d = new Date(t); return `${d.getMonth() + 1}/${d.getDate()} (${DOW[d.getDay()]})`; };
+const hm = t => { const d = new Date(t); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+function saveRec(full) {
+  if (!S.steps || !S.t0) return;
+  const upto = full ? S.steps.length : S.i;
+  const it = cfg.rt.map((x, i) => { const all = S.steps.filter(z => z.ph === 'work' && z.ex === i); const done = S.steps.slice(0, upto).filter(z => z.ph === 'work' && z.ex === i).length;
+    return {nm: x.nm, sets: done, of: all.length, one: x.rounds * x.sets === 1, work: x.work}; }).filter(x => x.sets);
+  if (!it.length) return;
+  const L = getLog().filter(x => x.id !== S.t0);
+  L.push({id: S.t0, s: S.t0, e: Date.now(), nm: cfg.rtName || '', it, full: !!full});
+  ls.set('wt.log', L);
+}
+function recTxt(r) {
+  const mins = Math.max(1, Math.round((r.e - r.s) / 60000));
+  return `${md(r.s)} ${hm(r.s)}~${hm(r.e)} · ${r.nm ? r.nm + ' · ' : ''}${r.it.map(x => x.one ? `${x.nm} ${sayDur(x.work)}` : `${x.nm} ${x.sets}세트${x.sets < x.of ? '/' + x.of : ''}`).join(', ')} · ${mins}분${r.full ? '' : ' (중간 종료)'}`;
+}
+function copyTxt(t) {
+  const ok = () => toast('복사됨');
+  try { navigator.clipboard.writeText(t).then(ok, fb); } catch (e) { fb(); }
+  function fb() { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); ok(); } catch (x) {} a.remove(); }
+}
+let toastT = 0;
+function toast(t) { const el = $('#toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => el.style.display = 'none', 1600); }
+/* 검색: 띄어쓰기 무시·초성(ㅇㄷ→윗등) */
+const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+const cho = t => [...t].map(c => { const k = c.charCodeAt(0) - 0xAC00; return k >= 0 && k < 11172 ? CHO[Math.floor(k / 588)] : c; }).join('');
+const nz = t => t.replace(/\s+/g, '').toLowerCase();
+function hit(text, q) { const a = nz(text), b = nz(q); if (!b) return true; if (a.includes(b)) return true; return /^[ㄱ-ㅎ]+$/.test(b) && cho(a).includes(b); }
+function hl(text, q) { const b = q.trim(); if (!b || !text.includes(b)) return text; return text.split(b).join(`<mark>${b}</mark>`); }
+const LG = {k: dkey(Date.now()), mode: 1, q: '', sOn: false};
+function paintLog() {
+  const box = $('#logBox'); if (!box) return;
+  const L = getLog().sort((a, b) => b.s - a.s), today = dkey(Date.now());
+  const days = [...new Set(L.map(x => dkey(x.s)))].sort((a, b) => b - a);
+  if (LG.mode === 1 && days.length && !days.includes(LG.k) && LG.k !== today) LG.k = days.find(d => d < LG.k) || days[days.length - 1];
+  const lo = (() => { const d = kDate(LG.k); d.setDate(d.getDate() - LG.mode + 1); return dkey(d); })();
+  const list = LG.q ? L.filter(x => hit(recTxt(x), LG.q)) : L.filter(x => { const k = dkey(x.s); return k >= lo && k <= LG.k; });
+  const lab = LG.mode === 1 ? md(kDate(LG.k)) : `${md(kDate(lo))} ~ ${md(kDate(LG.k))}`;
+  const todayTag = LG.k === today ? '<span class="today">오늘</span>' : '';
+  let html = `<div class="chips pal" style="justify-content:flex-start">${[[1, '하루'], [3, '3일'], [7, '1주']].map(([m, t]) => `<button class="chip ${LG.mode === m ? 'on' : ''}" data-lm="${m}">${t}</button>`).join('')}<button class="chip ${LG.sOn ? 'on' : ''}" id="lgS">🔍</button>${list.length ? '<button class="chip" id="lgAll">이 화면 복사</button>' : ''}</div>`
+    + (LG.sOn ? `<input class="srch" id="lgQ" placeholder="종목·루틴 검색 (초성 가능: ㅇㄷ)" value="${LG.q.replace(/"/g, '&quot;')}">` : '');
+  if (!LG.q) html += `<div class="lnav"><button class="nb" data-ln="-1">‹</button><div class="ld">${lab}${todayTag}<small>${list.length}건</small></div><button class="nb" data-ln="1">›</button></div>`;
+  else html += `<p class="sum">「${LG.q}」 ${list.length}건</p>`;
+  let last = 0;
+  html += `<div id="logList">` + (list.length ? list.map(x => { const k = dkey(x.s), head = (LG.mode > 1 || LG.q) && k !== last ? `<div class="lgd">${md(x.s)}${k === today ? ' · 오늘' : ''}</div>` : ''; last = k;
+    return head + `<div class="lg" data-lid="${x.id}"><div class="t"><span><b>${hl(x.nm || '자유 운동', LG.q)}</b> ${hm(x.s)}~${hm(x.e)} · ${Math.max(1, Math.round((x.e - x.s) / 60000))}분${x.full ? '' : ' · 중간 종료'}</span><button class="mini" data-lc="${x.id}">복사</button></div><div class="b">${hl(x.it.map(y => y.one ? `${y.nm} ${sayDur(y.work)}` : `${y.nm} ${y.sets}세트${y.sets < y.of ? '/' + y.of : ''}`).join(' · '), LG.q)}</div></div>`; }).join('')
+    : `<p class="hint">${days.length ? '이 기간엔 기록이 없어요' : '운동을 끝까지 하면(또는 중간에 설정으로 나오면) 여기 날짜별로 쌓여요'}</p>`) + `</div>`;
+  box.innerHTML = html;
+  box.querySelectorAll('[data-lm]').forEach(b => b.onclick = () => { LG.mode = +b.dataset.lm; paintLog(); });
+  $('#lgS').onclick = () => { LG.sOn = !LG.sOn; if (!LG.sOn) LG.q = ''; paintLog(); if (LG.sOn) $('#lgQ').focus(); };
+  if ($('#lgQ')) $('#lgQ').oninput = e => { LG.q = e.target.value; const pos = e.target.selectionStart; paintLog(); const q = $('#lgQ'); q.focus(); q.setSelectionRange(pos, pos); };
+  if ($('#lgAll')) $('#lgAll').onclick = () => copyTxt(list.slice().reverse().map(recTxt).join('\n'));
+  box.querySelectorAll('[data-ln]').forEach(b => b.onclick = () => logMove(+b.dataset.ln));
+  box.querySelectorAll('[data-lc]').forEach(b => b.onclick = e => { e.stopPropagation(); const x = L.find(z => z.id === +b.dataset.lc); if (x) copyTxt(recTxt(x)); });
+  box.querySelectorAll('[data-lid]').forEach(el => longPress(el, () => { const id = +el.dataset.lid; if (!confirm('이 기록을 지울까요?')) return; ls.set('wt.log', getLog().filter(z => z.id !== id)); paintLog(); paintRts(); }));
+  swipeLog();
+}
+function logMove(d) {
+  const days = [...new Set(getLog().map(x => dkey(x.s)))].sort((a, b) => a - b), today = dkey(Date.now());
+  if (LG.mode === 1) { /* 기록 없는 날은 건너뜀 */
+    const pool = [...new Set(days.concat(today))].sort((a, b) => a - b);
+    const nx = d < 0 ? pool.filter(k => k < LG.k).pop() : pool.find(k => k > LG.k);
+    if (!nx) return toast(d < 0 ? '더 이전 기록 없음' : '가장 최근이에요');
+    LG.k = nx;
+  } else { const t = kDate(LG.k); t.setDate(t.getDate() + d * LG.mode); const k = dkey(t); if (k > today) return toast('가장 최근이에요'); LG.k = k; }
+  paintLog();
+}
+function swipeLog() {
+  const el = $('#logList'); if (!el || LG.q) return;
+  let x0 = null, y0 = 0, dx = 0, lock = '';
+  el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = 0; lock = ''; el.classList.add('drag'); }, {passive: true});
+  el.addEventListener('touchmove', e => { if (x0 == null) return; const ddx = e.touches[0].clientX - x0, ddy = e.touches[0].clientY - y0;
+    if (!lock) lock = Math.abs(ddx) > Math.abs(ddy) ? 'x' : 'y'; if (lock !== 'x') return; dx = ddx; el.style.transform = `translateX(${dx}px)`; }, {passive: true});
+  el.addEventListener('touchend', () => { el.classList.remove('drag'); if (x0 == null) return; x0 = null;
+    if (lock === 'x' && Math.abs(dx) > 60) { const d = dx < 0 ? 1 : -1; el.style.transform = `translateX(${dx < 0 ? -110 : 110}%)`;
+      setTimeout(() => { const k0 = LG.k; logMove(d); const n = $('#logList'); if (n && LG.k !== k0) { n.classList.add('drag'); n.style.transform = `translateX(${dx < 0 ? 110 : -110}%)`; requestAnimationFrame(() => requestAnimationFrame(() => { n.classList.remove('drag'); n.style.transform = ''; })); } else if (n) n.style.transform = ''; }, 200);
+    } else el.style.transform = ''; });
+}
 /* ================= 타이머 ================= */
 const S = {steps: null, i: 0, endAt: 0, left: 0, paused: false, t0: 0, raf: 0, lastSec: -1, said: {}};
 let wake = null;
@@ -522,8 +683,10 @@ const isOne = s => { const it = cfg.rt[s.ex]; return it && it.rounds * it.sets =
 const isRest = ph => ph === 'rest' || ph === 'rrest' || ph === 'irest';
 
 function phaseSound(s, silent) {
-  if (s.ph === 'work') { musicStart(vc.wMusic); if (!silent && vc.wOn && vc.wSay) setTimeout(() => say(fill(P(isOne(s) ? 'oneStart' : 'workStart'), s), 'work'), 250); }
-  else if (isRest(s.ph)) { musicStart(vc.rMusic); if (!silent && vc.rOn) setTimeout(() => say(fill(P(s.ph === 'rest' ? 'restStart' : s.ph + 'Start'), s), 'rest'), 300); }
+  const it = cfg.rt[s.ex], sub = s.ph === 'work' ? subOf(it, s.s) : '';
+  const nx = S.steps && S.steps[S.i + 1], nsub = nx && nx.ph === 'work' && nx.ex === s.ex ? subOf(it, nx.s) : '';
+  if (s.ph === 'work') { musicStart(vc.wMusic); if (!silent && vc.wOn && vc.wSay) setTimeout(() => say(sub ? `${sub}! ${sayDur(s.d)}! 털어버려!` : fill(P(isOne(s) ? 'oneStart' : 'workStart'), s), 'work'), 250); }
+  else if (isRest(s.ph)) { musicStart(vc.rMusic); if (!silent && vc.rOn) setTimeout(() => say(fill(P(s.ph === 'rest' ? 'restStart' : s.ph + 'Start'), s) + (nsub ? ` 다음은 ${nsub}.` : ''), 'rest'), 300); }
   else { musicStop(); if (!silent && s.ph === 'done' && vc.wOn) say(P('done'), 'work'); }
 }
 /* ---- 자막 ---- */
@@ -531,7 +694,8 @@ const C = {t: 0, n: 0, list: [], ph: ''};
 function capList(s) {
   const it = cfg.rt[s.ex] || {}, prev = cfg.rt[s.ex - 1] || {};
   const lines = s.ph === 'work' ? CAPS(isOne(s) ? 'long' : 'work') : isRest(s.ph) ? CAPS('rest') : [];
-  const head = s.ph === 'work' ? [`지금은 ${it.nm}`, `Now: ${it.nm}`] : s.ph === 'rrest' ? [`${it.nm} ${s.r}라운드 끝!`, `Round ${s.r} done.`]
+  const sub = s.ph === 'work' ? subOf(it, s.s) : '';
+  const head = s.ph === 'work' ? (sub ? [`지금은 ${sub}`, `Now: ${sub}`] : [`지금은 ${it.nm}`, `Now: ${it.nm}`]) : s.ph === 'rrest' ? [`${it.nm} ${s.r}라운드 끝!`, `Round ${s.r} done.`]
     : s.ph === 'irest' ? [`${prev.nm} 끝! 다음은 ${it.nm}`, `${prev.nm} done. Next: ${it.nm}`] : s.ph === 'prep' ? [`오늘 첫 운동: ${it.nm}`, `First up: ${it.nm}`]
     : s.ph === 'done' ? ['오늘 운동 끝! 수고했다', 'Mission complete.'] : null;
   const all = head ? [head].concat(lines) : lines;
@@ -554,6 +718,7 @@ function sayCap(text) { if (vc.capOn && text) capText(text); }
 function enter(i, silent) {
   S.i = Math.max(0, Math.min(S.steps.length - 1, i));
   const s = S.steps[S.i];
+  if (s.ph === 'done') saveRec(true);
   S.left = s.d; S.endAt = performance.now() + s.d * 1000; S.lastSec = -1; S.said = {};
   if (!silent) { const c = CUE[s.ph]; vib(c[0]); beep(c[1], 220, .35); }
   if (!S.paused) phaseSound(s, silent);
@@ -603,12 +768,14 @@ function progress() {
 function paint() {
   const s = S.steps[S.i], n = S.steps[S.i + 1], it = cfg.rt[s.ex] || {};
   const run = $('#run'); run.dataset.ph = s.ph; run.classList.toggle('paused', S.paused);
-  $('#exn').textContent = s.ph === 'done' ? '오늘 운동 끝' : s.ph === 'irest' ? `다음: ${it.nm}` : it.nm;
+  const sub = s.ph === 'work' ? subOf(it, s.s) : '', nsub = n && n.ph === 'work' && n.ex === s.ex ? subOf(it, n.s) : '';
+  $('#exn').textContent = s.ph === 'done' ? '오늘 운동 끝' : s.ph === 'irest' ? `다음: ${it.nm}` : sub ? `${it.nm} · ${sub}` : it.nm;
+  $('#cpBtn').hidden = s.ph !== 'done';
   $('#phase').textContent = NAMES[s.ph];
   $('#time').textContent = s.ph === 'done' ? '✓' : fmt(S.left);
   $('#pos').textContent = s.ph === 'done' ? `${cfg.rt.length}종목 완료` : s.ph === 'irest' || s.ph === 'prep' ? `${it.rounds}라운드 × ${it.sets}세트` : isOne(s) ? '한 번에'
     : s.ph === 'work' ? `${s.r}라운드 · ${s.s}세트째` : s.ph === 'rrest' ? `${s.r}라운드 끝 · ${s.s}세트 했다` : `${s.r}라운드 · ${s.s}세트 했다`;
-  $('#next').textContent = n ? `다음 ${n.ph === 'work' && n.ex !== s.ex ? (cfg.rt[n.ex] || {}).nm : NAMES[n.ph]}${n.d ? ' ' + fmt(n.d) : ''}` : '';
+  $('#next').textContent = s.ph === 'done' ? '기록 저장됨 · 설정 → 운동 기록' : n ? `다음 ${nsub || (n.ph === 'work' && n.ex !== s.ex ? (cfg.rt[n.ex] || {}).nm : NAMES[n.ph])}${n.d ? ' ' + fmt(n.d) : ''}` : '';
   $('#pp').textContent = S.paused ? '▶' : '❚❚';
   paintArc();
   if (!$('#left').hidden) paintLeft();
@@ -638,6 +805,7 @@ function go(d) {
 function paintMute() { $('#muteBtn').textContent = vc.muted ? '소리 끔' : '소리'; $('#muteBtn').style.opacity = vc.muted ? .55 : 1; }
 $('#muteBtn').onclick = e => { e.stopPropagation(); vc.muted = !vc.muted; saveV(); paintMute(); if (vc.muted) { musicStop(); try { speechSynthesis.cancel(); } catch (x) {} } else if (!S.paused && S.steps) phaseSound(S.steps[S.i], true); };
 $('#leftBtn').onclick = e => { e.stopPropagation(); paintLeft(); $('#left').hidden = false; };
+$('#cpBtn').onclick = e => { e.stopPropagation(); const L = getLog().find(x => x.id === S.t0); if (L) copyTxt(recTxt(L)); };
 $('#left').onclick = e => { e.stopPropagation(); $('#left').hidden = true; };
 $('#start').onclick = () => start(false);
 $('#resume').onclick = () => start(true);
@@ -645,7 +813,7 @@ $('#pp').onclick = e => { e.stopPropagation(); togglePause(); };
 $('#prev').onclick = e => { e.stopPropagation(); go(-1); };
 $('#nxt').onclick = e => { e.stopPropagation(); go(1); };
 $('#core').onclick = togglePause;
-$('#menuBtn').onclick = e => { e.stopPropagation(); if (!S.paused) togglePause(); clearInterval(C.t); $('#run').hidden = true; $('#setup').classList.add('on'); paintSetup(); };
+$('#menuBtn').onclick = e => { e.stopPropagation(); if (S.steps && S.steps[S.i].ph !== 'done') saveRec(false); if (!S.paused) togglePause(); clearInterval(C.t); $('#run').hidden = true; $('#setup').classList.add('on'); paintSetup(); };
 document.querySelectorAll('[data-fs]').forEach(b => b.onclick = e => { e.stopPropagation(); try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (x) {} });
 $('#phr').addEventListener('toggle', () => { if ($('#phr').open) paintPhrases(); });
 let sx = null, sy = null;
