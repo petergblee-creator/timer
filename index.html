@@ -102,7 +102,7 @@ details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
 <div id="setup" class="on">
  <button class="fsb" data-fs>⛶</button>
  <div class="wrap">
-  <h2>오늘 할 운동 <small class="g">칩 누르면 추가 · 아래 종목 「고치기」에서 부위 바꾸기 · 「빼기」로 제거</small></h2>
+  <h2>오늘 할 운동 <small class="g">칩 누르면 추가 · 길게 누르면 이름 바꾸기 · 「고치기」에서 부위 바꾸기 · 「빼기」로 제거</small></h2>
   <div class="chips pal" id="pal"></div>
   <div id="rtList"></div>
   <div id="rows"></div>
@@ -155,12 +155,14 @@ details label{display:block;font-size:12px;color:#aaa;margin-top:8px}
 <script>
 (() => {
 /* ================= 운동 목록 ================= */
-const PAL_DEF = ['등운동', '이두운동', '삼두운동', '가슴운동', '어깨운동', '하체운동', '복근운동', '스트레칭', '러닝'];
+const PAL_DEF = ['윗등', '아랫등', '이두', '삼두', '윗가슴', '아랫가슴', '앞어깨', '옆어깨', '뒤어깨', '앞하체', '뒤하체', '다리 벌리기', '다리 쪼이기', '복근', '푸크크크', '스트레칭', '러닝'];
+const PAL_V = 2;
 const itemFor = nm => /러닝|달리기|유산소|걷기/.test(nm) ? {nm, rounds: 1, sets: 1, work: 1800, rest: 0, rrest: 0}
   : /스트레칭/.test(nm) ? {nm, rounds: 1, sets: 1, work: 300, rest: 0, rrest: 0}
+  : /푸크크/.test(nm) ? {nm, rounds: 1, sets: 4, work: 45, rest: 15, rrest: 0}
   : {nm, rounds: 5, sets: 4, work: 45, rest: 15, rrest: 120};
-const RT_DEF = [itemFor('등운동'), itemFor('이두운동'), itemFor('스트레칭'), itemFor('러닝')];
-const DEF = {prep: 10, irest: 120, rt: RT_DEF, pal: PAL_DEF};
+const RT_DEF = [itemFor('윗등'), itemFor('이두'), itemFor('스트레칭'), itemFor('러닝')];
+const DEF = {prep: 10, irest: 120, rt: RT_DEF, pal: PAL_DEF, palV: PAL_V};
 const IF = [['rounds', '라운드', 1, 1, 30], ['sets', '라운드당 세트', 1, 1, 20], ['work', '운동', 5, 5, 7200], ['rest', '세트 사이 휴식', 5, 0, 600], ['rrest', '라운드 사이 휴식', 10, 0, 900]];
 /* 말·자막 문구 — {종목} {라운드} {세트} {초}=구간 길이 {남}=남은 시간 {남은라운드} {다음종목} */
 const PH_DEF = {
@@ -191,6 +193,8 @@ const $ = s => document.querySelector(s);
 const ls = {get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }};
 const clone = o => JSON.parse(JSON.stringify(o));
 let cfg = Object.assign(clone(DEF), ls.get('wt.cfg2', {}));
+/* 부위 목록 새 버전: 옛 기본 칩(○○운동)만 새 목록으로, 직접 만든 칩은 뒤에 남김 */
+if ((ls.get('wt.cfg2', {}).palV || (ls.get('wt.cfg2', null) ? 1 : PAL_V)) < PAL_V) { const OLD = ['등운동', '이두운동', '삼두운동', '가슴운동', '어깨운동', '하체운동', '복근운동', '스트레칭', '러닝']; cfg.pal = PAL_DEF.concat((cfg.pal || []).filter(n => !OLD.includes(n) && !PAL_DEF.includes(n))); cfg.palV = PAL_V; ls.set('wt.cfg2', cfg); }
 if (!ls.get('wt.cfg2', null)) { const old = ls.get('wt.cfg', null); if (old && old.prep != null) cfg.prep = old.prep; }
 let vc = Object.assign({}, VDEF, ls.get('wt.voice', {}));
 const saveC = () => ls.set('wt.cfg2', cfg), saveV = () => ls.set('wt.voice', vc);
@@ -374,17 +378,19 @@ function editName(cur, onSet, onDel) {
   const v = prompt('이름 바꾸기 (비우고 확인 = 지우기)', cur);
   if (v === null) return; v.trim() ? onSet(v.trim()) : (confirm(`「${cur}」 지울까요?`) && onDel());
 }
+function renPal(i, v) { const old = cfg.pal[i]; cfg.pal[i] = v; cfg.rt.forEach(it => { if (it.nm === old) it.nm = v; }); saveC(); paintSetup(); }
+function delPal(i) { cfg.pal.splice(i, 1); saveC(); paintSetup(); }
 let openItem = -1;
 function paintPal() {
   $('#pal').innerHTML = cfg.pal.map((n, i) => `<button class="chip" data-pi="${i}">＋${n}</button>`).join('') + `<button class="chip add" id="palAdd">새 종목</button>`;
   $('#pal').querySelectorAll('[data-pi]').forEach(b => { const i = +b.dataset.pi; longPress(b,
-    () => editName(cfg.pal[i], v => { cfg.pal[i] = v; saveC(); paintPal(); }, () => { cfg.pal.splice(i, 1); saveC(); paintPal(); }),
+    () => editName(cfg.pal[i], v => renPal(i, v), () => delPal(i)),
     () => { cfg.rt.push(itemFor(cfg.pal[i])); openItem = cfg.rt.length - 1; saveC(); paintSetup(); }); });
-  $('#palAdd').onclick = () => { const v = (prompt('새 종목 이름 (예: 등운동, 러닝)') || '').trim(); if (!v) return; cfg.pal.push(v); cfg.rt.push(itemFor(v)); openItem = cfg.rt.length - 1; saveC(); paintSetup(); };
+  $('#palAdd').onclick = () => { const v = (prompt('새 종목 이름 (예: 윗등, 러닝)') || '').trim(); if (!v) return; cfg.pal.push(v); cfg.rt.push(itemFor(v)); openItem = cfg.rt.length - 1; saveC(); paintSetup(); };
 }
 const itemSum = it => it.rounds * it.sets === 1 ? `${fmtS(it.work)} 한 번` : `${it.rounds}라운드 × ${it.sets}세트 · 운동 ${fmtS(it.work)} / 쉬기 ${fmtS(it.rest)}${it.rounds > 1 ? ` · 라운드 사이 ${fmtS(it.rrest)}` : ''}`;
 function paintRt() {
-  $('#rtList').innerHTML = cfg.rt.length ? cfg.rt.map((it, i) => `<div class="rt"><div class="hd" data-ri="${i}"><b>${i + 1}. ${it.nm}</b><span>${itemSum(it)}</span><em>${openItem === i ? '접기' : '고치기'}</em><button class="mini" data-del="${i}">빼기</button></div>${openItem === i ? `<div class="bd"><div class="row"><span class="lb">부위</span><span class="chips">${cfg.pal.map(n => `<button class="chip ${n === it.nm ? 'on' : ''}" data-sw="${n}" data-ii="${i}">${n}</button>`).join('')}<button class="chip add" data-ren="${i}">이름 직접</button></span></div>${IF.map(([k, n]) => `<div class="row"><span class="lb">${n}</span><span class="step"><button data-ik="${k}" data-ii="${i}" data-d="-1">−</button><b>${k === 'rounds' || k === 'sets' ? it[k] : fmtS(it[k])}</b><button data-ik="${k}" data-ii="${i}" data-d="1">+</button></span></div>`).join('')}<div class="row"><span class="chips" style="justify-content:flex-start"><button class="mini" data-mv="-1" data-ii="${i}">위로</button><button class="mini" data-mv="1" data-ii="${i}">아래로</button></span></div></div>` : ''}</div>`).join('')
+  $('#rtList').innerHTML = cfg.rt.length ? cfg.rt.map((it, i) => `<div class="rt"><div class="hd" data-ri="${i}"><b>${i + 1}. ${it.nm}</b><span>${itemSum(it)}</span><em>${openItem === i ? '접기' : '고치기'}</em><button class="mini" data-del="${i}">빼기</button></div>${openItem === i ? `<div class="bd"><div class="row"><span class="lb">부위</span><span class="chips">${cfg.pal.map(n => `<button class="chip ${n === it.nm ? 'on' : ''}" data-sw="${n}" data-pi2="${cfg.pal.indexOf(n)}" data-ii="${i}">${n}</button>`).join('')}<button class="chip add" data-ren="${i}">이름 직접</button></span></div>${IF.map(([k, n]) => `<div class="row"><span class="lb">${n}</span><span class="step"><button data-ik="${k}" data-ii="${i}" data-d="-1">−</button><b>${k === 'rounds' || k === 'sets' ? it[k] : fmtS(it[k])}</b><button data-ik="${k}" data-ii="${i}" data-d="1">+</button></span></div>`).join('')}<div class="row"><span class="chips" style="justify-content:flex-start"><button class="mini" data-mv="-1" data-ii="${i}">위로</button><button class="mini" data-mv="1" data-ii="${i}">아래로</button></span></div></div>` : ''}</div>`).join('')
     : `<p class="hint">위에서 운동을 눌러 추가하세요</p>`;
   $('#rtList').querySelectorAll('[data-ri]').forEach(h => { const i = +h.dataset.ri; longPress(h,
     () => editName(cfg.rt[i].nm, v => { cfg.rt[i].nm = v; saveC(); paintSetup(); }, () => { cfg.rt.splice(i, 1); openItem = -1; saveC(); paintSetup(); }),
@@ -395,8 +401,10 @@ function paintRt() {
     it[f[0]] = Math.min(f[4], Math.max(f[3], it[f[0]] + st * +b.dataset.d)); saveC(); paintSetup();
   });
   $('#rtList').querySelectorAll('[data-mv]').forEach(b => b.onclick = () => { const i = +b.dataset.ii, j = i + +b.dataset.mv; if (j < 0 || j >= cfg.rt.length) return; [cfg.rt[i], cfg.rt[j]] = [cfg.rt[j], cfg.rt[i]]; openItem = j; saveC(); paintSetup(); });
-  $('#rtList').querySelectorAll('[data-sw]').forEach(b => b.onclick = () => { const it = cfg.rt[+b.dataset.ii], n = b.dataset.sw, kind = x => /러닝|달리기|유산소|걷기/.test(x) ? 'run' : /스트레칭/.test(x) ? 'st' : 'w';
-    if (kind(n) !== kind(it.nm)) Object.assign(it, itemFor(n)); else it.nm = n; saveC(); paintSetup(); });
+  $('#rtList').querySelectorAll('[data-sw]').forEach(b => { const pi = +b.dataset.pi2; longPress(b,
+    () => editName(cfg.pal[pi], v => renPal(pi, v), () => delPal(pi)),
+    () => { const it = cfg.rt[+b.dataset.ii], n = b.dataset.sw, kind = x => /러닝|달리기|유산소|걷기/.test(x) ? 'run' : /스트레칭/.test(x) ? 'st' : 'w';
+    if (kind(n) !== kind(it.nm)) Object.assign(it, itemFor(n)); else it.nm = n; saveC(); paintSetup(); }); });
   $('#rtList').querySelectorAll('[data-ren]').forEach(b => b.onclick = () => { const i = +b.dataset.ren, v = (prompt('종목 이름', cfg.rt[i].nm) || '').trim(); if (v) { cfg.rt[i].nm = v; saveC(); paintSetup(); } });
   $('#rtList').querySelectorAll('[data-del]').forEach(b => b.onclick = e => { e.stopPropagation(); if (!confirm(`「${cfg.rt[+b.dataset.del].nm}」 빼기?`)) return; cfg.rt.splice(+b.dataset.del, 1); openItem = -1; saveC(); paintSetup(); });
 }
@@ -477,7 +485,7 @@ function vSelect(k) {
 function paintVoice() {
   const box = $('#vrows'); if (!box) return;
   box.innerHTML = tog('wOn', '운동 음성', vc.wOn, '남자·박력')
-    + (vc.wOn ? tog('wSay', '　시작 때 「등운동 2라운드 3세트! 45초!」', vc.wSay) + stepper('wWarn', '　남은 시간 알림', vc.wWarn ? vc.wWarn + '초' : '끔', '0=끔')
+    + (vc.wOn ? tog('wSay', '　시작 때 「윗등 2라운드 3세트! 45초!」', vc.wSay) + stepper('wWarn', '　남은 시간 알림', vc.wWarn ? vc.wWarn + '초' : '끔', '0=끔')
       + `<div class="row"><span class="lb">　목소리</span>${vSelect('wVoice')}</div>` + stepper('wPitch', '　굵기', vc.wPitch.toFixed(1), '낮을수록 굵음') : '')
     + tog('rOn', '휴식 음성', vc.rOn, '여자·응원')
     + (vc.rOn ? stepper('rWarn', '　남은 시간 알림', vc.rWarn ? vc.rWarn + '초' : '끔', '0=끔') + tog('rHalf', '　긴 휴식 50% 알림', vc.rHalf)
