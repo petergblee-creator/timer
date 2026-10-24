@@ -36,6 +36,9 @@ a{color:#F5C400}
 /* 종목·숫자·라운드 글자: 배경 사진 위에서도 잘 보이게 흰 글자 + 진한 그림자 */
 #exn,#phase,#time,#pos,#next{color:#fff!important;text-shadow:0 0 3px #000,0 2px 6px rgba(0,0,0,.9),0 0 14px rgba(0,0,0,.6)}
 #next{opacity:.95}
+#pos .ln{display:flex;align-items:center;justify-content:center;gap:1.6vmin}
+#pos .tg{font-size:.6em;font-weight:800;padding:.2vmin 1.4vmin;border-radius:99px;background:rgba(0,0,0,.45);text-shadow:none}
+#pos .sm{font-size:3.9vmin;font-weight:700;opacity:.92;margin-top:.4vmin}
 #pauseTag{font-size:5vmin;font-weight:900;background:rgba(0,0,0,.55);color:#fff;padding:.5vmin 3vmin;border-radius:99px;display:none}
 #run.paused #pauseTag{display:inline-block}
 #cap{position:relative;z-index:3;margin:0 4vmin 2vmin;text-align:center;font-size:6.4vmin;font-weight:900;line-height:1.3;min-height:1.3em;white-space:nowrap;overflow:hidden;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.85),0 0 2px #000;transition:opacity .35s;font-family:var(--capf,inherit)}
@@ -45,7 +48,7 @@ a{color:#F5C400}
 .ctrl #prev,.ctrl #nxt{margin-bottom:5vmin}
 .ctrl button:active{background:rgba(0,0,0,.5)}
 .tb{position:relative;z-index:4;padding:max(4vmin,env(safe-area-inset-top)) 4vmin 0;display:flex;justify-content:space-between;gap:2vmin}
-.tb button{font-size:4.2vmin;font-weight:800;padding:.8vmin 3vmin;border-radius:99px;background:rgba(0,0,0,.3)}
+.tb button{font-size:4.2vmin;font-weight:800;padding:.8vmin 3vmin;border-radius:99px;background:rgba(0,0,0,.35);color:#fff;text-shadow:0 1px 3px #000}
 #left{position:absolute;inset:0;z-index:9;background:rgba(0,0,0,.88);color:#fff;padding:8vmin 6vmin;overflow-y:auto}
 #left h3{font-size:5.5vmin;margin-bottom:3vmin}
 #left .it{display:flex;justify-content:space-between;gap:3vmin;font-size:5vmin;padding:2.2vmin 0;border-bottom:1px solid #333}
@@ -776,8 +779,21 @@ function paint() {
   $('#cpBtn').hidden = s.ph !== 'done';
   $('#phase').textContent = NAMES[s.ph];
   $('#time').textContent = s.ph === 'done' ? '✓' : fmt(S.left);
-  $('#pos').textContent = s.ph === 'done' ? `${cfg.rt.length}종목 완료` : s.ph === 'irest' || s.ph === 'prep' ? `${it.rounds}라운드 × ${it.sets}세트` : isOne(s) ? '한 번에'
-    : s.ph === 'work' ? `${s.r}라운드 · ${s.s}세트째` : s.ph === 'rrest' ? `${s.r}라운드 끝 · ${s.s}세트 했다` : `${s.r}라운드 · ${s.s}세트 했다`;
+  /* 윗줄(조금 크게) = 「한」 지금까지 한 것 / 아랫줄(작게) = 「남은」 남은 라운드·세트 */
+  const ln = (tg, t, cls) => `<div class="ln ${cls || ''}"><span class="tg">${tg}</span><span>${t}</span></div>`;
+  let pos;
+  if (s.ph === 'done') pos = `${cfg.rt.length}종목 완료`;
+  else if (isOne(s)) pos = '한 번에';
+  else {
+    const mine = S.steps.filter(x => x.ph === 'work' && x.ex === s.ex).length;
+    const done = S.steps.slice(0, S.i + (s.ph === 'work' ? 0 : 1)).filter(x => x.ph === 'work' && x.ex === s.ex).length;
+    const leftSets = mine - done - (s.ph === 'work' ? 1 : 0);
+    const roundsLeft = s.ph === 'irest' || s.ph === 'prep' ? it.rounds : it.rounds - s.r;
+    const top = s.ph === 'irest' || s.ph === 'prep' ? ln('할', `${it.rounds}라운드 × ${it.sets}세트`)
+      : s.ph === 'work' ? ln('지금', `${s.r}라운드 · ${s.s}세트째`) : ln('한', `${s.r}라운드 · ${s.s}세트${s.ph === 'rrest' ? ' (라운드 끝)' : ''}`);
+    pos = top + ln('남은', `${roundsLeft}라운드 · ${leftSets}세트`, 'sm');
+  }
+  $('#pos').innerHTML = pos;
   $('#next').textContent = s.ph === 'done' ? '기록 저장됨 · 설정 → 운동 기록' : n ? `다음 ${nsub || (n.ph === 'work' && n.ex !== s.ex ? (cfg.rt[n.ex] || {}).nm : NAMES[n.ph])}${n.d ? ' ' + fmt(n.d) : ''}` : '';
   $('#pp').textContent = S.paused ? '▶' : '❚❚';
   paintArc();
