@@ -123,6 +123,45 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 @keyframes fl{to{background:transparent;color:inherit}}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#F5C400;color:#111;font-weight:800;font-size:13px;padding:7px 14px;border-radius:99px;z-index:99;display:none}
 .fn{font-size:12px;color:#aaa;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ---------- 기록 탭 (사진 타임라인) ---------- */
+.tabs{display:flex;gap:6px;margin:0 44px 6px 0}
+.tabs button{flex:1;padding:8px 0;border-radius:10px;background:#1a1a1a;font-size:14px;font-weight:800;color:#888}
+.tabs button.on{background:#F5C400;color:#111}
+#recList{transition:transform .22s ease;touch-action:pan-y}
+#recList.drag{transition:none}
+.rsum{font-size:12px;color:#ccc;line-height:1.5;background:#111;border:1px solid #262626;border-radius:10px;padding:7px 9px;margin:6px 0}
+.rsum b{color:#F5C400}
+.tl{position:relative;padding-left:14px;margin:8px 0}
+.tl::before{content:"";position:absolute;left:4px;top:6px;bottom:-10px;width:2px;background:#262626}
+.tl:last-child::before{display:none}
+.tl::after{content:"";position:absolute;left:0;top:5px;width:10px;height:10px;border-radius:50%;background:#F5C400}
+.tl .hd2{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.tl .tm{font-size:12px;color:#F5C400;font-weight:800;font-variant-numeric:tabular-nums}
+.tl .tm.q{color:#777;font-weight:400}
+.tl .ti{font-size:14px;font-weight:800}
+.tl .ct{font-size:10px;color:#aaa;border:1px solid #333;border-radius:99px;padding:0 6px}
+.ph2{display:flex;flex-wrap:wrap;gap:4px;margin:5px 0}
+.ph2 img,.ph2 .vd{width:62px;height:62px;object-fit:cover;border-radius:6px;background:#222;cursor:pointer}
+.ph2 .vd{position:relative;display:inline-block}
+.ph2 .vd img{width:100%;height:100%}
+.ph2 .vd::after{content:"▶";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px;text-shadow:0 0 6px #000}
+.cp{font-size:12px;line-height:1.55;color:#ddd;white-space:pre-line;user-select:text;-webkit-user-select:text}
+.my{font-size:12px;line-height:1.5;color:#9fd;margin-top:3px;white-space:pre-line}
+.my.e{color:#666}
+.gr{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;align-items:center}
+.gr .gl{font-size:10px;color:#888}
+.gc{font-size:11px;padding:3px 8px;border-radius:99px;background:#1d1d1d;border:1px solid #333}
+.gc.ok{background:#22C55E;color:#062;border-color:#22C55E;font-weight:800}
+.gc.ok::before{content:"✓ "}
+.gc.add{border-style:dashed;color:#888}
+.rbar{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0}
+.rbar .chip{font-size:12px;padding:5px 9px}
+.chip.live{background:#FF4D2E;font-weight:800;animation:bl .8s infinite alternate}
+#pv{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.86);display:flex;align-items:center;justify-content:center}
+#pvBox img,#pvBox video{max-width:84vw;max-height:72vh;border-radius:8px;display:block}
+.pvn{position:absolute;top:50%;transform:translateY(-50%);width:56px;height:80px;font-size:34px;font-weight:900;color:#fff;background:rgba(255,255,255,.08);border-radius:10px}
+.pvn[data-pv="-1"]{left:6px}.pvn[data-pv="1"]{right:6px}
+#pvCap{position:absolute;left:0;right:0;bottom:max(16px,env(safe-area-inset-bottom));text-align:center;font-size:12px;color:#ccc;padding:0 20px}
 /* 펼친 화면·가로 분할: 버튼을 오른쪽 세로로 */
 @media (min-aspect-ratio:9/10){.ctrl{position:absolute;right:3vmin;top:50%;transform:translateY(-50%);flex-direction:column;align-items:center;padding:0;gap:2.5vmin}.ctrl #prev,.ctrl #nxt{margin:0}.ctrl button{width:12vmin;height:12vmin;font-size:6vmin}.core,#cap{margin-right:18vmin}#cap{margin-left:4vmin}}
 </style>
@@ -132,6 +171,9 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 <div id="setup" class="on">
  <button class="fsb" data-fs>⛶</button>
  <div class="wrap">
+  <div class="tabs"><button data-tab="T">타이머</button><button data-tab="R">기록</button></div>
+  <div id="tabR" hidden></div>
+  <div id="tabT">
   <h2>루틴 <small class="g">누르면 오늘 운동을 이걸로 바꿈 · 길게 누르면 이름 바꾸기 · 노란 테두리 = 4분할 다음 차례</small></h2>
   <div class="chips pal" id="rts"></div>
   <h2>오늘 할 운동 <small class="g">칩 누르면 추가 · 길게 누르면 이름 바꾸기 · 「고치기」에서 부위 바꾸기 · 「빼기」로 제거</small></h2>
@@ -163,8 +205,10 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 
   <button class="sec" id="reset">운동 목록 기본값으로</button>
   <p class="hint">실행 중: 가운데 탭 = 멈춤/계속 · ‹ 이전 · › 다음 · 좌우로 밀어도 이동 · 「남은」 = 남은 운동 보기<br>설정·사진·음악은 이 기기에만 저장</p>
+  </div>
  </div>
 </div>
+<div id="pv" hidden><button class="pvn" data-pv="-1">‹</button><div id="pvBox"></div><button class="pvn" data-pv="1">›</button><div id="pvCap"></div></div>
 
 <div id="toast"></div>
 <div id="run" data-ph="prep" hidden>
@@ -678,8 +722,148 @@ function swipeLog() {
       setTimeout(() => { const k0 = LG.k; logMove(d); const n = $('#logList'); if (n && LG.k !== k0) { n.classList.add('drag'); n.style.transform = `translateX(${dx < 0 ? 110 : -110}%)`; requestAnimationFrame(() => requestAnimationFrame(() => { n.classList.remove('drag'); n.style.transform = ''; })); } else if (n) n.style.transform = ''; }, 200);
     } else el.style.transform = ''; });
 }
+/* ================= 기록 탭: 사진 + 캡션 타임라인 ================= */
+/* 기본 기록(Claude가 정리해 넣은 것). 사진은 rec/날짜/ 폴더. t='' = 시각 미상 */
+const REC = {
+ 20261024: [
+  {id: 'a1', t: '', tt: 720, cat: '식단', ti: '고구마 에어프라이어', ph: ['01', '02', '03'], gear: ['고구마'],
+   cap: '자색 고구마를 바스켓에 깔고 → 다이얼 200° 근처·타이머 30분으로 굽기\n껍질 쭈글·속 노랗게 완성 (7개) → 운동 전후 탄수화물'},
+  {id: 'a2', t: '15:42', cat: '준비', ti: '헬스장 탈의실 입장', vd: '04', ph: ['05'], gear: ['운동복', '양말', '수건', '쉐이커', '밴드', '헤드폰'],
+   cap: '서울 강남구 논현로 838 4층 · 탈의실 도착 (영상 메모 「입장 3:42」)\n가방 일단 바닥 매트 위에 → 짐 꺼내기 시작'},
+  {id: 'a3', t: '15:45', tq: 1, cat: '준비', ti: '발목 보호대 착용', ph: ['06', '07'], gear: ['발목 보호대(루미힐)', '양말'],
+   cap: '흰 양말 위에 루미힐 발목 보호대 → 찍찍이로 고정\n천국의 계단·하체 대비 발목 보호'},
+  {id: 'a4', t: '15:50', tq: 1, cat: '준비', ti: '가방 정리', ph: ['08', '09'], gear: ['수건', '쉐이커', '밴드'],
+   cap: '빨간 파우치·잡동사니 빼고 → 수건·밴드·쉐이커만 위로 정리\n운동 중 꺼내기 쉽게'},
+  {id: 'a5', t: '15:53', cat: '준비', ti: '출격 준비 완료', ph: ['10'], gear: ['헤드폰', '장갑', '벨트'],
+   cap: '타임마크 인증샷 · 민소매 + 헤드폰\n「다 정리하고 출격준비 완료 / 천천히 맘에 들게 제대로 했다」'},
+  {id: 'a6', t: '16:06', cat: '근력', ti: '가슴날 루틴 설정', ph: ['11'], gear: ['헤드폰'],
+   cap: '운동 타이머 → 윗가슴 4라운드×4세트 · 아랫가슴 4라운드×4세트\n운동 1:00 / 쉬기 1:00 / 라운드 사이 2:00 → 마무리 스트레칭 5:00'},
+  {id: 'a7', t: '16:10', tq: 1, cat: '근력', ti: '가슴 운동', ph: ['12', '13', '14'], gear: ['장갑', '벨트', '수건', '헤드폰'],
+   cap: '① 인클라인 벤치프레스 16kg 시작 → 20kg 유지 · 3라운드×4세트 = 12세트\n② 원판식 체스트프레스(벤치프레스 머신) 30kg 시작 → 양쪽 20kg 원판\n③ 해머스트렝스 펙 플라이(가슴 모으기) 45kg 정도'},
+  {id: 'a8', t: '', tt: 1050, cat: '유산소', ti: '천국의 계단', ph: [], gear: ['수건', '밴드(턱걸이 끈)', '쉐이커', '헤드폰', '발목 보호대(루미힐)'],
+   cap: '전광판 타이머로 시작·끝 기록 → 시각을 눌러 입력 (예: 17:10~17:40)'},
+ ],
+};
+const toMin = t => { const m = /(\d{1,2}):(\d{2})/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : null; };
+const recEd = () => ls.get('wt.recEd', {}), recMine = () => ls.get('wt.rec', []);
+const gearOk = () => ls.get('wt.gear', {});
+const RV = {k: dkey(Date.now()), q: '', sOn: false, cat: '', tab: ls.get('wt.tab', 'T')};
+const CATS = ['식단', '준비', '근력', '유산소', '타이머'];
+const urlCache = {};
+function dayCards(k) {
+  const ed = recEd();
+  const base = (REC[k] || []).map(c => Object.assign({k, base: 1}, c, ed[c.id] || {}));
+  const mine = recMine().filter(c => c.k === k).map(c => Object.assign({}, c, ed[c.id] || {}));
+  const logs = getLog().filter(x => dkey(x.s) === k).map(x => ({id: 'L' + x.id, k, t: hm(x.s) + '~' + hm(x.e), cat: '타이머', ti: (x.nm || '자유 운동') + ' · 타이머 자동 기록', ph: [], gear: [], auto: 1,
+    cap: x.it.map(y => y.one ? `${y.nm} ${sayDur(y.work)}` : `${y.nm} ${y.sets}세트${y.sets < y.of ? '/' + y.of : ''}`).join(' · ') + ` · ${Math.max(1, Math.round((x.e - x.s) / 60000))}분${x.full ? '' : ' (중간 종료)'}`}));
+  return base.concat(mine, logs).map(c => Object.assign(c, {sm: toMin(c.t) ?? c.tt ?? 9999})).sort((a, b) => a.sm - b.sm);
+}
+const recDays = () => [...new Set(Object.keys(REC).map(Number).concat(recMine().map(c => c.k), getLog().map(x => dkey(x.s)), [dkey(Date.now())]))].sort((a, b) => a - b);
+const cardTxt = c => [c.t, c.cat, c.ti, c.cap, c.my, (c.gear || []).join(' ')].join(' ');
+function paintRec() {
+  const box = $('#tabR'); if (!box) return;
+  const today = dkey(Date.now()), ok = gearOk();
+  let cards;
+  if (RV.q) cards = recDays().slice().reverse().flatMap(k => dayCards(k)).filter(c => hit(cardTxt(c), RV.q));
+  else cards = dayCards(RV.k);
+  const shown = RV.cat ? cards.filter(c => c.cat === RV.cat) : cards;
+  const live = ls.get('wt.cardio', null);
+  let h = `<div class="rbar"><button class="chip ${RV.sOn ? 'on' : ''}" id="rS">🔍</button>${CATS.map(c => `<button class="chip ${RV.cat === c ? 'on' : ''}" data-rc="${c}">${c}</button>`).join('')}</div>`
+    + (RV.sOn ? `<input class="srch" id="rQ" placeholder="종목·캡션·준비물 검색 (초성 가능: ㄱㄱㅁ)" value="${RV.q.replace(/"/g, '&quot;')}">` : '')
+    + `<div class="rbar"><button class="chip add" id="rAdd">＋ 사진 기록</button><button class="chip ${live ? 'live' : 'add'}" id="rCardio">${live ? `유산소 끝 (${hm(live.s)} 시작)` : '유산소 시작'}</button><input type="file" id="rFile" accept="image/*,video/*" multiple hidden></div>`;
+  if (!RV.q) {
+    h += `<div class="lnav"><button class="nb" data-rn="-1">‹</button><div class="ld">${md(kDate(RV.k))}${RV.k === today ? '<span class="today">오늘</span>' : ''}<small>${shown.length}건</small></div><button class="nb" data-rn="1">›</button></div>`;
+    const by = c => cards.filter(x => x.cat === c).map(x => x.ti.replace(/ · 타이머 자동 기록/, '')).join(', ');
+    const allGear = [...new Set(cards.flatMap(c => c.gear || []))], got = allGear.filter(g => cards.some(c => (ok[c.id] || {})[g]));
+    if (cards.length) h += `<div class="rsum">${['근력', '유산소', '식단', '타이머'].filter(c => by(c)).map(c => `<b>${c}</b> ${by(c)}`).join(' · ')}${allGear.length ? `<br><b>준비물</b> ${got.length}/${allGear.length} 챙김` : ''}</div>`;
+  } else h += `<p class="sum">「${RV.q}」 ${shown.length}건</p>`;
+  let last = 0;
+  h += `<div id="recList">` + (shown.length ? shown.map(c => {
+    const head = RV.q && c.k !== last ? `<div class="lgd">${md(kDate(c.k))}${c.k === today ? ' · 오늘' : ''}</div>` : ''; last = c.k;
+    const g = c.gear || [], o = ok[c.id] || {};
+    const media = (c.vd ? `<span class="vd" data-pv="${c.id}|v"><img src="rec/${c.k % 1000000}/${c.vd}.jpg" loading="lazy" alt=""></span>` : '')
+      + (c.ph || []).map((p, i) => `<img data-pv="${c.id}|${i}" ${c.base ? `src="rec/${c.k % 1000000}/${p}.jpg"` : `data-idb="${p}"`} loading="lazy" alt="">`).join('');
+    return head + `<div class="tl" data-cid="${c.id}"><div class="hd2"><span class="tm ${c.t && !c.tq ? '' : 'q'}" data-tm="${c.id}">${c.t ? (c.tq ? c.t + '경' : c.t) : '시각 미상 ✎'}</span><span class="ti" data-ren="${c.id}">${hl(c.ti, RV.q)}</span><span class="ct">${c.cat}</span></div>`
+      + (media ? `<div class="ph2">${media}</div>` : '')
+      + (c.cap ? `<div class="cp">${hl(c.cap, RV.q)}</div>` : '')
+      + (c.auto ? '' : `<div class="my ${c.my ? '' : 'e'}" data-my="${c.id}">${c.my ? '✎ ' + hl(c.my, RV.q) : '✎ 내 메모 쓰기'}</div>`)
+      + (c.auto ? '' : `<div class="gr"><span class="gl">준비물</span>${g.map((x, i) => `<button class="gc ${o[x] ? 'ok' : ''}" data-g="${c.id}|${i}">${hl(x, RV.q)}</button>`).join('')}<button class="gc add" data-ga="${c.id}">＋</button></div>`)
+      + `</div>`;
+  }).join('') : `<p class="hint">${RV.q ? '찾는 기록이 없어요' : '이 날은 기록이 없어요 · 「＋ 사진 기록」으로 넣기'}</p>`) + `</div>`;
+  box.innerHTML = h;
+  box.querySelectorAll('img[data-idb]').forEach(async im => { const k = im.dataset.idb; if (!urlCache[k]) { const b = await idb.get(k).catch(() => null); if (b) urlCache[k] = URL.createObjectURL(b); } if (urlCache[k]) im.src = urlCache[k]; });
+  $('#rS').onclick = () => { RV.sOn = !RV.sOn; if (!RV.sOn) RV.q = ''; paintRec(); if (RV.sOn) $('#rQ').focus(); };
+  if ($('#rQ')) $('#rQ').oninput = e => { RV.q = e.target.value; const p = e.target.selectionStart; paintRec(); const q = $('#rQ'); q.focus(); q.setSelectionRange(p, p); };
+  box.querySelectorAll('[data-rc]').forEach(b => b.onclick = () => { RV.cat = RV.cat === b.dataset.rc ? '' : b.dataset.rc; paintRec(); });
+  box.querySelectorAll('[data-rn]').forEach(b => b.onclick = () => recMove(+b.dataset.rn));
+  const all = RV.q ? cards : dayCards(RV.k), find = id => all.find(c => c.id === id);
+  const edit = (id, patch) => { const e = recEd(); e[id] = Object.assign(e[id] || {}, patch); ls.set('wt.recEd', e); paintRec(); };
+  box.querySelectorAll('[data-tm]').forEach(b => b.onclick = () => { const c = find(b.dataset.tm); if (!c || c.auto) return; const v = prompt('시각 (예: 17:10 또는 17:10~17:40)', c.t || ''); if (v === null) return; edit(c.id, {t: v.trim(), tq: 0}); });
+  box.querySelectorAll('[data-ren]').forEach(b => { const c = find(b.dataset.ren); if (!c || c.auto) return; longPress(b, () => { const v = prompt('제목 바꾸기' + (c.base ? '' : ' (비우면 이 기록 지우기)'), c.ti); if (v === null) return; if (!v.trim() && !c.base) { if (confirm('이 기록을 지울까요?')) { ls.set('wt.rec', recMine().filter(x => x.id !== c.id)); paintRec(); } return; } if (v.trim()) edit(c.id, {ti: v.trim()}); }); });
+  box.querySelectorAll('[data-my]').forEach(b => b.onclick = () => { const c = find(b.dataset.my), v = prompt('내 메모 (원문 그대로 저장)', c.my || ''); if (v !== null) edit(c.id, {my: v.trim()}); });
+  box.querySelectorAll('[data-g]').forEach(b => { const [id, i] = b.dataset.g.split('|'), c = find(id), nm = c.gear[+i];
+    longPress(b, () => { const v = prompt('준비물 이름 (비우면 지우기)', nm); if (v === null) return; const L = c.gear.slice(); v.trim() ? (L[+i] = v.trim()) : L.splice(+i, 1); edit(id, {gear: L}); },
+      () => { const g = gearOk(); g[id] = g[id] || {}; g[id][nm] = !g[id][nm]; ls.set('wt.gear', g); vib(20); paintRec(); }); });
+  box.querySelectorAll('[data-ga]').forEach(b => b.onclick = () => { const c = find(b.dataset.ga), v = (prompt('준비물 추가 (예: 수건)') || '').trim(); if (v) edit(c.id, {gear: (c.gear || []).concat(v)}); });
+  box.querySelectorAll('[data-pv]').forEach(b => b.onclick = () => { const [id, i] = b.dataset.pv.split('|'); openPv(find(id), i); });
+  $('#rAdd').onclick = () => $('#rFile').click();
+  $('#rFile').onchange = async e => {
+    const fs = [...e.target.files]; if (!fs.length) return;
+    const ti = (prompt('제목 (예: 등 운동, 점심 닭가슴살)') || '').trim() || '사진 기록';
+    const cat = (prompt('분류: 식단 / 준비 / 근력 / 유산소', '근력') || '근력').trim();
+    const id = 'u' + Date.now(), t0 = Math.min(...fs.map(f => f.lastModified || Date.now()));
+    const ph = []; for (let i = 0; i < fs.length; i++) { const key = 'rp:' + id + ':' + i; await idb.put(key, fs[i]); ph.push(key); }
+    const L = recMine(); L.push({id, k: dkey(t0), t: hm(t0), cat, ti, ph, gear: [], cap: ''}); ls.set('wt.rec', L);
+    RV.k = dkey(t0); paintRec(); toast('기록 추가');
+  };
+  $('#rCardio').onclick = () => {
+    const c = ls.get('wt.cardio', null);
+    if (!c) { const nm = (prompt('유산소 종목', '천국의 계단') || '').trim(); if (!nm) return; ls.set('wt.cardio', {s: Date.now(), nm}); toast(`${nm} 시작 ${hm(Date.now())}`); return paintRec(); }
+    const e = Date.now(), L = recMine();
+    L.push({id: 'u' + e, k: dkey(c.s), t: hm(c.s) + '~' + hm(e), cat: '유산소', ti: c.nm, ph: [], gear: ['수건', '쉐이커', '헤드폰'], cap: `${c.nm} ${Math.max(1, Math.round((e - c.s) / 60000))}분`});
+    ls.set('wt.rec', L); try { localStorage.removeItem('wt.cardio'); } catch (x) {} RV.k = dkey(c.s); paintRec(); toast('유산소 기록 저장');
+  };
+  swipeRec();
+}
+const PV = {c: null, i: 0, list: []};
+function openPv(c, i) {
+  if (!c) return; PV.c = c;
+  PV.list = (c.vd ? [{v: `rec/${c.k % 1000000}/${c.vd}.mp4`}] : []).concat((c.ph || []).map(p => ({p: c.base ? `rec/${c.k % 1000000}/${p}.jpg` : urlCache[p]})));
+  PV.i = i === 'v' ? 0 : +i + (c.vd ? 1 : 0); showPv(); $('#pv').hidden = false;
+}
+function showPv() {
+  const x = PV.list[PV.i]; if (!x) return;
+  $('#pvBox').innerHTML = x.v ? `<video src="${x.v}" controls autoplay muted playsinline></video>` : `<img src="${x.p}" alt="">`;
+  $('#pvCap').textContent = `${PV.c.t || ''} ${PV.c.ti} · ${PV.i + 1}/${PV.list.length}`;
+}
+$('#pv').onclick = e => { const n = e.target.closest('[data-pv]'); if (n) { e.stopPropagation(); PV.i = (PV.i + +n.dataset.pv + PV.list.length) % PV.list.length; return showPv(); } if (e.target.closest('video')) return; $('#pv').hidden = true; $('#pvBox').innerHTML = ''; };
+function recMove(d) {
+  const pool = recDays().filter(k => k === dkey(Date.now()) || dayCards(k).length);
+  const nx = d < 0 ? pool.filter(k => k < RV.k).pop() : pool.find(k => k > RV.k);
+  if (!nx) return toast(d < 0 ? '더 이전 기록 없음' : '가장 최근이에요');
+  RV.k = nx; paintRec();
+}
+function swipeRec() {
+  const el = $('#recList'); if (!el || RV.q) return;
+  let x0 = null, y0 = 0, dx = 0, lock = '';
+  el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = 0; lock = ''; el.classList.add('drag'); }, {passive: true});
+  el.addEventListener('touchmove', e => { if (x0 == null) return; const ddx = e.touches[0].clientX - x0, ddy = e.touches[0].clientY - y0;
+    if (!lock) lock = Math.abs(ddx) > Math.abs(ddy) ? 'x' : 'y'; if (lock !== 'x') return; dx = ddx; el.style.transform = `translateX(${dx}px)`; }, {passive: true});
+  el.addEventListener('touchend', () => { el.classList.remove('drag'); if (x0 == null) return; x0 = null;
+    if (lock === 'x' && Math.abs(dx) > 60) { const d = dx < 0 ? 1 : -1; el.style.transform = `translateX(${dx < 0 ? -110 : 110}%)`;
+      setTimeout(() => { const k0 = RV.k; recMove(d); const n = $('#recList'); if (n && RV.k !== k0) { n.classList.add('drag'); n.style.transform = `translateX(${dx < 0 ? 110 : -110}%)`; requestAnimationFrame(() => requestAnimationFrame(() => { n.classList.remove('drag'); n.style.transform = ''; })); } else if (n) n.style.transform = ''; }, 200);
+    } else el.style.transform = ''; });
+}
+function setTab(t) {
+  RV.tab = t; ls.set('wt.tab', t);
+  document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  $('#tabT').hidden = t !== 'T'; $('#tabR').hidden = t !== 'R';
+  if (t === 'R') paintRec();
+}
+document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+
 /* ================= 타이머 ================= */
-const S = {steps: null, i: 0, endAt: 0, left: 0, paused: false, t0: 0, raf: 0, lastSec: -1, said: {}};
+const S ={steps: null, i: 0, endAt: 0, left: 0, paused: false, t0: 0, raf: 0, lastSec: -1, said: {}};
 let wake = null;
 function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
 const CUE = {work: [[600], 1046], rest: [[200, 100, 200], 660], rrest: [[200, 100, 200, 100, 200], 523], irest: [[400, 150, 400], 523], prep: [[150], 784], done: [[800, 200, 800], 392]};
@@ -840,6 +1024,7 @@ $('#run').addEventListener('touchstart', e => { const t = e.touches[0]; sx = t.c
 $('#run').addEventListener('touchend', e => { if (sx == null || !$('#left').hidden) return; const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1); }, {passive: true});
 document.addEventListener('keydown', e => { if ($('#run').hidden) return; if (e.key === ' ' || e.key === 'Enter') togglePause(); if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); });
 paintSetup();
+setTab(RV.tab);
 })();
 </script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script></body>
