@@ -195,16 +195,31 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 .it2 .n{flex:none;color:#F5C400;width:14px}
 .it2 .x{flex:1;min-width:0}
 /* 유산소 전광판 */
-#led{position:fixed;inset:0;z-index:60;background:#050505;display:flex;flex-direction:column;gap:8px;padding:max(10px,env(safe-area-inset-top)) 14px max(12px,env(safe-area-inset-bottom))}
+#led{position:fixed;inset:0;z-index:60;background:#050505;color:#d8d1c4;display:flex;flex-direction:column;gap:6px;padding:max(8px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom))}
 #led .lt{display:flex;gap:6px;align-items:center}
-#led .lt .nm{flex:1;font-size:15px;font-weight:800;color:#d8d1c4;min-width:0}
-#led .lt button{font-size:12px;padding:6px 10px;border-radius:8px;background:#16140f;border:1px solid #24201a;color:#d8d1c4}
+#led button{font-size:12px;padding:6px 10px;border-radius:8px;background:#16140f;border:1px solid #24201a;color:#d8d1c4}
+#led button:disabled{opacity:.35}
+#led .seg{display:flex;border:1px solid #24201a;border-radius:8px;overflow:hidden}
+#led .seg button{border:0;border-radius:0;background:transparent;color:#77705f}
+#led .seg button.on{background:#16140f;color:#d8d1c4}
+#led .lrow{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+#led .lc{padding:5px 9px;font-variant-numeric:tabular-nums}
+#led .lc.on{background:#F5C400;color:#111;border-color:#F5C400;font-weight:800}
+#led .lc.cur{border-color:#d8d1c4}
+#led .lc.add{border-style:dashed}
+#led .lc.ed{font-size:12px;padding:5px 9px;border-radius:8px;border:1px solid #F5C400;min-width:40px}
+#led .lhint{font-size:11px;color:#77705f}
+#led .lruns{font-size:12px;color:#aaa}
+#led .lruns b{color:#F5C400;font-weight:700}
+#led .lr{color:#fff;font-weight:800;padding:0 2px;border-bottom:1px dashed #555}
 #ledStage{flex:1;min-height:0;position:relative;background:#0c0b09;border:1px solid #24201a;border-radius:6px;overflow:hidden}
 #ledCv{position:absolute;inset:0;width:100%;height:100%}
-#ledInfo{position:absolute;left:8px;bottom:5px;color:#77705f;font-size:11px;z-index:1}
+#ledInfo{position:absolute;left:8px;bottom:5px;right:8px;color:#77705f;font-size:11px;z-index:1}
 #led .lb2{display:flex;gap:6px}
-#led .lb2 button{flex:1;padding:14px;font-size:16px;font-weight:900;border-radius:10px;background:#16140f;border:1px solid #24201a;color:#d8d1c4}
+#led .lb2 button{flex:1;padding:13px;font-size:16px;font-weight:900;border-radius:10px}
+#led .lb2 button.sm{flex:0 0 auto;padding:13px 14px;font-size:13px}
 #led .lb2 #ledGo.run{background:#FF4D2E;color:#fff;border-color:#FF4D2E}
+@media (min-aspect-ratio:4/3){#led .lb2 button{padding:9px}}
 /* 펼친 화면·가로 분할: 버튼을 오른쪽 세로로 */
 @media (min-aspect-ratio:9/10){.ctrl{position:absolute;right:3vmin;top:50%;transform:translateY(-50%);flex-direction:column;align-items:center;padding:0;gap:2.5vmin}.ctrl #prev,.ctrl #nxt{margin:0}.ctrl button{width:12vmin;height:12vmin;font-size:6vmin}.core,#cap{margin-right:18vmin}#cap{margin-left:4vmin}}
 </style>
@@ -253,7 +268,7 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
  </div>
 </div>
 <div id="pv" hidden><button class="pvn" data-pv="-1">‹</button><div id="pvBox"></div><button class="pvn" data-pv="1">›</button><div id="pvCap"></div></div>
-<div id="led" hidden><div class="lt"><span class="nm" id="ledNm" contenteditable="true" data-ph="종목 이름"></span><button id="ledC">색</button><button id="ledFs">⛶</button><button id="ledX">닫기</button></div><div id="ledStage"><canvas id="ledCv"></canvas><div id="ledInfo"></div></div><div class="lb2"><button id="ledGo">시작</button></div></div>
+<div id="led" hidden><div class="lt"><div class="seg" id="ledM"></div><span style="flex:1"></span><button id="ledC">색</button><button id="ledSnd">소리</button><button id="ledFs">⛶</button><button id="ledX">닫기</button></div><div class="lrow" id="ledTy"></div><div id="ledStage"><canvas id="ledCv"></canvas><div id="ledInfo"></div></div><div class="lrow" id="ledP"></div><div class="lrow lruns" id="ledRuns"></div><div class="lb2"><button id="ledGo">시작</button><button id="ledRs" class="sm">초기화</button><button id="ledSave" class="sm">끝·기록</button></div></div>
 <script src="rec/data.js?v=2"></script>
 
 <div id="toast"></div>
@@ -782,6 +797,7 @@ const RD = () => window.REC_DAYS || {};
 const toMin = t => { const m = /(\d{1,2}):(\d{2})/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : null; };
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const recEd = () => ls.get('wt.recEd', {}), dayEd = () => ls.get('wt.dayEd', {}), recMine = () => ls.get('wt.rec', []), gearOk = () => ls.get('wt.gear', {});
+if (!ls.get('wt.mealFix1', 0)) { const e = ls.get('wt.recEd', {}); if (e.a1) { delete e.a1.t; delete e.a1.tq; ls.set('wt.recEd', e); } ls.set('wt.mealFix1', 1); }
 const RV = {k: dkey(Date.now()), q: '', sOn: false, cat: '', tab: ls.get('wt.tab', 'T'), addOn: false, pz: false};
 const CATS = ['근력', '유산소', '식단', '준비', '메모', '타이머'];
 const CIRC = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳';
@@ -801,7 +817,10 @@ function dayCards(k) {
   const mine = recMine().filter(c => c.k === k).map(c => Object.assign({}, c, ed[c.id] || {}));
   const logs = getLog().filter(x => dkey(x.s) === k).map(x => ({id: 'L' + x.id, k, t: hm(x.s) + '~' + hm(x.e), cat: '타이머', ti: (x.nm || '자유 운동') + ' · 타이머 기록', ph: [], gear: [], auto: 1,
     cap: x.it.map(y => y.one ? `${y.nm} ${sayDur(y.work)}` : `${y.nm} ${y.sets}세트${y.sets < y.of ? '/' + y.of : ''}`).join(' · ') + ` · ${Math.max(1, Math.round((x.e - x.s) / 60000))}분${x.full ? '' : ' (중간 종료)'}`}));
-  return base.concat(mine, logs).map(c => Object.assign(c, {sm: toMin(c.t) ?? c.tt ?? 9999})).sort((a, b) => a.sm - b.sm);
+  const all = base.concat(mine, logs), starts = all.filter(c => /근력|유산소|준비|타이머/.test(c.cat) && toMin(c.t) != null).map(c => toMin(c.t));
+  /* 시각 없는 식단 카드 → 운동 시작 2시간 전(오전 11시 이후)으로 자동 */
+  if (starts.length) all.forEach(c => { if (c.cat === '식단' && !c.t) { const m = Math.max(660, Math.min(...starts) - 120); c.t = p2(Math.floor(m / 60)) + ':' + p2(m % 60); c.tq = 1; } });
+  return all.map(c => Object.assign(c, {sm: toMin(c.t) ?? c.tt ?? 9999})).sort((a, b) => a.sm - b.sm);
 }
 const allDays = () => [...new Set(Object.keys(RD()).map(Number).concat(recMine().map(c => c.k), getLog().map(x => dkey(x.s)), [dkey(Date.now())]))].sort((a, b) => a - b);
 const cardTxt = c => [c.t, c.cat, c.ti, c.cap, c.my, (c.gear || []).join(' ')].join(' ');
@@ -820,7 +839,7 @@ function paintRec() {
   const today = dkey(Date.now()), ok = gearOk();
   const cards = RV.q ? allDays().slice().reverse().flatMap(k => dayCards(k)).filter(c => hit(cardTxt(c), RV.q)) : dayCards(RV.k);
   const shown = RV.cat ? cards.filter(c => c.cat === RV.cat) : cards;
-  let h = `<div class="rbar"><button class="chip ${RV.sOn ? 'on' : ''}" id="rS">🔍</button>${CATS.map(c => `<button class="chip ${RV.cat === c ? 'on' : ''}" data-rc="${c}">${c}</button>`).join('')}<button class="chip ${RV.addOn ? 'on' : ''}" id="rAddT">＋ 추가</button><button class="chip ${ls.get('wt.cardio', null) ? 'live' : ''}" id="rLed">유산소 전광판</button></div>`
+  let h = `<div class="rbar"><button class="chip ${RV.sOn ? 'on' : ''}" id="rS">🔍</button>${CATS.map(c => `<button class="chip ${RV.cat === c ? 'on' : ''}" data-rc="${c}">${c}</button>`).join('')}<button class="chip ${RV.addOn ? 'on' : ''}" id="rAddT">＋ 추가</button><button class="chip ${ledLive() ? 'live' : ''}" id="rLed">유산소 전광판</button></div>`
     + (RV.sOn ? `<input class="srch" id="rQ" placeholder="종목·캡션·준비물 검색 (초성 가능: ㅊㄱ)" value="${esc(RV.q)}">` : '');
   if (RV.addOn) h += `<div class="addp"><div class="ah">＋ 추가<small>${md(kDate(RV.k))}에 넣음</small></div><div class="addg">
     <button id="aGal"><i>🖼</i><b>갤러리</b><small>여러 장·영상</small></button>
@@ -981,41 +1000,123 @@ function dayBlock(k, today, q) {
 const LF = {'0': ['01110', '10001', '10011', '10101', '11001', '10001', '01110'], '1': ['00100', '01100', '00100', '00100', '00100', '00100', '01110'], '2': ['01110', '10001', '00001', '00010', '00100', '01000', '11111'], '3': ['11111', '00010', '00100', '00010', '00001', '10001', '01110'], '4': ['00010', '00110', '01010', '10010', '11111', '00010', '00010'], '5': ['11111', '10000', '11110', '00001', '00001', '10001', '01110'], '6': ['00110', '01000', '10000', '11110', '10001', '10001', '01110'], '7': ['11111', '00001', '00010', '00100', '01000', '01000', '01000'], '8': ['01110', '10001', '10001', '01110', '10001', '10001', '01110'], '9': ['01110', '10001', '10001', '01111', '00001', '00010', '01100'], ':': ['0', '0', '1', '0', '1', '0', '0']};
 const LCOL = ['#ffb000', '#ff3b2f', '#3dff7a', '#46c8ff'];
 const LED = {raf: 0, key: ''};
-function ledDraw(txt) {
+function ledDraw(txt, lit = true) {
   const cv = $('#ledCv'), ctx = cv.getContext('2d'), W = cv.clientWidth, H = cv.clientHeight, dpr = devicePixelRatio || 1, ci = ls.get('wt.ledC', 0);
-  const key = txt + W + 'x' + H + ci; if (key === LED.key) return; LED.key = key;
+  const key = txt + lit + W + 'x' + H + ci; if (key === LED.key) return; LED.key = key;
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
   const cols = []; [...txt].forEach((c, i) => { const g = LF[c]; if (!g) return; if (i) cols.push(0); for (let x = 0; x < g[0].length; x++) { let b = 0; for (let y = 0; y < 7; y++) if (g[y][x] === '1') b |= 1 << y; cols.push(b); } });
   const n = cols.length, p = Math.min(W / (n + 2), H / 9), x0 = (W - n * p) / 2 + p / 2, y0 = (H - 7 * p) / 2 + p / 2, r = p * .38, color = LCOL[ci];
   ctx.fillStyle = color; ctx.globalAlpha = .07; ctx.beginPath();
-  for (let x = 0; x < n; x++) for (let y = 0; y < 7; y++) if (!(cols[x] >> y & 1)) { ctx.moveTo(x0 + x * p + r, y0 + y * p); ctx.arc(x0 + x * p, y0 + y * p, r, 0, 7); }
-  ctx.fill(); ctx.globalAlpha = 1; ctx.shadowColor = color; ctx.shadowBlur = p * 1.1; ctx.beginPath();
+  for (let x = 0; x < n; x++) for (let y = 0; y < 7; y++) if (!(lit && cols[x] >> y & 1)) { ctx.moveTo(x0 + x * p + r, y0 + y * p); ctx.arc(x0 + x * p, y0 + y * p, r, 0, 7); }
+  ctx.fill(); ctx.globalAlpha = 1; if (!lit) return; ctx.shadowColor = color; ctx.shadowBlur = p * 1.1; ctx.beginPath();
   for (let x = 0; x < n; x++) for (let y = 0; y < 7; y++) if (cols[x] >> y & 1) { ctx.moveTo(x0 + x * p + r, y0 + y * p); ctx.arc(x0 + x * p, y0 + y * p, r, 0, 7); }
   ctx.fill(); ctx.fill(); ctx.shadowBlur = 0; ctx.fillStyle = '#fff'; ctx.globalAlpha = .4; ctx.beginPath();
   for (let x = 0; x < n; x++) for (let y = 0; y < 7; y++) if (cols[x] >> y & 1) { const cx = x0 + x * p - r * .2, cy = y0 + y * p - r * .2; ctx.moveTo(cx + r * .4, cy); ctx.arc(cx, cy, r * .4, 0, 7); }
   ctx.fill(); ctx.globalAlpha = 1;
 }
+/* 세션: 종목(달리기·천국의 계단…) · 타이머(카운트다운)/스톱워치 · 몇 분짜리를 몇 번 돌렸는지 runs에 쌓고 → 「끝·기록」에서 카드로 저장 */
+const CDK = 'wt.cardio2';
+const CD0 = () => ({mode: 't', dur: 900000, s: 0, runs: [], t: {running: false, endAt: 0, remain: 900000}, w: {running: false, startAt: 0, acc: 0}});
+let CD = Object.assign(CD0(), ls.get(CDK, {}));
+const saveCD = () => ls.set(CDK, CD);
+const LSET = Object.assign({types: ['천국의 계단', '달리기'], type: '천국의 계단', presets: [1, 3, 5, 10, 15, 20, 25, 30, 45, 60], snd: true}, ls.get('wt.ledSet', {}));
+const saveLS = () => ls.set('wt.ledSet', LSET);
+let ledDone = false, ledBeepT = 0;
+const p2 = n => String(n).padStart(2, '0');
+const tRemain = now => CD.t.running ? Math.max(0, CD.t.endAt - now) : CD.t.remain;
+const wElapsed = now => CD.w.acc + (CD.w.running ? now - CD.w.startAt : 0);
+const ledRunning = () => CD.mode === 't' ? CD.t.running : CD.w.running;
+const ledLive = () => CD.s > 0;
+function ledStr(now) {
+  if (CD.mode === 't') { const s = Math.ceil(tRemain(now) / 1000); return p2(Math.min(99, Math.floor(s / 60))) + ':' + p2(s % 60); }
+  const e = Math.floor(wElapsed(now) / 1000); return p2(Math.min(99, Math.floor(e / 60))) + ':' + p2(e % 60);
+}
+const minTxt = ms => { const s = Math.round(ms / 1000), m = Math.floor(s / 60), r = s % 60; return m ? m + '분' + (r ? ' ' + r + '초' : '') : r + '초'; };
+function runSummary(runs) {
+  if (!runs.length) return '';
+  const g = {}; runs.forEach(r => { const k = r.t ? minTxt(r.ms) : 'sw'; (g[k] = g[k] || []).push(r); });
+  const parts = Object.keys(g).map(k => k === 'sw' ? g[k].map(r => '스톱워치 ' + minTxt(r.ms)).join(' + ') : `${k} × ${g[k].length}번`);
+  return parts.join(' + ') + ` = 총 ${minTxt(runs.reduce((a, r) => a + r.ms, 0))}`;
+}
+function ledAlarm() { let k = 0; const one = () => { if (!LSET.snd) return; beep(880, 150, .3); setTimeout(() => beep(880, 150, .3), 220); setTimeout(() => beep(880, 150, .3), 440); }; one(); clearInterval(ledBeepT); ledBeepT = setInterval(() => { if (++k >= 5 || !ledDone) return clearInterval(ledBeepT); one(); }, 1200); vib([300, 100, 300]); }
 function ledTick() {
-  const c = ls.get('wt.cardio', null), el = c ? Math.floor((Date.now() - c.s) / 1000) : 0;
-  ledDraw(String(Math.min(99, Math.floor(el / 60))).padStart(2, '0') + ':' + String(el % 60).padStart(2, '0'));
-  $('#ledInfo').textContent = c ? `${hm(c.s)} 시작 · 끝을 누르면 기록에 저장` : '시작을 누르면 시간이 올라가요';
+  const now = Date.now();
+  if (CD.mode === 't' && CD.t.running && CD.t.endAt <= now) { CD.t.running = false; CD.t.remain = 0; CD.runs.push({t: 1, ms: CD.dur, e: now}); ledDone = true; saveCD(); paintLed(); ledAlarm(); }
+  const lit = !(ledDone && CD.mode === 't') || Math.floor(now / 400) % 2 === 0;
+  ledDraw(ledStr(now), lit);
+  $('#ledInfo').textContent = (ledLive() ? `${hm(CD.s)} 시작 · ` : '') + (CD.runs.length ? runSummary(CD.runs) : CD.mode === 't' ? `설정 ${minTxt(CD.dur)}` : '스톱워치');
   LED.raf = requestAnimationFrame(ledTick);
 }
-function paintLed() { const c = ls.get('wt.cardio', null); $('#ledGo').textContent = c ? '끝 · 기록 저장' : '시작'; $('#ledGo').classList.toggle('run', !!c); $('#ledNm').textContent = c ? c.nm : ls.get('wt.ledNm', '천국의 계단'); }
+function ledToggle() {
+  ensureAudio(); const now = Date.now(); if (!CD.s) CD.s = now;
+  if (CD.mode === 't') {
+    if (CD.t.running) { CD.t.remain = Math.max(0, CD.t.endAt - now); CD.t.running = false; }
+    else { if (ledDone || CD.t.remain <= 0) CD.t.remain = CD.dur; ledDone = false; CD.t.endAt = now + CD.t.remain; CD.t.running = true; keepAwake(); }
+  } else {
+    if (CD.w.running) { CD.w.acc += now - CD.w.startAt; CD.w.running = false; } else { CD.w.startAt = now; CD.w.running = true; keepAwake(); }
+  }
+  saveCD(); paintLed();
+}
+function ledReset() {
+  if (CD.mode === 't') { CD.t.running = false; CD.t.remain = CD.dur; ledDone = false; }
+  else { if (CD.w.acc + (CD.w.running ? Date.now() - CD.w.startAt : 0) > 3000 && confirm('스톱워치 시간을 기록에 넣고 초기화할까요?')) CD.runs.push({t: 0, ms: wElapsed(Date.now()), e: Date.now()}); CD.w = {running: false, startAt: 0, acc: 0}; }
+  saveCD(); paintLed();
+}
+function setDur(ms) { ms = Math.max(1000, Math.min(5999000, ms)); CD.dur = ms; CD.t.remain = ms; CD.t.running = false; ledDone = false; saveCD(); paintLed(); }
+function ledSave() {
+  const now = Date.now();
+  if (CD.mode === 't' && (CD.t.running || (CD.t.remain > 0 && CD.t.remain < CD.dur))) { const used = CD.dur - tRemain(now); if (used > 3000) CD.runs.push({t: 0, ms: used, e: now, part: 1}); }
+  if (CD.mode === 'w' && wElapsed(now) > 3000) CD.runs.push({t: 0, ms: wElapsed(now), e: now});
+  if (!CD.runs.length) return toast('아직 기록할 시간이 없어요');
+  const nm = LSET.type, tot = CD.runs.reduce((a, r) => a + r.ms, 0), L = recMine();
+  L.push({id: 'u' + now, k: dkey(CD.s || now), t: hm(CD.s || now) + '~' + hm(now), cat: '유산소', ti: nm, ph: [], gear: nm === '달리기' ? ['수건', '쉐이커', '헤드폰', '러닝화'] : ['수건', '밴드(턱걸이 끈)', '쉐이커', '헤드폰', '발목 보호대(루미힐)'],
+    cap: `${nm} · ${runSummary(CD.runs)}`, runs: CD.runs.map(r => ({ms: r.ms, t: r.t}))});
+  ls.set('wt.rec', L); toast(`${nm} 총 ${minTxt(tot)} 기록 저장`); beep(660, 200, .3); vib([100, 80, 100]);
+  const keep = {mode: CD.mode, dur: CD.dur}; CD = Object.assign(CD0(), keep, {t: {running: false, endAt: 0, remain: keep.dur}}); ledDone = false; saveCD();
+  RV.k = dkey(now); paintLed();
+}
+function paintLed() {
+  $('#ledGo').textContent = ledRunning() ? '정지' : (CD.mode === 't' && (ledDone || CD.t.remain <= 0)) ? '다시' : ((CD.mode === 't' ? CD.t.remain < CD.dur : CD.w.acc > 0) ? '계속' : '시작');
+  $('#ledGo').classList.toggle('run', ledRunning());
+  $('#ledM').innerHTML = [['t', '타이머'], ['w', '스톱워치']].map(([k, l]) => `<button class="${CD.mode === k ? 'on' : ''}" data-lm="${k}">${l}</button>`).join('');
+  $('#ledM').querySelectorAll('[data-lm]').forEach(b => b.onclick = () => { if (ledRunning()) return toast('정지한 뒤 바꿔요'); CD.mode = b.dataset.lm; saveCD(); paintLed(); });
+  $('#ledSnd').textContent = LSET.snd ? '소리 켬' : '소리 끔';
+  /* 종목 칩: 누르면 선택 · 길게 누르면 그 자리에서 이름 바꾸기/지우기 · ＋ 새 종목 */
+  $('#ledTy').innerHTML = LSET.types.map((t, i) => `<button class="lc ${LSET.type === t ? 'on' : ''}" data-ty="${i}">${esc(t)}</button>`).join('') + `<button class="lc add" id="ledTyAdd">＋</button>`;
+  $('#ledTy').querySelectorAll('[data-ty]').forEach(b => { const i = +b.dataset.ty; longPress(b, () => inlineChip(b, LSET.types[i], v => { if (v) { if (LSET.type === LSET.types[i]) LSET.type = v; LSET.types[i] = v; } else if (LSET.types.length > 1) { LSET.types.splice(i, 1); if (!LSET.types.includes(LSET.type)) LSET.type = LSET.types[0]; } saveLS(); paintLed(); }), () => { LSET.type = LSET.types[i]; saveLS(); paintLed(); }); });
+  $('#ledTyAdd').onclick = () => { const b = $('#ledTyAdd'); inlineChip(b, '', v => { if (v && !LSET.types.includes(v)) { LSET.types.push(v); LSET.type = v; saveLS(); } paintLed(); }); };
+  /* 분 칩: 누르면 설정 · 길게 누르면 편집(비우면 삭제) · ± · ＋ 지금 시간 추가 */
+  const dis = ledRunning(), box = $('#ledP');
+  if (CD.mode !== 't') { box.innerHTML = `<span class="lhint">스톱워치 — 정지 후 「초기화」 하면 그 시간이 1번으로 쌓임</span>`; }
+  else {
+    box.innerHTML = LSET.presets.map((m, i) => `<button class="lc ${CD.dur === m * 60000 ? 'cur' : ''}" data-pm="${i}" ${dis ? 'disabled' : ''}>${m}분</button>`).join('')
+      + [['−1분', -60000], ['+1분', 60000], ['−10초', -10000], ['+10초', 10000]].map(([l, d]) => `<button class="lc" data-pd="${d}" ${dis ? 'disabled' : ''}>${l}</button>`).join('') + `<button class="lc add" id="ledPAdd" ${dis ? 'disabled' : ''}>＋</button>`;
+    box.querySelectorAll('[data-pm]').forEach(b => { const i = +b.dataset.pm; longPress(b, () => inlineChip(b, String(LSET.presets[i]), v => { const n = parseInt(v, 10); if (n > 0 && n < 100) LSET.presets[i] = n; else LSET.presets.splice(i, 1); LSET.presets = [...new Set(LSET.presets)].sort((a, c) => a - c); saveLS(); paintLed(); }), () => setDur(LSET.presets[i] * 60000)); });
+    box.querySelectorAll('[data-pd]').forEach(b => b.onclick = () => setDur(CD.dur + +b.dataset.pd));
+    $('#ledPAdd').onclick = () => { LSET.presets.push(Math.round(CD.dur / 60000) || 1); LSET.presets = [...new Set(LSET.presets)].sort((a, c) => a - c); saveLS(); paintLed(); };
+  }
+  /* 이번 세션에 돌린 것 — 누르면 그 자리에서 분 고치기, 비우면 삭제 */
+  $('#ledRuns').innerHTML = CD.runs.length ? CD.runs.map((r, i) => `<span class="lr" contenteditable="true" data-run="${i}">${Math.round(r.ms / 6000) / 10}</span>분`).join(' · ') + ` <b>${runSummary(CD.runs)}</b>` : '';
+  $('#ledRuns').querySelectorAll('[data-run]').forEach(el => el.addEventListener('blur', () => { const i = +el.dataset.run, v = parseFloat(el.innerText); if (v > 0) CD.runs[i].ms = Math.round(v * 60000); else CD.runs.splice(i, 1); saveCD(); paintLed(); }));
+  $('#ledSave').disabled = !CD.runs.length && !ledRunning() && !(CD.mode === 'w' && CD.w.acc > 0) && !(CD.mode === 't' && CD.t.remain < CD.dur && CD.t.remain > 0);
+  LED.key = '';
+}
+function inlineChip(b, val, done) {
+  const s = document.createElement('span'); s.className = 'lc ed'; s.contentEditable = 'true'; s.textContent = val; b.replaceWith(s); s.focus(); document.getSelection().selectAllChildren(s);
+  let fin = false; const end = () => { if (fin) return; fin = true; done(s.innerText.trim()); };
+  s.onblur = end; s.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); s.blur(); } };
+}
 function openLed() { $('#led').hidden = false; LED.key = ''; paintLed(); cancelAnimationFrame(LED.raf); ledTick(); keepAwake(); }
 $('#ledX').onclick = () => { $('#led').hidden = true; cancelAnimationFrame(LED.raf); if (RV.tab === 'R') paintRec(); };
 $('#ledC').onclick = () => { ls.set('wt.ledC', (ls.get('wt.ledC', 0) + 1) % LCOL.length); LED.key = ''; };
-$('#ledNm').addEventListener('blur', () => { const v = $('#ledNm').innerText.trim() || '천국의 계단'; ls.set('wt.ledNm', v); const c = ls.get('wt.cardio', null); if (c) { c.nm = v; ls.set('wt.cardio', c); } });
-$('#ledGo').onclick = () => {
-  const c = ls.get('wt.cardio', null);
-  if (!c) { ls.set('wt.cardio', {s: Date.now(), nm: ls.get('wt.ledNm', '천국의 계단')}); beep(880, 150, .3); vib(80); return paintLed(); }
-  const e = Date.now(), mins = Math.max(1, Math.round((e - c.s) / 60000)), L = recMine();
-  L.push({id: 'u' + e, k: dkey(c.s), t: hm(c.s) + '~' + hm(e), cat: '유산소', ti: c.nm, ph: [], gear: ['수건', '밴드(턱걸이 끈)', '쉐이커', '헤드폰'], cap: `${c.nm} ${mins}분 · 전광판 타이머`});
-  ls.set('wt.rec', L); try { localStorage.removeItem('wt.cardio'); } catch (x) {}
-  beep(660, 200, .3); vib([100, 80, 100]); RV.k = dkey(c.s); paintLed(); toast(`${c.nm} ${mins}분 기록 저장`);
-};
+$('#ledSnd').onclick = () => { LSET.snd = !LSET.snd; ensureAudio(); saveLS(); paintLed(); };
+$('#ledGo').onclick = ledToggle;
+$('#ledRs').onclick = ledReset;
+$('#ledSave').onclick = ledSave;
 $('#ledFs').onclick = () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => {})); } catch (x) {} };
+document.addEventListener('keydown', e => { if ($('#led').hidden || e.target.isContentEditable) return; if (e.code === 'Space') { e.preventDefault(); ledToggle(); } });
+if (CD.mode === 't' && CD.t.running && CD.t.endAt <= Date.now()) { CD.t.running = false; CD.t.remain = 0; CD.runs.push({t: 1, ms: CD.dur, e: CD.t.endAt}); ledDone = true; saveCD(); }
 
 function setTab(t) {
   RV.tab = t; ls.set('wt.tab', t);
