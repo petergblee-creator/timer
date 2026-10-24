@@ -287,8 +287,8 @@ const GRP = [['등', /등/], ['가슴', /가슴/], ['팔', /이두|삼두|팔/],
 const grpOf = n => (GRP.find(g => g[1].test(n)) || ['기타'])[0];
 const GRP_ORDER = GRP.map(g => g[0]).concat('기타');
 /* 푸크크크 = 푸시업 + 크런치 3종 — 세트마다 동작 이름 안내 */
-/* 푸크크크는 라운드마다 한 동작만: 1R 푸시업 → 2R 앞 크런치 → 3R 오른쪽 → 4R 왼쪽 → 5R +α (동작은 「고치기」에서 바꿈) */
-const PUK = ['푸시업', '앞 크런치', '오른쪽 크런치', '왼쪽 크런치', '+α'];
+/* 푸크크크는 라운드마다 한 동작만: 1R 푸시업 → 2R 앞 크런치 → 3R 오른쪽 → 4R 왼쪽 → 5R 레그레이즈 (동작은 「고치기」에서 바꿈) */
+const PUK = ['푸시업', '앞 크런치', '오른쪽 크런치', '왼쪽 크런치', '레그레이즈'];
 const isPuk = it => /푸크크/.test((it && it.nm) || '');
 const SUBS = it => (it.subs && it.subs.length ? it.subs : null) || (isPuk(it) ? PUK : null);
 const subOf = (it, st) => { const L = it && SUBS(it); if (!L || !st) return ''; const n = isPuk(it) || it.byRound ? st.r : st.s; return n ? L[(n - 1) % L.length] : ''; };
