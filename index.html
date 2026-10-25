@@ -340,7 +340,7 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 </div>
 <div id="pv" hidden><div id="pvTools"></div><button class="pvn" data-pv="-1">‹</button><div id="pvBox"></div><button class="pvn" data-pv="1">›</button><div id="pvHint"></div><div id="pvCap"></div></div>
 <div id="led" hidden><div class="lt"><div class="seg" id="ledM"></div><span style="flex:1"></span><button id="ledC">색</button><button id="ledSnd">소리</button><button id="ledFs">⛶</button><button id="ledX">닫기</button></div><div class="lrow" id="ledTy"></div><div class="lrow" id="ledPg"></div><div id="ledStage"><canvas id="ledCv"></canvas><div id="ledInfo"></div></div><div class="lrow" id="ledP"></div><div class="lrow lruns" id="ledRuns"></div><div class="lb2"><button id="ledGo">시작</button><button id="ledRs" class="sm">초기화</button><button id="ledSave" class="sm">끝·기록</button></div></div>
-<script src="rec/data.js?v=4"></script>
+<script src="rec/data.js?v=5"></script>
 
 <div id="toast"></div>
 <div id="run" data-ph="prep" hidden>
@@ -367,9 +367,9 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 <script>
 (() => {
 /* ================= 운동 목록 ================= */
-const PAL_DEF = ['윗등', '아랫등', '이두', '삼두', '윗가슴', '아랫가슴', '앞어깨', '옆어깨', '뒤어깨', '앞하체', '뒤하체', '다리 벌리기', '다리 쪼이기', '복근', '푸크크크', '스트레칭', '러닝'];
+const PAL_DEF = ['윗등', '아랫등', '이두', '삼두', '윗가슴', '아랫가슴', '앞어깨', '옆어깨', '뒤어깨', '앞하체', '뒤하체', '다리 벌리기', '다리 쪼이기', '복근', '푸크크크', '목', '스트레칭', '러닝'];
 const PAL_V = 2;
-const GRP = [['등', /등/], ['가슴', /가슴/], ['팔', /이두|삼두|팔/], ['어깨', /어깨/], ['하체', /하체|다리|스쿼트|런지|허벅지|엉덩이/]];
+const GRP = [['등', /등/], ['가슴', /가슴/], ['팔', /이두|삼두|팔/], ['어깨', /어깨/], ['하체', /하체|다리|스쿼트|런지|허벅지|엉덩이/], ['목', /^목|넥/]];
 const grpOf = n => (GRP.find(g => g[1].test(n)) || ['기타'])[0];
 const GRP_ORDER = GRP.map(g => g[0]).concat('기타');
 /* 푸크크크 = 푸시업 + 크런치 3종 — 세트마다 동작 이름 안내 */
@@ -381,6 +381,7 @@ const subOf = (it, st) => { const L = it && SUBS(it); if (!L || !st) return ''; 
 const itemFor = nm => /러닝|달리기|유산소|걷기/.test(nm) ? {nm, rounds: 1, sets: 1, work: 1800, rest: 0, rrest: 0}
   : /스트레칭/.test(nm) ? {nm, rounds: 1, sets: 1, work: 300, rest: 0, rrest: 0}
   : /푸크크/.test(nm) ? {nm, rounds: 5, sets: 3, work: 45, rest: 15, rrest: 30, pv2: 1}
+  : /^목|넥/.test(nm) ? {nm, rounds: 3, sets: 2, work: 30, rest: 15, rrest: 60}
   : {nm, rounds: 5, sets: 4, work: 45, rest: 15, rrest: 120};
 const RT_DEF = [itemFor('윗등'), itemFor('이두'), itemFor('스트레칭'), itemFor('러닝')];
 const SPLIT = ['가슴날', '등날', '하체날', '어깨+복부날'];
@@ -390,6 +391,7 @@ const RTS_DEF = [
   {nm: '하체날', rt: ['앞하체', '뒤하체', '다리 벌리기', '다리 쪼이기', '스트레칭']},
   {nm: '어깨+복부날', rt: ['앞어깨', '옆어깨', '뒤어깨', '복근', '푸크크크', '스트레칭']},
   {nm: '유산소날', rt: ['러닝', '스트레칭']},
+  {nm: '목날', rt: ['목 밴드 앞', '목 밴드 옆', '넥 브릿지']},
 ].map(x => ({nm: x.nm, rt: x.rt.map(itemFor)}));
 const DEF = {prep: 10, irest: 120, rt: RT_DEF, pal: PAL_DEF, palV: PAL_V, rts: RTS_DEF, rtName: '', palUse: {}};
 const IF = [['rounds', '라운드', 1, 1, 30], ['sets', '라운드당 세트', 1, 1, 20], ['work', '운동', 5, 5, 7200], ['rest', '세트 사이 휴식', 5, 0, 600], ['rrest', '라운드 사이 휴식', 10, 0, 900]];
@@ -427,6 +429,9 @@ if ((ls.get('wt.cfg2', {}).palV || (ls.get('wt.cfg2', null) ? 1 : PAL_V)) < PAL_
 if (!ls.get('wt.cfg2', null)) { const old = ls.get('wt.cfg', null); if (old && old.prep != null) cfg.prep = old.prep; }
 /* 푸크크크 새 방식(라운드마다 한 동작 · 5라운드)으로 한 번만 바꿈 */
 [cfg.rt].concat((cfg.rts || []).map(x => x.rt)).forEach(L => (L || []).forEach(it => { if (isPuk(it) && !it.pv2) Object.assign(it, {rounds: 5, sets: 3, rest: 15, rrest: 30, pv2: 1}); }));
+/* 목 칩·목날 루틴을 한 번만 넣음 (지운 뒤엔 다시 안 넣음) */
+if (!cfg.neck1) { if (!(cfg.pal || []).includes('목')) { const i = (cfg.pal || []).indexOf('스트레칭'); i >= 0 ? cfg.pal.splice(i, 0, '목') : (cfg.pal = (cfg.pal || []).concat('목')); }
+  if (!(cfg.rts || []).some(x => x.nm === '목날')) cfg.rts = (cfg.rts || []).concat({nm: '목날', rt: ['목 밴드 앞', '목 밴드 옆', '넥 브릿지'].map(itemFor)}); cfg.neck1 = 1; }
 ls.set('wt.cfg2', cfg);
 let vc = Object.assign({}, VDEF, ls.get('wt.voice', {}));
 const saveC = () => ls.set('wt.cfg2', cfg), saveV = () => ls.set('wt.voice', vc);
@@ -1221,7 +1226,7 @@ function paintParts() {
   if (!PW.q) swipeOn($('#pList'), d => { const x = kDate(PW.k); x.setDate(x.getDate() + 7 * d); const k = dkey(x); if (k > today) return toast('이번 주가 마지막이에요'); PW.k = k; paintParts(); });
 }
 /* 부위 × 요일 ○표 (운동 기록판과 같은 모양) */
-const PROWS = ['가슴', '윗등', '아랫등', '하체', '어깨', '이두', '삼두', '복근', '유산소', '기타'];
+const PROWS = ['가슴', '윗등', '아랫등', '하체', '어깨', '이두', '삼두', '복근', '목', '유산소', '기타'];
 function partsOf(k) {
   const d = dayInfo(k), set = new Set(), toks = d.parts.split(/[·+,\/]/).map(x => x.trim()).filter(Boolean);
   getLog().filter(x => dkey(x.s) === k).forEach(x => toks.push((x.nm || '').replace(/날$/, '')));
@@ -1230,6 +1235,7 @@ function partsOf(k) {
     if (/가슴/.test(t)) set.add('가슴'); else if (/아랫등/.test(t)) set.add('아랫등'); else if (/등/.test(t)) set.add('윗등');
     else if (/하체|다리|레그/.test(t)) set.add('하체'); else if (/어깨/.test(t)) { set.add('어깨'); if (/복/.test(t)) set.add('복근'); }
     else if (/이두|팔/.test(t)) set.add('이두'); else if (/삼두/.test(t)) set.add('삼두'); else if (/복근|복부|푸크/.test(t)) set.add('복근');
+    else if (/^목|넥/.test(t)) set.add('목');
     else if (/유산소|계단|달리|러닝|트레드/.test(t)) set.add('유산소'); else if (t && !/^(자유 운동|운동)$/.test(t)) set.add('기타');
   });
   return set;
@@ -1253,7 +1259,7 @@ const RCV0 = ['회복 체크: 아침에 그 부위 뭉침·당김 → 남아 있
 function nextBox(today) {
   const si = splitInfo(today), ds = pastDays(today), y = ds.find(k => k < today), t = ds[0] === today ? today : 0;
   const L = [`다음 4분할 → <b>${si.nx.replace(/날$/, '')}</b> <span style="color:#888">(가슴 → 등 → 하체 → 어깨+복부${si.k ? ` · 마지막 ${si.last.replace(/날$/, '')} ${md(kDate(si.k)).split(' ')[0]}` : ''})</span>`];
-  const main = s => [...s].filter(p => !/유산소|복근|기타/.test(p));
+  const main = s => [...s].filter(p => !/유산소|복근|목|기타/.test(p));
   if (t && main(partsOf(t)).length) L.push(`오늘 한 부위: ${main(partsOf(t)).join('·')} → 내일은 이 부위 쉼`);
   else if (y && main(partsOf(y)).length) L.push(`${md(kDate(y)).split(' ')[0]}에 한 부위: ${main(partsOf(y)).join('·')} → 오늘은 이 부위 쉼`);
   const two = ds.slice(0, 2); if (two.length === 2 && Math.round((kDate(two[0]) - kDate(two[1])) / 864e5) === 1) { const both = main(partsOf(two[0])).filter(p => partsOf(two[1]).has(p)); if (both.length) L.push(`${both.join('·')} 이틀 연속(${md(kDate(two[1])).split(' ')[0]}·${md(kDate(two[0])).split(' ')[0]}) → 다음 날은 쉼`); }
@@ -1264,7 +1270,7 @@ function nextBox(today) {
 const TPL0 = {
   '가슴날': ['벤치프레스 머신 4 × 12 (30kg → 양쪽 20kg 원판)', '인클라인 덤벨 벤치프레스 3라운드 × 4세트 (16 → 20kg)', '펙 플라이 3 × 12 (45kg)', '케이블 플라이 3 × 12', '딥스 3 × 최대', '푸크크크 · 천국의 계단 30분 (15 → 10 → 5)'],
   '등날': ['해머스트렝스 랫풀다운 4 × 12', '어시스트 턱걸이 머신 3 × 10', 'MTS 프론트 풀다운 3 × 12', 'T바 로우 3 × 12 (10kg 원판)', '백익스텐션 3 × 15', '푸크크크 · 달리기 20분'],
-  '하체날': ['레그프레스 4 × 12 → 12회째가 힘든 무게', '레그 익스텐션 3 × 15', '레그 컬 3 × 12', '모으기 · 벌리기 머신 각 3 × 15', '천국의 계단 10분 → 유산소'],
+  '하체날': ['레그프레스 4 × 12 (한쪽 40kg · 10/9)', '레그 익스텐션 3 × 15 (47 · 9/29)', '레그 컬 4 × 12 (32kg × 12 → 39kg × 10 · 10/14)', '다리 모으기 4 × 12 (73 → 110kg · 10/9)', '다리 벌리기 4 × 12 (75kg · 10/9)', '천국의 계단 30분 (15 → 10 → 5)'],
   '어깨+복부날': ['덤벨 사이드 레터럴 레이즈 4 × 15', '머신 사이드 레터럴 레이즈 3 × 15', '밀리터리 프레스 (얼굴 앞·목 뒤) 3 × 10', '케이블 사이드 레터럴 레이즈 3 × 15', '뒤어깨 벌리기 (펙덱 반대로) 3 × 15', '푸크크크 5라운드 (푸시업 → 앞 → 오른쪽 → 왼쪽 → 레그레이즈)'],
 };
 const SETS0 = '4세트 × 12회';
@@ -1274,13 +1280,13 @@ const withSets = t => /세트|×|\bx\s*\d|분|라운드|푸크크크|달리기|�
 function tplGet() { /* 내가 고친 틀이 그 뒤 운동보다 새것이면 그대로, 아니면 지난번 같은 분할 날 기록으로 */
   const U = ls.get('wt.tpl', {}), o = {};
   SPLIT.forEach(sp => { const u = U[sp], k = lastSplitDay(sp), at = u && !Array.isArray(u) ? u.at : 0, L = u && (Array.isArray(u) ? u : u.L);
-    if (L && (Array.isArray(u) || at >= k)) o[sp] = L; else if (k && dayLines(k).length) o[sp] = dayLines(k).map(withSets); else o[sp] = TPL0[sp]; });
+    if (L && (Array.isArray(u) || at >= k)) o[sp] = L; else if (k && dayLines(k).filter(x => !/미기록/.test(x)).length) o[sp] = dayLines(k).filter(x => !/미기록/.test(x)).map(withSets); else o[sp] = TPL0[sp]; });
   return o;
 }
 function tplBox() {
   const si = splitInfo(), sp = PW.tp || si.nx, T = tplGet();
   const lk = lastSplitDay(sp);
-  return `<div class="box2"><h3>다음 틀 · ${sp.replace(/날$/, '')}<small>${lk ? `지난번 ${md(kDate(lk)).split(' ')[0]} 기록 그대로 추천 · ` : ''}기본 ${SETS0} · 그 자리에서 고침</small></h3>`
+  return `<div class="box2"><h3>다음 틀 · ${sp.replace(/날$/, '')}<small>${lk && dayLines(lk).some(x => !/미기록/.test(x)) ? `지난번 ${md(kDate(lk)).split(' ')[0]} 기록 그대로 추천 · ` : ''}기본 ${SETS0} · 그 자리에서 고침</small></h3>`
     + `<div class="rbar" style="margin:2px 0 4px">${SPLIT.map(s => `<button class="chip ${s === sp ? 'on' : ''}" data-tp="${s}">${s.replace(/날$/, '')}${s === si.nx ? ' 다음' : ''}</button>`).join('')}</div>`
     + lines('tpl|' + sp, T[sp] || [], '종목 × 세트 × 횟수') + `</div>`;
 }
