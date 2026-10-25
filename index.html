@@ -324,6 +324,9 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 .tl.c-메모{background:linear-gradient(135deg,rgba(200,200,200,calc(var(--ci) * 0.12)),rgba(200,200,200,calc(var(--ci) * 0.04))),#111}.tl.c-메모::after{background:#bbb}
 .tl.c-타이머{background:linear-gradient(135deg,rgba(245,196,0,calc(var(--ci) * 0.18)),rgba(245,196,0,calc(var(--ci) * 0.05))),#111}
 .tbx{flex:0 0 auto!important;padding:8px 10px!important;font-size:13px!important}
+.swr{display:flex;flex-wrap:wrap;gap:6px}.swc{width:30px;height:30px;border-radius:50%;border:3px solid #222;padding:0;position:relative;display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#111;cursor:pointer}.swc.on{border-color:#fff}
+.swc.cu input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.pt td:first-child b,.vol>b{-webkit-user-select:none;user-select:none}
 .dsum{font-size:11.5px;color:#ccc;margin:2px 0 4px;display:flex;gap:8px;flex-wrap:wrap}.dsum b{color:#4ADE80}
 .wh .gk{cursor:pointer;text-decoration:underline dotted #777}
 /* 낮 모드: 화면 전체를 밝게 뒤집고 사진·영상만 다시 원래대로 */
@@ -1397,7 +1400,7 @@ function paintParts() {
     h += `<p class="sum">「${esc(PW.q)}」 ${hits.length}일</p>` + hits.map(x => dayBlock(x.k, today, PW.q)).join('');
   } else {
     h += `<div class="lnav"><button class="nb" data-pn="-1">‹</button><div class="ld">${md(kDate(days[0]))} ~ ${md(kDate(days[6]))}${days.includes(today) ? '<span class="today">이번 주</span>' : ''}<small>일요일 시작</small></div><button class="nb" data-pn="1">›</button></div>`
-      + `<div id="pList"><div class="p2g"><div>${partTable(days, today)}</div><div>${nextBox(today)}${tplBox()}</div></div>${volBox(days)}${histBox()}`
+      + `<div id="pList"><div class="p2g"><div>${partTable(days, today)}${colorRow()}</div><div>${nextBox(today)}${tplBox()}</div></div>${volBox(days)}${histBox()}`
       + days.slice().reverse().filter(k => dayLabel(k) || dayInfo(k).items.length).map(k => dayBlock(k, today)).join('') + `</div>`;
   }
   box.innerHTML = h;
@@ -1415,16 +1418,27 @@ function paintParts() {
   box.querySelectorAll('[data-dadd]').forEach(b => b.onclick = () => { const k = b.dataset.dadd, L = dayInfo(k).items.concat(''); setDay(k, {items: L}); paintParts(); const n = box.querySelector(`[data-di="${k}|${L.length - 1}"]`); if (n) n.focus(); });
   box.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { RV.k = +b.dataset.open; setTab('R'); });
   bindLines(box, paintParts);
+  /* 부위 이름(주간표·볼륨)을 길게 누르면 색 고르기 */
+  box.querySelectorAll('[data-pcl],b[data-vp]').forEach(b => longPress(b, () => { PW.cp = b.dataset.pcl || b.dataset.vp; paintParts(); const r = box.querySelector('.swr'); if (r) r.scrollIntoView({block: 'nearest', behavior: 'smooth'}); }, b.dataset.vp ? () => { PW.vp = PW.vp === b.dataset.vp ? '' : b.dataset.vp; paintParts(); } : null));
+  const setPc = c => { const M = ls.get('wt.pcol', {}); if (c) M[PW.cp] = c; else delete M[PW.cp]; ls.set('wt.pcol', M); paintParts(); };
+  box.querySelectorAll('[data-pc]').forEach(b => b.onclick = () => setPc(b.dataset.pc));
+  const pi = $('#pcIn'); if (pi) pi.onchange = e => setPc(e.target.value);
+  box.querySelectorAll('[data-pcr]').forEach(b => b.onclick = () => setPc(''));
+  box.querySelectorAll('[data-pcx]').forEach(b => b.onclick = () => { PW.cp = ''; paintParts(); });
   box.querySelectorAll('[data-gk]').forEach(b => b.onclick = () => { RV.k = +b.dataset.gk; setTab('R'); });
   box.querySelectorAll('[data-wgo]').forEach(b => b.onclick = e => { e.stopPropagation(); const h = histFor(wHist(), b.dataset.wgo), el = h && box.querySelector(`[data-whk="${CSS.escape(nz(h.n))}"]`);
     if (!el) return toast('무게 기록이 없는 종목이에요'); el.scrollIntoView({block: 'center', behavior: 'smooth'}); el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); });
-  box.querySelectorAll('[data-vp]').forEach(b => b.onclick = () => { PW.vp = PW.vp === b.dataset.vp ? '' : b.dataset.vp; paintParts(); });
+  box.querySelectorAll('.bar[data-vp]').forEach(b => b.onclick = () => { PW.vp = PW.vp === b.dataset.vp ? '' : b.dataset.vp; paintParts(); });
   box.querySelectorAll('[data-mk],[data-mk2]').forEach(b => b.onclick = () => { const sp = b.dataset.mk || b.dataset.mk2, d = new Date(); if (b.dataset.mk2) d.setDate(d.getDate() + 1); const k = dkey(d), n = makeCards(sp, k); if (!n) return toast('이미 그 날에 같은 카드가 있어요'); toast(`${md(kDate(k))}에 카드 ${n}개 · 지난번 무게 그대로`); RV.k = k; setTab('R'); });
   box.querySelectorAll('[data-tp]').forEach(b => b.onclick = () => { PW.tp = PW.tp === b.dataset.tp ? '' : b.dataset.tp; paintParts(); });
   if (!PW.q) swipeOn($('#pList'), d => { const x = kDate(PW.k); x.setDate(x.getDate() + 7 * d); const k = dkey(x); if (k > today) return toast('이번 주가 마지막이에요'); PW.k = k; paintParts(); });
 }
 /* 부위 × 요일 ○표 (운동 기록판과 같은 모양) */
 const PCOL = {'가슴': '#FF7A45', '윗등': '#4FB3FF', '아랫등': '#2F7FE0', '등': '#4FB3FF', '하체': '#4ADE80', '어깨': '#B48CFF', '이두': '#FFD23F', '삼두': '#F59E0B', '복근': '#F472B6', '목': '#22D3EE', '유산소': '#93C5FD', '기타': '#aaaaaa'};
+const pcOf = p => (ls.get('wt.pcol', {})[p]) || PCOL[p];
+const SWATCH = ['#FF7A45', '#FF4D6D', '#F472B6', '#E879F9', '#B48CFF', '#818CF8', '#4FB3FF', '#2F7FE0', '#22D3EE', '#2DD4BF', '#4ADE80', '#A3E635', '#FFD23F', '#F59E0B', '#93C5FD', '#aaaaaa'];
+function colorRow() { const p = PW.cp; if (!p) return ''; const cur = pcOf(p);
+  return `<div class="box2" style="border-color:${cur}"><h3 style="color:${cur}">${p} 색 고르기<small>누르면 바로 바뀜 · 주간표·볼륨 막대에 같이 적용</small></h3><div class="swr">${SWATCH.map(c => `<button class="swc ${c.toLowerCase() === String(cur).toLowerCase() ? 'on' : ''}" data-pc="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}<label class="swc cu" title="직접 고르기" style="background:${cur}">✎<input type="color" id="pcIn" value="${cur.length === 7 ? cur : '#ffffff'}"></label></div><div class="rbar" style="margin:6px 0 0"><button class="chip" data-pcr>원래 색</button><button class="chip" data-pcx>닫기</button></div></div>`; }
 const PROWS = ['가슴', '윗등', '아랫등', '하체', '어깨', '이두', '삼두', '복근', '목', '유산소', '기타'];
 function partsOf(k) {
   const d = dayInfo(k), set = new Set(), toks = d.parts.split(/[·+,\/]/).map(x => x.trim()).filter(Boolean);
@@ -1445,7 +1459,7 @@ function weekAvg(p, today) { /* 최근 4주 평균 · 주 몇 회 */ const t0 = 
 function partTable(days, today) {
   const P = days.map(partsOf);
   return `<table class="pt"><tr><th>부위</th>${days.map(k => `<th class="${k === today ? 'td' : ''}">${DOW[kDate(k).getDay()]}<small>${k === today ? '오늘' : md(kDate(k)).split(' ')[0]}</small></th>`).join('')}</tr>`
-    + PROWS.filter(p => p !== '기타' || P.some(s => s.has('기타'))).map(p => `<tr><td><b style="color:${PCOL[p] || '#fff'}">${p}</b><small>${lastOfP(p, today)}${(n => n ? ` · 이번 주 ${n}회` : '')(P.filter(s => s.has(p)).length)}${p === '목' ? ` · ${weekAvg('목', today)}` : ''}</small></td>${days.map((k, i) =>  P[i].has(p) ? `<td class="o" style="color:${PCOL[p] || '#4FE3DC'};background:${(PCOL[p] || '#4FE3DC')}${'2e'}" data-go="${k}" title="${esc(dayInfo(k).items.join(' / '))}">○</td>` : '<td></td>').join('')}</tr>`).join('') + `</table>`;
+    + PROWS.filter(p => p !== '기타' || P.some(s => s.has('기타'))).map(p => `<tr><td><b data-pcl="${p}" style="color:${pcOf(p) || '#fff'}">${p}</b><small>${lastOfP(p, today)}${(n => n ? ` · 이번 주 ${n}회` : '')(P.filter(s => s.has(p)).length)}${p === '목' ? ` · ${weekAvg('목', today)}` : ''}</small></td>${days.map((k, i) =>  P[i].has(p) ? `<td class="o" style="color:${pcOf(p) || '#4FE3DC'};background:${(pcOf(p) || '#4FE3DC')}${'2e'}" data-go="${k}" title="${esc(dayInfo(k).items.join(' / '))}">○</td>` : '<td></td>').join('')}</tr>`).join('') + `</table>`;
 }
 /* 4분할 다음 차례: 부위 기록으로 판단 (가슴 → 등 → 하체 → 어깨+복부) */
 const SPLIT_P = {'가슴날': ['가슴'], '등날': ['윗등', '아랫등'], '하체날': ['하체'], '어깨+복부날': ['어깨']};
@@ -1515,7 +1529,7 @@ function volBox(days) {
   if (!ks.length) return `<div class="box2 vo">${head}<div class="hint" style="text-align:left;margin:0">이 주는 아직 세트 기록이 없어요</div>${mon}</div>`;
   const mx = Math.max(...ks.map(k => V[k]));
   return `<div class="box2 vo">${head}<div class="vol">${ks.map(p => { const d = P[p] ? V[p] - P[p] : 0, open = PW.vp === p;
-    return `<b data-vp="${p}" style="color:${PCOL[p] || '#fff'}">${open ? '▾' : '▸'} ${p}</b><div class="bar" data-vp="${p}" style="background:${PCOL[p] || '#F5C400'};width:${Math.max(2, V[p] / mx * 100)}%"></div><span class="n">${f(V[p])}kg${P[p] ? `<small class="${d >= 0 ? 'up' : 'dn'}">${d >= 0 ? '▲' : '▼'}${f(Math.abs(d))}</small>` : ''}</span>`
+    return `<b data-vp="${p}" style="color:${pcOf(p) || '#fff'}">${open ? '▾' : '▸'} ${p}</b><div class="bar" data-vp="${p}" style="background:${pcOf(p) || '#F5C400'};width:${Math.max(2, V[p] / mx * 100)}%"></div><span class="n">${f(V[p])}kg${P[p] ? `<small class="${d >= 0 ? 'up' : 'dn'}">${d >= 0 ? '▲' : '▼'}${f(Math.abs(d))}</small>` : ''}</span>`
       + (open ? `<div class="ex">${Object.entries(E[p]).sort((a, b) => b[1] - a[1]).map(([n, v]) => `<span data-wgo="${esc(n.replace(/ \(추정\)$/, ''))}">${esc(n)} <b>${f(v)}kg</b></span>`).join('')}</div>` : ''); }).join('')}</div><div class="hint" style="text-align:left;margin:4px 0 0">합계 ${f(ks.reduce((a, k) => a + V[k], 0))}kg</div>${mon}</div>`;
 }
 function histBox() {
