@@ -340,7 +340,7 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 </div>
 <div id="pv" hidden><div id="pvTools"></div><button class="pvn" data-pv="-1">‹</button><div id="pvBox"></div><button class="pvn" data-pv="1">›</button><div id="pvHint"></div><div id="pvCap"></div></div>
 <div id="led" hidden><div class="lt"><div class="seg" id="ledM"></div><span style="flex:1"></span><button id="ledC">색</button><button id="ledSnd">소리</button><button id="ledFs">⛶</button><button id="ledX">닫기</button></div><div class="lrow" id="ledTy"></div><div class="lrow" id="ledPg"></div><div id="ledStage"><canvas id="ledCv"></canvas><div id="ledInfo"></div></div><div class="lrow" id="ledP"></div><div class="lrow lruns" id="ledRuns"></div><div class="lb2"><button id="ledGo">시작</button><button id="ledRs" class="sm">초기화</button><button id="ledSave" class="sm">끝·기록</button></div></div>
-<script src="rec/data.js?v=5"></script>
+<script src="rec/data.js?v=6"></script>
 
 <div id="toast"></div>
 <div id="run" data-ph="prep" hidden>
@@ -1280,7 +1280,7 @@ const withSets = t => /세트|×|\bx\s*\d|분|라운드|푸크크크|달리기|�
 function tplGet() { /* 내가 고친 틀이 그 뒤 운동보다 새것이면 그대로, 아니면 지난번 같은 분할 날 기록으로 */
   const U = ls.get('wt.tpl', {}), o = {};
   SPLIT.forEach(sp => { const u = U[sp], k = lastSplitDay(sp), at = u && !Array.isArray(u) ? u.at : 0, L = u && (Array.isArray(u) ? u : u.L);
-    if (L && (Array.isArray(u) || at >= k)) o[sp] = L; else if (k && dayLines(k).filter(x => !/미기록/.test(x)).length) o[sp] = dayLines(k).filter(x => !/미기록/.test(x)).map(withSets); else o[sp] = TPL0[sp]; });
+    if (L && (Array.isArray(u) || at >= k)) o[sp] = L; else if (k && dayLines(k).filter(x => !/미기록/.test(x)).length) o[sp] = dayLines(k).filter(x => !/미기록/.test(x)).map(x => (!/\d/.test(x) && (TPL0[sp] || []).find(t => t.startsWith(x.trim()))) || withSets(x)); /* 무게 없는 줄은 기본 틀의 무게로 */ else o[sp] = TPL0[sp]; });
   return o;
 }
 function tplBox() {
