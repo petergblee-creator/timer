@@ -194,6 +194,42 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 .it2{display:flex;gap:5px;font-size:12px;line-height:1.55;margin-top:2px}
 .it2 .n{flex:none;color:#F5C400;width:14px}
 .it2 .x{flex:1;min-width:0}
+/* 사진 썸네일 1.5배 · 썸네일 영역 · 사진 추가/빼기 */
+.ph2 img,.ph2 .vd{width:87px;height:87px}
+.th{width:87px;height:87px;border-radius:6px;background:#222 center/cover no-repeat;cursor:pointer;display:inline-block;position:relative;overflow:hidden;flex:none}
+.th.vd::after{content:"▶";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;text-shadow:0 0 6px #000;pointer-events:none}
+.th video{width:100%;height:100%;object-fit:cover;pointer-events:none}
+.th.add{background:#141414;border:1px dashed #444;color:#888;font-size:11px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.th.add i{font-style:normal;font-size:20px;line-height:1}
+.del{margin-left:auto;font-size:11px;color:#888;border:1px solid #333;border-radius:99px;padding:1px 8px;background:none}
+.del.arm{background:#E5484D;color:#fff;border-color:#E5484D;font-weight:800}
+.cadd{display:flex;gap:5px;flex-wrap:wrap;margin:4px 0}
+.cadd button{font-size:11px;padding:5px 8px;border-radius:8px;background:#1a1a1a;border:1px solid #333}
+.cadd .pz2{flex-basis:100%;border:1px dashed #555;border-radius:8px;padding:8px;font-size:11px;color:#aaa;text-align:center}
+.gc.gx{background:#E5484D;color:#fff;border-color:#E5484D;font-weight:800}
+#pvTools{position:absolute;left:0;right:0;top:max(10px,env(safe-area-inset-top));display:flex;gap:6px;justify-content:center;flex-wrap:wrap;z-index:3;padding:0 8px}
+#pvTools button{font-size:12px;padding:6px 10px;border-radius:8px;background:#1d1d1d;border:1px solid #444;color:#fff}
+#pvTools button.on{background:#F5C400;color:#111;border-color:#F5C400;font-weight:800}
+#pvTools button.arm{background:#E5484D;border-color:#E5484D}
+#pvBox{position:relative;touch-action:none;user-select:none;-webkit-user-select:none}
+#pvSel{position:absolute;border:2px solid #F5C400;box-shadow:0 0 0 9999px rgba(0,0,0,.45);pointer-events:none}
+#pvHint{position:absolute;left:0;right:0;bottom:calc(max(16px,env(safe-area-inset-bottom)) + 22px);text-align:center;font-size:11.5px;color:#F5C400;padding:0 16px}
+/* 부위 탭: 부위 × 요일 ○표 · 다음 차례 · 다음 틀 */
+.pt{width:100%;border-collapse:collapse;table-layout:fixed;margin:4px 0 8px}
+.pt th,.pt td{border-bottom:1px solid #222;padding:4px 1px;font-size:11px;text-align:center}
+.pt th{color:#aaa;font-weight:700}.pt th small{display:block;color:#666;font-weight:400;font-size:10px}
+.pt th.td{color:#F5C400}
+.pt th:first-child,.pt td:first-child{text-align:left;width:25%}
+.pt td:first-child b{font-size:12px}.pt td:first-child small{display:block;color:#777;font-size:10px;font-weight:400}
+.pt td.o{color:#F5C400;font-weight:800;background:#1d1a0c;cursor:pointer}
+.box2{border:1px solid #262626;border-radius:10px;padding:7px 9px;margin:6px 0;background:#111}
+.box2 h3{font-size:13px;margin:0 0 4px;display:flex;align-items:baseline;gap:4px;flex-wrap:wrap}.box2 h3 small{font-size:10.5px;color:#888;font-weight:400}
+.box2 .li{font-size:12px;line-height:1.55;padding-left:12px;position:relative}.box2 .li::before{content:"•";position:absolute;left:2px;color:#777}
+.box2 .li b{color:#F5C400}
+.ln{display:flex;gap:5px;font-size:12px;line-height:1.6}.ln .x{flex:1;min-width:0}.ln .n{color:#F5C400;width:14px;flex:none}
+.ln .lx{flex:none;color:#666;font-size:11px;padding:0 4px;background:none;border:0}
+.p2g{display:grid;gap:0 10px}@media (min-width:700px){.p2g{grid-template-columns:1fr 1fr}}
+#led.idle .lt,#led.idle .lrow,#led.idle #ledRs,#led.idle #ledSave{visibility:hidden}
 /* 유산소 전광판 */
 #led{position:fixed;inset:0;z-index:60;background:#050505;color:#d8d1c4;display:flex;flex-direction:column;gap:6px;padding:max(8px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom))}
 #led .lt{display:flex;gap:6px;align-items:center}
@@ -267,8 +303,8 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
   </div>
  </div>
 </div>
-<div id="pv" hidden><button class="pvn" data-pv="-1">‹</button><div id="pvBox"></div><button class="pvn" data-pv="1">›</button><div id="pvCap"></div></div>
-<div id="led" hidden><div class="lt"><div class="seg" id="ledM"></div><span style="flex:1"></span><button id="ledC">색</button><button id="ledSnd">소리</button><button id="ledFs">⛶</button><button id="ledX">닫기</button></div><div class="lrow" id="ledTy"></div><div id="ledStage"><canvas id="ledCv"></canvas><div id="ledInfo"></div></div><div class="lrow" id="ledP"></div><div class="lrow lruns" id="ledRuns"></div><div class="lb2"><button id="ledGo">시작</button><button id="ledRs" class="sm">초기화</button><button id="ledSave" class="sm">끝·기록</button></div></div>
+<div id="pv" hidden><div id="pvTools"></div><button class="pvn" data-pv="-1">‹</button><div id="pvBox"></div><button class="pvn" data-pv="1">›</button><div id="pvHint"></div><div id="pvCap"></div></div>
+<div id="led" hidden><div class="lt"><div class="seg" id="ledM"></div><span style="flex:1"></span><button id="ledC">색</button><button id="ledSnd">소리</button><button id="ledFs">⛶</button><button id="ledX">닫기</button></div><div class="lrow" id="ledTy"></div><div class="lrow" id="ledPg"></div><div id="ledStage"><canvas id="ledCv"></canvas><div id="ledInfo"></div></div><div class="lrow" id="ledP"></div><div class="lrow lruns" id="ledRuns"></div><div class="lb2"><button id="ledGo">시작</button><button id="ledRs" class="sm">초기화</button><button id="ledSave" class="sm">끝·기록</button></div></div>
 <script src="rec/data.js?v=2"></script>
 
 <div id="toast"></div>
@@ -562,10 +598,7 @@ function paintPal() {
   $('#palAdd').onclick = () => { const v = (prompt('새 종목 이름 (예: 윗등, 러닝)') || '').trim(); if (!v) return; cfg.pal.push(v); bump(v); cfg.rt.push(itemFor(v)); openItem = cfg.rt.length - 1; saveC(); paintSetup(); };
 }
 /* ---- 루틴 저장·불러오기 + 4분할 다음 차례 ---- */
-function nextSplit() {
-  const L = getLog().filter(x => SPLIT.includes(x.nm)).sort((a, b) => b.s - a.s)[0];
-  return L ? SPLIT[(SPLIT.indexOf(L.nm) + 1) % SPLIT.length] : SPLIT[0];
-}
+function nextSplit() { try { return splitInfo().nx; } catch (e) { const L = getLog().filter(x => SPLIT.includes(x.nm)).sort((a, b) => b.s - a.s)[0]; return L ? SPLIT[(SPLIT.indexOf(L.nm) + 1) % SPLIT.length] : SPLIT[0]; } }
 function paintRts() {
   const nx = nextSplit();
   $('#rts').innerHTML = cfg.rts.map((x, i) => `<button class="chip ${x.nm === cfg.rtName ? 'on' : ''} ${x.nm === nx ? 'nx' : ''}" data-rs="${i}">${x.nm}</button>`).join('')
@@ -798,7 +831,10 @@ const toMin = t => { const m = /(\d{1,2}):(\d{2})/.exec(t || ''); return m ? +m[
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const recEd = () => ls.get('wt.recEd', {}), dayEd = () => ls.get('wt.dayEd', {}), recMine = () => ls.get('wt.rec', []), gearOk = () => ls.get('wt.gear', {});
 if (!ls.get('wt.mealFix1', 0)) { const e = ls.get('wt.recEd', {}); if (e.a1) { delete e.a1.t; delete e.a1.tq; ls.set('wt.recEd', e); } ls.set('wt.mealFix1', 1); }
-const RV = {k: dkey(Date.now()), q: '', sOn: false, cat: '', tab: ls.get('wt.tab', 'T'), addOn: false, pz: false};
+const RV = {k: dkey(Date.now()), q: '', sOn: false, cat: '', tab: ls.get('wt.tab', 'T'), addOn: false, pz: false, cAdd: '', delArm: ''};
+(function mig1025() { if (ls.get('wt.mig1025')) return; const L = ls.get('wt.rec', []);
+  const keep = L.filter(c => !(c.k === 20261024 && c.cat === '유산소' && /^20:/.test(c.t || '') && (c.runs || []).reduce((a, r) => a + (r.ms || 0), 0) < 180000));
+  if (keep.length !== L.length) ls.set('wt.rec', keep); ls.set('wt.mig1025', 1); })();
 const CATS = ['근력', '유산소', '식단', '준비', '메모', '타이머'];
 const CIRC = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳';
 const urlCache = {};
@@ -847,8 +883,9 @@ function paintRec() {
     <button id="aTxt"><i>📝</i><b>글 붙여넣기</b><small>글을 카드로</small></button>
     <button id="aClip" class="${RV.pz ? 'on' : ''}"><i>📋</i><b>붙여넣기판</b><small>PC Ctrl+V·여러 장</small></button></div>
     ${RV.pz ? '<div id="pz" tabindex="0">여기를 누르고 Ctrl+V (사진 여러 장 가능)</div>' : ''}
-    <div class="addn">사진 시각은 파일 이름(20261024_154239) → 없으면 파일 시각으로 자동 · 넣은 뒤 제목·시각·분류를 그 자리에서 고치면 됨</div>
+    <div class="addn">사진 시각은 파일 이름(20261024_154239) → 없으면 파일 시각으로 자동 · 넣은 뒤 제목·시각·분류를 그 자리에서 고치면 됨 · 영상은 넣은 뒤 눌러서 「📸 이 장면 담기」로 사진 컷 저장</div>
     <input type="file" id="fGal" accept="image/*,video/*" multiple hidden><input type="file" id="fCam" accept="image/*" capture="environment" hidden></div>`;
+  h += `<input type="file" id="fCard" accept="image/*,video/*" multiple hidden><input type="file" id="fCardCam" accept="image/*" capture="environment" hidden>`;
   if (!RV.q) {
     h += `<div class="lnav"><button class="nb" data-rn="-1">‹</button><div class="ld">${md(kDate(RV.k))}${RV.k === today ? '<span class="today">오늘</span>' : ''}<small>${shown.length}건</small></div><button class="nb" data-rn="1">›</button></div>`;
     const st = sumText(RV.k, cards); const allGear = [...new Set(cards.flatMap(c => c.gear || []))], got = allGear.filter(g => cards.some(c => (ok[c.id] || {})[g]));
@@ -858,10 +895,13 @@ function paintRec() {
   h += `<div id="recList">` + (shown.length ? shown.map(c => {
     const head = RV.q && c.k !== last ? `<div class="lgd">${md(kDate(c.k))}${c.k === today ? ' · 오늘' : ''}</div>` : ''; last = c.k;
     const g = c.gear || [], o = ok[c.id] || {}, ce = c.auto ? '' : 'contenteditable="true"';
-    const media = (c.vd ? `<span class="vd" data-pv="${c.id}|v"><img src="${dirOf(c.k)}/${c.vd}.jpg" loading="lazy" alt=""></span>` : '')
-      + (c.ph || []).map((p, i) => `<img data-pv="${c.id}|${i}" ${c.base ? `src="${dirOf(c.k)}/${p}.jpg"` : `data-idb="${p}"`} loading="lazy" alt="">`).join('');
-    return head + `<div class="tl" data-cid="${c.id}"><div class="hd2"><span class="tm ${c.t && !c.tq ? '' : 'q'}" data-tm="${c.id}" data-raw="${esc(c.t || '')}">${c.t ? cute(c.t) + (c.tq ? '쯤' : '') : '시각 ✎'}</span><span class="ti" ${ce} data-e="${c.id}|ti" data-ph="제목">${esc(c.ti)}</span><span class="ct" data-cc="${c.id}">${c.cat}</span></div>`
+    const media = (c.vd ? `<span class="th vd" data-pv="${c.id}|v" style="background-image:url('${dirOf(c.k)}/${c.vd}.jpg')"></span>` : '')
+      + (c.ph || []).map((p, i) => thHTML(c, p, i)).join('')
+      + (c.auto ? '' : `<span class="th add" data-padd="${c.id}"><i>＋</i>사진</span>`);
+    const delB = `<button class="del ${RV.delArm === c.id ? 'arm' : ''}" data-del="${c.id}">${RV.delArm === c.id ? '정말 삭제' : '🗑'}</button>`;
+    return head + `<div class="tl" data-cid="${c.id}"><div class="hd2"><span class="tm ${c.t && !c.tq ? '' : 'q'}" data-tm="${c.id}" data-raw="${esc(c.t || '')}">${c.t ? cute(c.t) + (c.tq ? '쯤' : '') : '시각 ✎'}</span><span class="ti" ${ce} data-e="${c.id}|ti" data-ph="제목">${esc(c.ti)}</span><span class="ct" data-cc="${c.id}">${c.cat}</span>${delB}</div>`
       + (media ? `<div class="ph2">${media}</div>` : '')
+      + (RV.cAdd === c.id ? `<div class="cadd"><button data-ca="gal">🖼 갤러리·영상</button><button data-ca="cam">📷 찍기</button><button data-ca="clip">📋 붙여넣기</button><button data-ca="x">닫기</button><div class="pz2" tabindex="0" id="pz2">PC: 여기를 누르고 Ctrl+V (여러 장 가능)</div></div>` : '')
       + `<div class="cp" ${ce} data-e="${c.id}|cap" data-ph="설명 쓰기">${esc(c.cap || '')}</div>`
       + (c.auto ? '' : `<div class="my" contenteditable="true" data-e="${c.id}|my" data-ph="✎ 내 메모">${esc(c.my || '')}</div>`)
       + (c.auto ? '' : `<div class="gr"><span class="gl">준비물</span>${g.map((x, i) => `<button class="gc ${o[x] ? 'ok' : ''}" data-g="${c.id}|${i}">${esc(x)}</button>`).join('')}<button class="gc add" data-ga="${c.id}">＋</button></div>`)
@@ -869,7 +909,7 @@ function paintRec() {
   }).join('') : `<p class="hint">${RV.q ? '찾는 기록이 없어요' : '이 날은 기록이 없어요 · 「＋ 추가」로 넣기'}</p>`) + `</div>`;
   box.innerHTML = h;
   if (RV.q) box.querySelectorAll('.ti,.cp,.my').forEach(el => { if (el.textContent.includes(RV.q.trim())) el.innerHTML = hl(esc(el.textContent), esc(RV.q.trim())); });
-  box.querySelectorAll('img[data-idb]').forEach(async im => { const k = im.dataset.idb; if (!urlCache[k]) { const b = await idb.get(k).catch(() => null); if (b) urlCache[k] = URL.createObjectURL(b); } if (urlCache[k]) im.src = urlCache[k]; });
+  box.querySelectorAll('[data-idb]').forEach(async el => { const k = el.dataset.idb, u = await idbURL(k); if (!u) return; if (el.tagName === 'IMG') el.src = u; else if (isVid(k)) { const v = el.querySelector('video'); if (v) v.src = u + '#t=0.5'; } else el.style.backgroundImage = `url('${u}')`; });
   const find = id => cards.find(c => c.id === id);
   /* 그 자리에서 고치기: 글자를 누르면 바로 편집 → 다른 곳 누르면 저장 */
   box.querySelectorAll('[data-e]').forEach(el => el.addEventListener('blur', () => { const [id, f] = el.dataset.e.split('|'), v = el.innerText.replace(/\n+$/, ''); const c = find(id); if (c && (c[f] || '') === v) return; editCard(id, {[f]: v}); }));
@@ -878,11 +918,22 @@ function paintRec() {
     b.innerHTML = `<input value="${esc(c.t || '')}" placeholder="15:40 또는 18:25~18:40">`; const i = b.firstChild; i.focus(); i.select();
     const done = () => { editCard(c.id, {t: i.value.trim(), tq: 0}); paintRec(); }; i.onblur = done; i.onkeydown = e => { if (e.key === 'Enter') i.blur(); if (e.key === 'Escape') { i.onblur = null; paintRec(); } }; });
   box.querySelectorAll('[data-cc]').forEach(b => { const c = find(b.dataset.cc); if (!c || c.auto) return;
-    longPress(b, () => { if (!confirm(`「${c.ti || '이 기록'}」 카드를 지울까요?`)) return; if (String(c.id).startsWith('u')) ls.set('wt.rec', recMine().filter(x => x.id !== c.id)); else ls.set('wt.recDel', ls.get('wt.recDel', []).concat(c.id)); paintRec(); },
-      () => { const C = CATS.filter(x => x !== '타이머'); editCard(c.id, {cat: C[(C.indexOf(c.cat) + 1) % C.length]}); paintRec(); }); });
+    b.onclick = () => { const C = CATS.filter(x => x !== '타이머'); editCard(c.id, {cat: C[(C.indexOf(c.cat) + 1) % C.length]}); paintRec(); }; });
+  /* 🗑 두 번 누르면 카드 삭제 (확인창 없이) */
+  box.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { const id = b.dataset.del; if (RV.delArm !== id) { RV.delArm = id; clearTimeout(RV.delT); RV.delT = setTimeout(() => { RV.delArm = ''; paintRec(); }, 3000); return paintRec(); }
+    RV.delArm = ''; delCard(id); toast('카드 삭제'); paintRec(); });
+  /* 카드에 사진 더하기 */
+  box.querySelectorAll('[data-padd]').forEach(b => b.onclick = () => { RV.cAdd = RV.cAdd === b.dataset.padd ? '' : b.dataset.padd; paintRec(); const z = $('#pz2'); if (z) z.scrollIntoView({block: 'nearest'}); });
+  box.querySelectorAll('[data-ca]').forEach(b => b.onclick = async () => { const a = b.dataset.ca, id = RV.cAdd;
+    if (a === 'x') { RV.cAdd = ''; return paintRec(); }
+    if (a === 'gal') return $('#fCard').click(); if (a === 'cam') return $('#fCardCam').click();
+    if (a === 'clip') { try { const items = await navigator.clipboard.read(), fs = []; for (const it of items) for (const ty of it.types) if (ty.startsWith('image/')) { const bl = await it.getType(ty); fs.push(new File([bl], 'paste.png', {type: ty, lastModified: Date.now()})); } if (fs.length) return addToCard(id, fs); } catch (x) {} toast('PC는 아래 칸을 누르고 Ctrl+V'); $('#pz2') && $('#pz2').focus(); } });
   box.querySelectorAll('[data-g]').forEach(b => { const [id, i] = b.dataset.g.split('|'), c = find(id), nm = c.gear[+i];
     longPress(b, () => { b.contentEditable = 'true'; b.classList.remove('ok'); b.focus(); document.getSelection().selectAllChildren(b);
-      b.onblur = () => { const v = b.innerText.trim(), L = c.gear.slice(); v ? (L[+i] = v) : L.splice(+i, 1); editCard(id, {gear: L}); paintRec(); }; b.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); b.blur(); } }; },
+      const x = document.createElement('button'); x.className = 'gc gx'; x.textContent = '✕ 빼기'; b.after(x); let gone = false;
+      const kill = e => { e.preventDefault(); gone = true; const L = c.gear.slice(); L.splice(+i, 1); editCard(id, {gear: L}); paintRec(); };
+      x.addEventListener('mousedown', kill); x.addEventListener('touchstart', kill, {passive: false});
+      b.onblur = () => { if (gone) return; const v = b.innerText.trim(), L = c.gear.slice(); v ? (L[+i] = v) : L.splice(+i, 1); editCard(id, {gear: L}); paintRec(); }; b.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); b.blur(); } }; },
       () => { if (b.isContentEditable) return; const g = gearOk(); g[id] = g[id] || {}; g[id][nm] = !g[id][nm]; ls.set('wt.gear', g); vib(20); paintRec(); }); });
   box.querySelectorAll('[data-ga]').forEach(b => b.onclick = () => { const c = find(b.dataset.ga); b.outerHTML = `<span class="gc" contenteditable="true" id="gNew" data-ph="준비물"></span>`; const n = $('#gNew'); n.focus();
     n.onblur = () => { const v = n.innerText.trim(); if (v) editCard(c.id, {gear: (c.gear || []).concat(v)}); paintRec(); }; n.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); n.blur(); } }; });
@@ -899,7 +950,30 @@ function paintRec() {
     $('#aTxt').onclick = async () => { let t = ''; try { t = await navigator.clipboard.readText(); } catch (x) {} newCard({cat: '메모', ti: '', cap: t || '', ph: [], t: hm(Date.now())}, true); };
     $('#aClip').onclick = async () => { try { const items = await navigator.clipboard.read(), fs = []; for (const it of items) for (const ty of it.types) if (ty.startsWith('image/')) { const b = await it.getType(ty); fs.push(new File([b], 'paste.png', {type: ty, lastModified: Date.now()})); } if (fs.length) return addFiles(fs); } catch (x) {} RV.pz = !RV.pz; paintRec(); if (RV.pz) $('#pz').focus(); };
   }
+  $('#fCard').onchange = e => addToCard(RV.cAdd, [...e.target.files]); $('#fCardCam').onchange = e => addToCard(RV.cAdd, [...e.target.files]);
   swipeRec();
+}
+/* ---- 사진: idb 키(rp: 사진 · rv: 영상) 또는 rec/ 폴더 파일 ---- */
+const isIdbK = p => /^r[pv]:/.test(p), isVid = p => /^rv:/.test(p);
+async function idbURL(k) { if (!urlCache[k]) { const b = await idb.get(k).catch(() => null); if (b) urlCache[k] = URL.createObjectURL(b); } return urlCache[k] || ''; }
+const fileURL = (c, p) => isIdbK(p) ? (urlCache[p] || '') : `${dirOf(c.k)}/${p}.jpg`;
+function trStyle(c, p) { const r = (c.tr || {})[p]; if (!r) return ''; const [x, y, w, h] = r; return `background-size:${(100 / w).toFixed(2)}% ${(100 / h).toFixed(2)}%;background-position:${w < 1 ? (x / (1 - w) * 100).toFixed(2) : 0}% ${h < 1 ? (y / (1 - h) * 100).toFixed(2) : 0}%;`; }
+function thHTML(c, p, i) {
+  const v = isVid(p), st = trStyle(c, p);
+  return isIdbK(p) ? `<span class="th${v ? ' vd' : ''}" data-pv="${c.id}|${i}" data-idb="${p}" style="${st}">${v ? '<video muted playsinline preload="metadata"></video>' : ''}</span>`
+    : `<span class="th" data-pv="${c.id}|${i}" style="background-image:url('${dirOf(c.k)}/${p}.jpg');${st}"></span>`;
+}
+async function storeFiles(fs, id) { const ph = []; for (let i = 0; i < fs.length; i++) { const key = (/^video/.test(fs[i].type) ? 'rv:' : 'rp:') + id + ':' + Date.now() + ':' + i; await idb.put(key, fs[i]); ph.push(key); } return ph; }
+const cardNow = (k, id) => dayCards(k).find(x => x.id === id);
+async function addToCard(id, fs) {
+  fs = (fs || []).filter(f => /^image|^video/.test(f.type)); if (!id || !fs.length) return;
+  const c = cardNow(RV.k, id) || (RV.q ? allDays().flatMap(k => dayCards(k)).find(x => x.id === id) : null); if (!c) return;
+  const ph = await storeFiles(fs, id); editCard(id, {ph: (c.ph || []).concat(ph)}); RV.cAdd = ''; paintRec(); toast(`${fs.length}장 더함`);
+}
+function delCard(id) {
+  if (String(id).startsWith('u')) ls.set('wt.rec', recMine().filter(x => x.id !== id));
+  else if (String(id).startsWith('L')) ls.set('wt.log', getLog().filter(x => 'L' + x.id !== id));
+  else ls.set('wt.recDel', ls.get('wt.recDel', []).concat(id));
 }
 function newCard(c, focusTitle) {
   const id = 'u' + Date.now() + Math.floor(Math.random() * 1000), L = recMine();
@@ -909,26 +983,70 @@ function newCard(c, focusTitle) {
 }
 async function addFiles(fs) {
   if (!fs.length) return;
-  const t0 = Math.min(...fs.map(fileTime)), id = 'u' + Date.now(), ph = [];
-  for (let i = 0; i < fs.length; i++) { const key = 'rp:' + id + ':' + i; await idb.put(key, fs[i]); ph.push(key); }
+  const t0 = Math.min(...fs.map(fileTime)), id = 'u' + Date.now(), ph = await storeFiles(fs, id);
   RV.k = dkey(t0); RV.pz = false;
   const L = recMine(); L.push({id, k: RV.k, t: hm(t0), cat: '근력', ti: '', cap: '', ph, gear: []}); ls.set('wt.rec', L);
   paintRec(); toast(`${fs.length}장 넣음 · 제목을 바로 쓰세요`);
   const el = document.querySelector(`[data-e="${id}|ti"]`); if (el) { el.focus(); el.scrollIntoView({block: 'center'}); }
 }
-document.addEventListener('paste', e => { if (RV.tab !== 'R' || !RV.addOn) return; const fs = [...(e.clipboardData || {}).files || []].filter(f => /^image|^video/.test(f.type)); if (fs.length) { e.preventDefault(); addFiles(fs.map(f => new File([f], f.name, {type: f.type, lastModified: f.lastModified || Date.now()}))); } });
-const PV = {c: null, i: 0, list: []};
-function openPv(c, i) {
-  if (!c) return; PV.c = c;
-  PV.list = (c.vd ? [{v: `${dirOf(c.k)}/${c.vd}.mp4`}] : []).concat((c.ph || []).map(p => ({p: c.base ? `${dirOf(c.k)}/${p}.jpg` : urlCache[p]})));
-  PV.i = i === 'v' ? 0 : +i + (c.vd ? 1 : 0); showPv(); $('#pv').hidden = false;
+document.addEventListener('paste', e => { if (RV.tab === 'R' && RV.cAdd) { const fs = [...(e.clipboardData || {}).files || []].filter(f => /^image|^video/.test(f.type)); if (fs.length) { e.preventDefault(); addToCard(RV.cAdd, fs.map(f => new File([f], f.name || 'paste.png', {type: f.type, lastModified: Date.now()}))); } return; }
+  if (RV.tab !== 'R' || !RV.addOn) return; const fs = [...(e.clipboardData || {}).files || []].filter(f => /^image|^video/.test(f.type)); if (fs.length) { e.preventDefault(); addFiles(fs.map(f => new File([f], f.name, {type: f.type, lastModified: f.lastModified || Date.now()}))); } });
+const PV = {c: null, i: 0, list: [], mode: '', sel: null, arm: false};
+function pvList(c) { return (c.vd ? [{v: `${dirOf(c.k)}/${c.vd}.mp4`, base: 1}] : []).concat((c.ph || []).map((p, j) => ({key: p, j, v: isVid(p) ? fileURL(c, p) : '', p: isVid(p) ? '' : fileURL(c, p)}))); }
+async function openPv(c, i) {
+  if (!c) return; await Promise.all((c.ph || []).filter(isIdbK).map(idbURL));
+  PV.c = c; PV.list = pvList(c); PV.i = i === 'v' ? 0 : +i + (c.vd ? 1 : 0); PV.mode = ''; PV.sel = null; PV.arm = false; showPv(); $('#pv').hidden = false;
 }
+function pvRefresh(keepI) { const n = dayCards(PV.c.k).find(x => x.id === PV.c.id); if (!n) return closePv(); PV.c = n; PV.list = pvList(n); if (!PV.list.length) return closePv(); PV.i = Math.min(keepI ?? PV.i, PV.list.length - 1); PV.mode = ''; PV.sel = null; showPv(); paintRec(); }
+function closePv() { $('#pv').hidden = true; $('#pvBox').innerHTML = ''; PV.mode = ''; }
 function showPv() {
   const x = PV.list[PV.i]; if (!x) return;
-  $('#pvBox').innerHTML = x.v ? `<video src="${x.v}" controls autoplay muted playsinline></video>` : `<img src="${x.p}" alt="">`;
+  $('#pvBox').innerHTML = (x.v ? `<video src="${x.v}" controls autoplay muted playsinline></video>` : `<img src="${x.p}" alt="" draggable="false">`) + (PV.sel ? '<div id="pvSel"></div>' : '');
   $('#pvCap').innerHTML = `${PV.c.t ? cute(PV.c.t) + ' ' : ''}${esc(PV.c.ti)} · ${PV.i + 1}/${PV.list.length}`;
+  const ed = !PV.c.auto, img = !x.v, B = (k, l, on) => `<button data-pt="${k}" class="${on ? 'on' : ''}">${l}</button>`;
+  $('#pvTools').innerHTML = !ed ? '' : PV.mode ? B('ok', '저장', 1) + B('reset', PV.mode === 'th' ? '원래 썸네일' : '원본 되돌리기') + B('cancel', '취소')
+    : (img ? B('th', '썸네일 영역') + B('crop', '자르기') : B('cap', '📸 이 장면 담기')) + `<button data-pt="rm" class="${PV.arm ? 'arm' : ''}">${PV.arm ? '정말 빼기' : '사진 빼기'}</button>` + B('x', '닫기');
+  $('#pvHint').textContent = PV.mode === 'th' ? '썸네일로 보일 부분을 손가락으로 그어 고르기 (정사각형) → 저장' : PV.mode === 'crop' ? '남길 부분을 손가락으로 그어 고르기 → 저장 (원본은 따로 보관)' : x.v && ed ? '원하는 장면에서 멈추고 「📸 이 장면 담기」 → 이 카드에 사진으로 들어감' : '';
+  drawSel();
 }
-$('#pv').onclick = e => { const n = e.target.closest('[data-pv]'); if (n) { e.stopPropagation(); PV.i = (PV.i + +n.dataset.pv + PV.list.length) % PV.list.length; return showPv(); } if (e.target.closest('video')) return; $('#pv').hidden = true; $('#pvBox').innerHTML = ''; };
+function drawSel() { const el = $('#pvSel'), im = $('#pvBox img'); if (!el || !im || !PV.sel) return; const [x, y, w, h] = PV.sel; el.style.left = im.offsetLeft + x * im.clientWidth + 'px'; el.style.top = im.offsetTop + y * im.clientHeight + 'px'; el.style.width = w * im.clientWidth + 'px'; el.style.height = h * im.clientHeight + 'px'; }
+(() => { /* 손가락으로 그어 영역 고르기 */
+  const box = $('#pvBox'); let st = null;
+  const pt = e => { const im = $('#pvBox img'), r = im.getBoundingClientRect(), t = e.touches ? e.touches[0] : e; return {x: Math.max(0, Math.min(1, (t.clientX - r.left) / r.width)), y: Math.max(0, Math.min(1, (t.clientY - r.top) / r.height)), r}; };
+  const down = e => { if (!PV.mode || !$('#pvBox img')) return; e.preventDefault(); e.stopPropagation(); st = pt(e); };
+  const move = e => { if (!st) return; e.preventDefault(); const q = pt(e); let w = Math.abs(q.x - st.x), h = Math.abs(q.y - st.y);
+    if (PV.mode === 'th') { const px = Math.max(w * st.r.width, h * st.r.height); w = Math.min(px / st.r.width, 1); h = Math.min(px / st.r.height, 1); }
+    let x = q.x < st.x ? st.x - w : st.x, y = q.y < st.y ? st.y - h : st.y; x = Math.max(0, Math.min(1 - w, x)); y = Math.max(0, Math.min(1 - h, y));
+    PV.sel = [x, y, w, h]; if (!$('#pvSel')) box.insertAdjacentHTML('beforeend', '<div id="pvSel"></div>'); drawSel(); };
+  const up = () => { st = null; };
+  box.addEventListener('touchstart', down, {passive: false}); box.addEventListener('touchmove', move, {passive: false}); box.addEventListener('touchend', up);
+  box.addEventListener('mousedown', down); addEventListener('mousemove', move); addEventListener('mouseup', up);
+})();
+const toBlob = cv => new Promise(r => cv.toBlob(r, 'image/jpeg', .9));
+async function pvTool(k) {
+  const c = PV.c, x = PV.list[PV.i]; if (!x) return;
+  if (k === 'x') return closePv();
+  if (k === 'cancel') { PV.mode = ''; PV.sel = null; return showPv(); }
+  if (k === 'th' || k === 'crop') { PV.mode = k; PV.sel = k === 'th' && (c.tr || {})[x.key] ? c.tr[x.key].slice() : null; return showPv(); }
+  if (k === 'rm') { if (!PV.arm) { PV.arm = true; setTimeout(() => { if (PV.arm) { PV.arm = false; showPv(); } }, 3000); return showPv(); }
+    PV.arm = false; if (x.base) editCard(c.id, {vd: ''}); else { const L = (c.ph || []).slice(); L.splice(x.j, 1); editCard(c.id, {ph: L}); } toast('사진 뺌'); return pvRefresh(); }
+  if (k === 'cap') { const v = $('#pvBox video'); if (!v || !v.videoWidth) return toast('영상이 아직 안 열렸어요');
+    const cv = document.createElement('canvas'); cv.width = v.videoWidth; cv.height = v.videoHeight; cv.getContext('2d').drawImage(v, 0, 0);
+    const b = await toBlob(cv); if (!b) return toast('이 영상은 장면을 못 담아요'); const ph = await storeFiles([new File([b], 'cut.jpg', {type: 'image/jpeg'})], c.id);
+    await idbURL(ph[0]); editCard(c.id, {ph: (c.ph || []).concat(ph)}); toast(`${Math.floor(v.currentTime / 60)}:${p2(Math.floor(v.currentTime % 60))} 장면 담음`); const n = dayCards(c.k).find(z => z.id === c.id); PV.c = n; PV.list = pvList(n); paintRec(); return showPv(); }
+  if (k === 'reset') { if (PV.mode === 'th') { const tr = Object.assign({}, c.tr); delete tr[x.key]; editCard(c.id, {tr}); }
+    else { const o = (c.orig || {})[x.key]; if (!o) return toast('자른 적 없는 사진이에요'); const L = c.ph.slice(); L[x.j] = o; const orig = Object.assign({}, c.orig); delete orig[x.key]; editCard(c.id, {ph: L, orig}); }
+    return pvRefresh(); }
+  if (k === 'ok') { if (!PV.sel || PV.sel[2] < .03 || PV.sel[3] < .03) return toast('손가락으로 그어 영역을 먼저 골라요');
+    if (PV.mode === 'th') { editCard(c.id, {tr: Object.assign({}, c.tr, {[x.key]: PV.sel.map(n => +n.toFixed(4))})}); toast('썸네일 영역 저장'); return pvRefresh(); }
+    const im = $('#pvBox img'), [sx, sy, sw, sh] = PV.sel, W = im.naturalWidth, H = im.naturalHeight, cv = document.createElement('canvas');
+    cv.width = Math.round(sw * W); cv.height = Math.round(sh * H); cv.getContext('2d').drawImage(im, sx * W, sy * H, sw * W, sh * H, 0, 0, cv.width, cv.height);
+    const b = await toBlob(cv); if (!b) return toast('자르지 못했어요'); const [nk] = await storeFiles([new File([b], 'crop.jpg', {type: 'image/jpeg'})], c.id); await idbURL(nk);
+    const L = c.ph.slice(); L[x.j] = nk; const tr = Object.assign({}, c.tr); delete tr[x.key]; editCard(c.id, {ph: L, tr, orig: Object.assign({}, c.orig, {[nk]: (c.orig || {})[x.key] || x.key})}); toast('잘라서 저장 · 원본은 「원본 되돌리기」로'); return pvRefresh(); }
+}
+$('#pv').onclick = e => { const t = e.target.closest('[data-pt]'); if (t) { e.stopPropagation(); return pvTool(t.dataset.pt); } if (e.target.closest('#pvTools')) return;
+  const n = e.target.closest('[data-pv]'); if (n) { e.stopPropagation(); if (PV.mode) return; PV.arm = false; PV.i = (PV.i + +n.dataset.pv + PV.list.length) % PV.list.length; return showPv(); }
+  if (PV.mode || e.target.closest('video') || e.target.closest('#pvBox')) return; closePv(); };
 function recMove(d) {
   const pool = allDays().filter(k => k === dkey(Date.now()) || dayCards(k).length);
   const nx = d < 0 ? pool.filter(k => k < RV.k).pop() : pool.find(k => k > RV.k);
@@ -969,8 +1087,7 @@ function paintParts() {
     h += `<p class="sum">「${esc(PW.q)}」 ${hits.length}일</p>` + hits.map(x => dayBlock(x.k, today, PW.q)).join('');
   } else {
     h += `<div class="lnav"><button class="nb" data-pn="-1">‹</button><div class="ld">${md(kDate(days[0]))} ~ ${md(kDate(days[6]))}${days.includes(today) ? '<span class="today">이번 주</span>' : ''}<small>일요일 시작</small></div><button class="nb" data-pn="1">›</button></div>`
-      + `<div id="pList"><table class="wt"><tr>${days.map(k => `<th class="${k === today ? 'td' : ''}">${DOW[kDate(k).getDay()]}<small>${k === today ? '오늘' : md(kDate(k)).split(' ')[0]}</small></th>`).join('')}</tr><tr>`
-      + days.map(k => { const l = dayLabel(k); return l ? `<td class="has" data-go="${k}">${esc(l)}</td>` : `<td class="no">${k > today ? '-' : k === today ? '아직' : '✕'}</td>`; }).join('') + `</tr></table>`
+      + `<div id="pList"><div class="p2g"><div>${partTable(days, today)}</div><div>${nextBox(today)}${tplBox()}</div></div>`
       + days.slice().reverse().filter(k => dayLabel(k) || dayInfo(k).items.length).map(k => dayBlock(k, today)).join('') + `</div>`;
   }
   box.innerHTML = h;
@@ -987,7 +1104,76 @@ function paintParts() {
   });
   box.querySelectorAll('[data-dadd]').forEach(b => b.onclick = () => { const k = b.dataset.dadd, L = dayInfo(k).items.concat(''); setDay(k, {items: L}); paintParts(); const n = box.querySelector(`[data-di="${k}|${L.length - 1}"]`); if (n) n.focus(); });
   box.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { RV.k = +b.dataset.open; setTab('R'); });
+  bindLines(box, paintParts);
+  box.querySelectorAll('[data-tp]').forEach(b => b.onclick = () => { PW.tp = PW.tp === b.dataset.tp ? '' : b.dataset.tp; paintParts(); });
   if (!PW.q) swipeOn($('#pList'), d => { const x = kDate(PW.k); x.setDate(x.getDate() + 7 * d); const k = dkey(x); if (k > today) return toast('이번 주가 마지막이에요'); PW.k = k; paintParts(); });
+}
+/* 부위 × 요일 ○표 (운동 기록판과 같은 모양) */
+const PROWS = ['가슴', '윗등', '아랫등', '하체', '어깨', '이두', '삼두', '복근', '유산소', '기타'];
+function partsOf(k) {
+  const d = dayInfo(k), set = new Set(), toks = d.parts.split(/[·+,\/]/).map(x => x.trim()).filter(Boolean);
+  getLog().filter(x => dkey(x.s) === k).forEach(x => toks.push((x.nm || '').replace(/날$/, '')));
+  recMine().filter(c => c.k === k && c.cat === '유산소').forEach(() => toks.push('유산소'));
+  toks.forEach(t => {
+    if (/가슴/.test(t)) set.add('가슴'); else if (/아랫등/.test(t)) set.add('아랫등'); else if (/등/.test(t)) set.add('윗등');
+    else if (/하체|다리|레그/.test(t)) set.add('하체'); else if (/어깨/.test(t)) { set.add('어깨'); if (/복/.test(t)) set.add('복근'); }
+    else if (/이두|팔/.test(t)) set.add('이두'); else if (/삼두/.test(t)) set.add('삼두'); else if (/복근|복부|푸크/.test(t)) set.add('복근');
+    else if (/유산소|계단|달리|러닝|트레드/.test(t)) set.add('유산소'); else if (t && !/^(자유 운동|운동)$/.test(t)) set.add('기타');
+  });
+  return set;
+}
+const pastDays = today => allDays().filter(k => k <= today).reverse();
+function lastOfP(p, today) { const k = pastDays(today).find(k => partsOf(k).has(p)); if (!k) return '—'; const n = Math.round((kDate(today) - kDate(k)) / 864e5); return md(kDate(k)).split(' ')[0] + (n ? ` · ${n}일 전` : ' · 오늘'); }
+function partTable(days, today) {
+  const P = days.map(partsOf);
+  return `<table class="pt"><tr><th>부위</th>${days.map(k => `<th class="${k === today ? 'td' : ''}">${DOW[kDate(k).getDay()]}<small>${k === today ? '오늘' : md(kDate(k)).split(' ')[0]}</small></th>`).join('')}</tr>`
+    + PROWS.filter(p => p !== '기타' || P.some(s => s.has('기타'))).map(p => `<tr><td><b>${p}</b><small>${lastOfP(p, today)}</small></td>${days.map((k, i) => P[i].has(p) ? `<td class="o" data-go="${k}" title="${esc(dayInfo(k).items.join(' / '))}">○</td>` : '<td></td>').join('')}</tr>`).join('') + `</table>`;
+}
+/* 4분할 다음 차례: 부위 기록으로 판단 (가슴 → 등 → 하체 → 어깨+복부) */
+const SPLIT_P = {'가슴날': ['가슴'], '등날': ['윗등', '아랫등'], '하체날': ['하체'], '어깨+복부날': ['어깨']};
+function splitInfo(today) {
+  today = today || dkey(Date.now());
+  for (const k of pastDays(today)) { const ps = partsOf(k); let hit = SPLIT.filter(s => SPLIT_P[s].some(p => ps.has(p))); if (hit.length > 1) hit = hit.filter(s => s !== '어깨+복부날');
+    if (hit.length) { const last = hit[0]; return {last, k, nx: SPLIT[(SPLIT.indexOf(last) + 1) % SPLIT.length]}; } }
+  return {last: '', k: 0, nx: SPLIT[0]};
+}
+const RCV0 = ['회복 체크: 아침에 그 부위 뭉침·당김 → 남아 있으면 하루 더 쉼', '손목·팔꿈치·무릎 통증 → 그 부위 쉬고 다른 부위', '잠 6시간 미만 → 무게 한 단계 낮추기'];
+function nextBox(today) {
+  const si = splitInfo(today), ds = pastDays(today), y = ds.find(k => k < today), t = ds[0] === today ? today : 0;
+  const L = [`다음 4분할 → <b>${si.nx.replace(/날$/, '')}</b> <span style="color:#888">(가슴 → 등 → 하체 → 어깨+복부${si.k ? ` · 마지막 ${si.last.replace(/날$/, '')} ${md(kDate(si.k)).split(' ')[0]}` : ''})</span>`];
+  const main = s => [...s].filter(p => !/유산소|복근|기타/.test(p));
+  if (t && main(partsOf(t)).length) L.push(`오늘 한 부위: ${main(partsOf(t)).join('·')} → 내일은 이 부위 쉼`);
+  else if (y && main(partsOf(y)).length) L.push(`${md(kDate(y)).split(' ')[0]}에 한 부위: ${main(partsOf(y)).join('·')} → 오늘은 이 부위 쉼`);
+  const two = ds.slice(0, 2); if (two.length === 2 && Math.round((kDate(two[0]) - kDate(two[1])) / 864e5) === 1) { const both = main(partsOf(two[0])).filter(p => partsOf(two[1]).has(p)); if (both.length) L.push(`${both.join('·')} 이틀 연속(${md(kDate(two[1])).split(' ')[0]}·${md(kDate(two[0])).split(' ')[0]}) → 다음 날은 쉼`); }
+  const R = ls.get('wt.rcv', RCV0);
+  return `<div class="box2"><h3>다음 차례 · 회복 체크<small>무엇을 할지·쉴 부위 판단 (자동)</small></h3>${L.map(x => `<div class="li">${x}</div>`).join('')}${lines('rcv', R, '체크할 것')}</div>`;
+}
+/* 다음 틀: 4분할마다 종목 × 세트 × 횟수 (첫 세트 기준 → 모자라거나 과하면 수정) */
+const TPL0 = {
+  '가슴날': ['벤치프레스 머신 4 × 12 (30kg → 양쪽 20kg 원판)', '인클라인 덤벨 벤치프레스 3라운드 × 4세트 (16 → 20kg)', '펙 플라이 3 × 12 (45kg)', '케이블 플라이 3 × 12', '딥스 3 × 최대', '푸크크크 · 천국의 계단 30분 (15 → 10 → 5)'],
+  '등날': ['해머스트렝스 랫풀다운 4 × 12', '어시스트 턱걸이 머신 3 × 10', 'MTS 프론트 풀다운 3 × 12', 'T바 로우 3 × 12 (10kg 원판)', '백익스텐션 3 × 15', '푸크크크 · 달리기 20분'],
+  '하체날': ['레그프레스 4 × 12 → 12회째가 힘든 무게', '레그 익스텐션 3 × 15', '레그 컬 3 × 12', '모으기 · 벌리기 머신 각 3 × 15', '천국의 계단 10분 → 유산소'],
+  '어깨+복부날': ['덤벨 사이드 레터럴 레이즈 4 × 15', '머신 사이드 레터럴 레이즈 3 × 15', '밀리터리 프레스 (얼굴 앞·목 뒤) 3 × 10', '케이블 사이드 레터럴 레이즈 3 × 15', '뒤어깨 벌리기 (펙덱 반대로) 3 × 15', '푸크크크 5라운드 (푸시업 → 앞 → 오른쪽 → 왼쪽 → 레그레이즈)'],
+};
+const tplGet = () => Object.assign({}, TPL0, ls.get('wt.tpl', {}));
+function tplBox() {
+  const si = splitInfo(), sp = PW.tp || si.nx, T = tplGet();
+  return `<div class="box2"><h3>다음 틀 · ${sp.replace(/날$/, '')}<small>첫 세트 기준 → 모자라거나 과하면 그 자리에서 고침</small></h3>`
+    + `<div class="rbar" style="margin:2px 0 4px">${SPLIT.map(s => `<button class="chip ${s === sp ? 'on' : ''}" data-tp="${s}">${s.replace(/날$/, '')}${s === si.nx ? ' 다음' : ''}</button>`).join('')}</div>`
+    + lines('tpl|' + sp, T[sp] || [], '종목 × 세트 × 횟수') + `</div>`;
+}
+/* 한 줄씩 편집되는 목록: 누르면 바로 고침 · Enter = 아래 줄 추가 · 비우거나 ✕ = 삭제 · ＋ = 추가 */
+function lines(id, L, ph) { return L.map((t, i) => `<div class="ln"><span class="n">${CIRC[i] || i + 1}</span><span class="x" contenteditable="true" data-ll="${id}|${i}" data-ph="${ph}">${esc(t)}</span><button class="lx" data-lx="${id}|${i}">✕</button></div>`).join('') + `<div class="ln"><span class="n"></span><button class="gc add" data-la="${id}">＋ 추가</button></div>`; }
+function lnGet(id) { if (id === 'rcv') return ls.get('wt.rcv', RCV0).slice(); const sp = id.split('|')[1]; return (tplGet()[sp] || []).slice(); }
+function lnSet(id, L) { if (id === 'rcv') return ls.set('wt.rcv', L); const sp = id.split('|')[1], T = ls.get('wt.tpl', {}); T[sp] = L; ls.set('wt.tpl', T); }
+function bindLines(box, repaint) {
+  const at = s => { const j = s.lastIndexOf('|'); return [s.slice(0, j), +s.slice(j + 1)]; };
+  box.querySelectorAll('[data-ll]').forEach(el => {
+    el.addEventListener('keydown', e => { if (e.key !== 'Enter') return; e.preventDefault(); const [id, i] = at(el.dataset.ll), L = lnGet(id); L[i] = el.innerText.trim(); L.splice(i + 1, 0, ''); el.dataset.skip = 1; lnSet(id, L); repaint(); const n = box.querySelector(`[data-ll="${id}|${i + 1}"]`); if (n) n.focus(); });
+    el.addEventListener('blur', () => { if (el.dataset.skip) return; const [id, i] = at(el.dataset.ll), L = lnGet(id), v = el.innerText.trim(); if (L[i] === v) return; v ? (L[i] = v) : L.splice(i, 1); lnSet(id, L); setTimeout(repaint, 0); });
+  });
+  box.querySelectorAll('[data-lx]').forEach(b => b.onclick = () => { const [id, i] = at(b.dataset.lx), L = lnGet(id); L.splice(i, 1); lnSet(id, L); repaint(); });
+  box.querySelectorAll('[data-la]').forEach(b => b.onclick = () => { const id = b.dataset.la, L = lnGet(id).concat(''); lnSet(id, L); repaint(); const n = box.querySelector(`[data-ll="${id}|${L.length - 1}"]`); if (n) n.focus(); });
 }
 function dayBlock(k, today, q) {
   const d = dayInfo(k);
@@ -997,7 +1183,7 @@ function dayBlock(k, today, q) {
 }
 
 /* ================= 유산소 전광판 (LED 스톱워치 → 끝나면 기록 자동 저장) ================= */
-const LF = {'0': ['01110', '10001', '10011', '10101', '11001', '10001', '01110'], '1': ['00100', '01100', '00100', '00100', '00100', '00100', '01110'], '2': ['01110', '10001', '00001', '00010', '00100', '01000', '11111'], '3': ['11111', '00010', '00100', '00010', '00001', '10001', '01110'], '4': ['00010', '00110', '01010', '10010', '11111', '00010', '00010'], '5': ['11111', '10000', '11110', '00001', '00001', '10001', '01110'], '6': ['00110', '01000', '10000', '11110', '10001', '10001', '01110'], '7': ['11111', '00001', '00010', '00100', '01000', '01000', '01000'], '8': ['01110', '10001', '10001', '01110', '10001', '10001', '01110'], '9': ['01110', '10001', '10001', '01111', '00001', '00010', '01100'], ':': ['0', '0', '1', '0', '1', '0', '0']};
+const LF = {'0': ['01110', '10001', '10011', '10101', '11001', '10001', '01110'], '1': ['00100', '01100', '00100', '00100', '00100', '00100', '01110'], '2': ['01110', '10001', '00001', '00010', '00100', '01000', '11111'], '3': ['11111', '00010', '00100', '00010', '00001', '10001', '01110'], '4': ['00010', '00110', '01010', '10010', '11111', '00010', '00010'], '5': ['11111', '10000', '11110', '00001', '00001', '10001', '01110'], '6': ['00110', '01000', '10000', '11110', '10001', '10001', '01110'], '7': ['11111', '00001', '00010', '00100', '01000', '01000', '01000'], '8': ['01110', '10001', '10001', '01110', '10001', '10001', '01110'], '9': ['01110', '10001', '10001', '01111', '00001', '00010', '01100'], ':': ['0', '0', '1', '0', '1', '0', '0'], '.': ['0', '0', '0', '0', '0', '0', '1']};
 const LCOL = ['#ffb000', '#ff3b2f', '#3dff7a', '#46c8ff'];
 const LED = {raf: 0, key: ''};
 function ledDraw(txt, lit = true) {
@@ -1020,21 +1206,23 @@ const CDK = 'wt.cardio2';
 const CD0 = () => ({mode: 't', dur: 900000, s: 0, runs: [], t: {running: false, endAt: 0, remain: 900000}, w: {running: false, startAt: 0, acc: 0}});
 let CD = Object.assign(CD0(), ls.get(CDK, {}));
 const saveCD = () => ls.set(CDK, CD);
-const LSET = Object.assign({types: ['천국의 계단', '달리기'], type: '천국의 계단', presets: [1, 3, 5, 10, 15, 20, 25, 30, 45, 60], snd: true}, ls.get('wt.ledSet', {}));
+const LSET = Object.assign({types: ['천국의 계단', '달리기'], type: '천국의 계단', presets: [1, 3, 5, 10, 15, 20, 25, 30, 45, 60], snd: true, prog: [15, 10, 5], pOn: true, gap: 10}, ls.get('wt.ledSet', {}));
+const pgOn = () => LSET.pOn && LSET.prog.length > 0 && CD.mode === 't';
 const saveLS = () => ls.set('wt.ledSet', LSET);
 let ledDone = false, ledBeepT = 0;
 const p2 = n => String(n).padStart(2, '0');
-const tRemain = now => CD.t.running ? Math.max(0, CD.t.endAt - now) : CD.t.remain;
+const tRemain = now => CD.t.running ? Math.max(0, Math.min(CD.dur, CD.t.endAt - now)) : CD.t.remain;
 const wElapsed = now => CD.w.acc + (CD.w.running ? now - CD.w.startAt : 0);
 const ledRunning = () => CD.mode === 't' ? CD.t.running : CD.w.running;
 const ledLive = () => CD.s > 0;
 function ledStr(now) {
   if (CD.mode === 't') { const s = Math.ceil(tRemain(now) / 1000); return p2(Math.min(99, Math.floor(s / 60))) + ':' + p2(s % 60); }
-  const e = Math.floor(wElapsed(now) / 1000); return p2(Math.min(99, Math.floor(e / 60))) + ':' + p2(e % 60);
+  const el = wElapsed(now), e = Math.floor(el / 1000); return p2(Math.min(99, Math.floor(e / 60))) + ':' + p2(e % 60) + '.' + Math.floor(el / 100) % 10;
 }
 const minTxt = ms => { const s = Math.round(ms / 1000), m = Math.floor(s / 60), r = s % 60; return m ? m + '분' + (r ? ' ' + r + '초' : '') : r + '초'; };
 function runSummary(runs) {
   if (!runs.length) return '';
+  if (runs.every(r => r.r > 0)) return runs.map(r => `${r.r}회 ${minTxt(r.ms)}`).join(' + ') + ` = 총 ${minTxt(runs.reduce((a, r) => a + r.ms, 0))}`;
   const g = {}; runs.forEach(r => { const k = r.t ? minTxt(r.ms) : 'sw'; (g[k] = g[k] || []).push(r); });
   const parts = Object.keys(g).map(k => k === 'sw' ? g[k].map(r => '스톱워치 ' + minTxt(r.ms)).join(' + ') : `${k} × ${g[k].length}번`);
   return parts.join(' + ') + ` = 총 ${minTxt(runs.reduce((a, r) => a + r.ms, 0))}`;
@@ -1042,24 +1230,32 @@ function runSummary(runs) {
 function ledAlarm() { let k = 0; const one = () => { if (!LSET.snd) return; beep(880, 150, .3); setTimeout(() => beep(880, 150, .3), 220); setTimeout(() => beep(880, 150, .3), 440); }; one(); clearInterval(ledBeepT); ledBeepT = setInterval(() => { if (++k >= 5 || !ledDone) return clearInterval(ledBeepT); one(); }, 1200); vib([300, 100, 300]); }
 function ledTick() {
   const now = Date.now();
-  if (CD.mode === 't' && CD.t.running && CD.t.endAt <= now) { CD.t.running = false; CD.t.remain = 0; CD.runs.push({t: 1, ms: CD.dur, e: now}); ledDone = true; saveCD(); paintLed(); ledAlarm(); }
+  if (CD.mode === 't' && CD.t.running && CD.t.endAt <= now) {
+    CD.runs.push({t: 1, ms: CD.dur, e: now, r: pgOn() && CD.pi != null ? CD.pi + 1 : 0});
+    if (pgOn() && CD.pi != null && CD.pi + 1 < LSET.prog.length) { /* 다음 회차: 숨 고르기 뒤 자동 시작 */
+      CD.pi++; CD.dur = LSET.prog[CD.pi] * 60000; CD.t.remain = CD.dur; CD.t.endAt = now + LSET.gap * 1000 + CD.dur; CD.gapTo = now + LSET.gap * 1000; saveCD(); paintLed();
+      if (LSET.snd) { beep(880, 180, .3); setTimeout(() => beep(1100, 260, .3), 260); } vib([200, 80, 200]);
+    } else { CD.t.running = false; CD.t.remain = 0; CD.pi = null; ledDone = true; saveCD(); paintLed(); ledAlarm(); }
+  }
   const lit = !(ledDone && CD.mode === 't') || Math.floor(now / 400) % 2 === 0;
   ledDraw(ledStr(now), lit);
-  $('#ledInfo').textContent = (ledLive() ? `${hm(CD.s)} 시작 · ` : '') + (CD.runs.length ? runSummary(CD.runs) : CD.mode === 't' ? `설정 ${minTxt(CD.dur)}` : '스톱워치');
+  const gp = CD.t.running && CD.gapTo > now ? Math.ceil((CD.gapTo - now) / 1000) : 0;
+  $('#ledInfo').textContent = (pgOn() && CD.pi != null ? `${CD.pi + 1}/${LSET.prog.length}회차${gp ? ` · 숨 고르기 ${gp}초 뒤 ${LSET.prog[CD.pi]}분 시작` : ''} · ` : '') + (ledLive() ? `${hm(CD.s)} 시작 · ` : '') + (CD.runs.length ? runSummary(CD.runs) : CD.mode === 't' ? `설정 ${minTxt(CD.dur)}` : '스톱워치');
   LED.raf = requestAnimationFrame(ledTick);
 }
 function ledToggle() {
   ensureAudio(); const now = Date.now(); if (!CD.s) CD.s = now;
   if (CD.mode === 't') {
     if (CD.t.running) { CD.t.remain = Math.max(0, CD.t.endAt - now); CD.t.running = false; }
-    else { if (ledDone || CD.t.remain <= 0) CD.t.remain = CD.dur; ledDone = false; CD.t.endAt = now + CD.t.remain; CD.t.running = true; keepAwake(); }
+    else { if (pgOn() && (CD.pi == null || ledDone)) { CD.pi = 0; CD.dur = LSET.prog[0] * 60000; CD.t.remain = CD.dur; }
+      if (ledDone || CD.t.remain <= 0) CD.t.remain = CD.dur; ledDone = false; CD.t.endAt = now + CD.t.remain; CD.gapTo = 0; CD.t.running = true; keepAwake(); }
   } else {
     if (CD.w.running) { CD.w.acc += now - CD.w.startAt; CD.w.running = false; } else { CD.w.startAt = now; CD.w.running = true; keepAwake(); }
   }
   saveCD(); paintLed();
 }
 function ledReset() {
-  if (CD.mode === 't') { CD.t.running = false; CD.t.remain = CD.dur; ledDone = false; }
+  if (CD.mode === 't') { CD.t.running = false; if (pgOn()) { CD.pi = null; CD.dur = LSET.prog[0] * 60000; } CD.t.remain = CD.dur; ledDone = false; }
   else { if (CD.w.acc + (CD.w.running ? Date.now() - CD.w.startAt : 0) > 3000 && confirm('스톱워치 시간을 기록에 넣고 초기화할까요?')) CD.runs.push({t: 0, ms: wElapsed(Date.now()), e: Date.now()}); CD.w = {running: false, startAt: 0, acc: 0}; }
   saveCD(); paintLed();
 }
@@ -1070,13 +1266,16 @@ function ledSave() {
   if (CD.mode === 'w' && wElapsed(now) > 3000) CD.runs.push({t: 0, ms: wElapsed(now), e: now});
   if (!CD.runs.length) return toast('아직 기록할 시간이 없어요');
   const nm = LSET.type, tot = CD.runs.reduce((a, r) => a + r.ms, 0), L = recMine();
+  /* 2분 미만은 실수로 누른 경우가 많아 한 번 더 눌러야 저장 (중복 카드 방지) */
+  if (tot < 120000 && CD.shortOk !== CD.runs.length) { CD.shortOk = CD.runs.length; return toast(`${minTxt(tot)}뿐이에요 · 한 번 더 누르면 저장`); }
   L.push({id: 'u' + now, k: dkey(CD.s || now), t: hm(CD.s || now) + '~' + hm(now), cat: '유산소', ti: nm, ph: [], gear: nm === '달리기' ? ['수건', '쉐이커', '헤드폰', '러닝화'] : ['수건', '밴드(턱걸이 끈)', '쉐이커', '헤드폰', '발목 보호대(루미힐)'],
-    cap: `${nm} · ${runSummary(CD.runs)}`, runs: CD.runs.map(r => ({ms: r.ms, t: r.t}))});
+    cap: `${nm} · ${runSummary(CD.runs)}`, runs: CD.runs.map(r => ({ms: r.ms, t: r.t, r: r.r || 0}))});
   ls.set('wt.rec', L); toast(`${nm} 총 ${minTxt(tot)} 기록 저장`); beep(660, 200, .3); vib([100, 80, 100]);
-  const keep = {mode: CD.mode, dur: CD.dur}; CD = Object.assign(CD0(), keep, {t: {running: false, endAt: 0, remain: keep.dur}}); ledDone = false; saveCD();
+  const keep = {mode: CD.mode, dur: pgOn() ? LSET.prog[0] * 60000 : CD.dur}; CD = Object.assign(CD0(), keep, {t: {running: false, endAt: 0, remain: keep.dur}}); ledDone = false; saveCD();
   RV.k = dkey(now); paintLed();
 }
 function paintLed() {
+  if (!ledRunning()) { clearTimeout(ledIdleT); $('#led').classList.remove('idle'); }
   $('#ledGo').textContent = ledRunning() ? '정지' : (CD.mode === 't' && (ledDone || CD.t.remain <= 0)) ? '다시' : ((CD.mode === 't' ? CD.t.remain < CD.dur : CD.w.acc > 0) ? '계속' : '시작');
   $('#ledGo').classList.toggle('run', ledRunning());
   $('#ledM').innerHTML = [['t', '타이머'], ['w', '스톱워치']].map(([k, l]) => `<button class="${CD.mode === k ? 'on' : ''}" data-lm="${k}">${l}</button>`).join('');
@@ -1086,9 +1285,18 @@ function paintLed() {
   $('#ledTy').innerHTML = LSET.types.map((t, i) => `<button class="lc ${LSET.type === t ? 'on' : ''}" data-ty="${i}">${esc(t)}</button>`).join('') + `<button class="lc add" id="ledTyAdd">＋</button>`;
   $('#ledTy').querySelectorAll('[data-ty]').forEach(b => { const i = +b.dataset.ty; longPress(b, () => inlineChip(b, LSET.types[i], v => { if (v) { if (LSET.type === LSET.types[i]) LSET.type = v; LSET.types[i] = v; } else if (LSET.types.length > 1) { LSET.types.splice(i, 1); if (!LSET.types.includes(LSET.type)) LSET.type = LSET.types[0]; } saveLS(); paintLed(); }), () => { LSET.type = LSET.types[i]; saveLS(); paintLed(); }); });
   $('#ledTyAdd').onclick = () => { const b = $('#ledTyAdd'); inlineChip(b, '', v => { if (v && !LSET.types.includes(v)) { LSET.types.push(v); LSET.type = v; saveLS(); } paintLed(); }); };
-  /* 분 칩: 누르면 설정 · 길게 누르면 편집(비우면 삭제) · ± · ＋ 지금 시간 추가 */
-  const dis = ledRunning(), box = $('#ledP');
-  if (CD.mode !== 't') { box.innerHTML = `<span class="lhint">스톱워치 — 정지 후 「초기화」 하면 그 시간이 1번으로 쌓임</span>`; }
+  /* 회차 칩: 기본 15 → 10 → 5분 (총 30분) · 누르면 그 회차부터 · 길게 누르면 분 고치기(비우면 삭제) · ＋ 추가 · 켬/끔 */
+  const dis = ledRunning(), box = $('#ledP'), pg = $('#ledPg');
+  if (CD.mode !== 't') pg.innerHTML = '';
+  else { const tot = LSET.prog.reduce((a, b) => a + b, 0);
+    pg.innerHTML = `<button class="lc ${LSET.pOn ? 'on' : ''}" id="pgT">회차 ${LSET.pOn ? '켬' : '끔'}</button>` + (LSET.pOn ? LSET.prog.map((m, i) => `<button class="lc ${CD.pi === i ? 'cur' : ''}" data-pg="${i}" ${dis ? 'disabled' : ''}>${i + 1}회 ${m}분</button>`).join('') + `<button class="lc add" id="pgAdd" ${dis ? 'disabled' : ''}>＋</button><span class="lhint">총 ${tot}분 · 회차 사이 ${LSET.gap}초 숨 고르기 뒤 자동 시작</span>` : '<span class="lhint">끔 = 아래 분 칩으로 한 번만</span>');
+    $('#pgT').onclick = () => { if (dis) return toast('정지한 뒤 바꿔요'); LSET.pOn = !LSET.pOn; saveLS(); CD.pi = null; if (LSET.pOn && LSET.prog.length) { CD.dur = LSET.prog[0] * 60000; CD.t.remain = CD.dur; } saveCD(); paintLed(); };
+    pg.querySelectorAll('[data-pg]').forEach(b => { const i = +b.dataset.pg; longPress(b, () => inlineChip(b, String(LSET.prog[i]), v => { const n = parseInt(v, 10); if (n > 0 && n < 100) LSET.prog[i] = n; else LSET.prog.splice(i, 1); if (!LSET.prog.length) LSET.prog = [15, 10, 5]; saveLS(); CD.pi = null; CD.dur = LSET.prog[0] * 60000; CD.t.remain = CD.dur; saveCD(); paintLed(); }),
+      () => { CD.pi = i; CD.dur = LSET.prog[i] * 60000; CD.t.remain = CD.dur; ledDone = false; saveCD(); paintLed(); }); });
+    const a = $('#pgAdd'); if (a) a.onclick = () => inlineChip(a, '', v => { const n = parseInt(v, 10); if (n > 0 && n < 100) LSET.prog.push(n); saveLS(); paintLed(); });
+  }
+  if (CD.mode === 't' && LSET.pOn) { box.innerHTML = ''; }
+  else if (CD.mode !== 't') { box.innerHTML = `<span class="lhint">스톱워치 — 정지 후 「초기화」 하면 그 시간이 1번으로 쌓임</span>`; }
   else {
     box.innerHTML = LSET.presets.map((m, i) => `<button class="lc ${CD.dur === m * 60000 ? 'cur' : ''}" data-pm="${i}" ${dis ? 'disabled' : ''}>${m}분</button>`).join('')
       + [['−1분', -60000], ['+1분', 60000], ['−10초', -10000], ['+10초', 10000]].map(([l, d]) => `<button class="lc" data-pd="${d}" ${dis ? 'disabled' : ''}>${l}</button>`).join('') + `<button class="lc add" id="ledPAdd" ${dis ? 'disabled' : ''}>＋</button>`;
@@ -1107,16 +1315,19 @@ function inlineChip(b, val, done) {
   let fin = false; const end = () => { if (fin) return; fin = true; done(s.innerText.trim()); };
   s.onblur = end; s.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); s.blur(); } };
 }
-function openLed() { $('#led').hidden = false; LED.key = ''; paintLed(); cancelAnimationFrame(LED.raf); ledTick(); keepAwake(); }
+function openLed() { $('#led').hidden = false; LED.key = ''; paintLed(); cancelAnimationFrame(LED.raf); ledTick(); keepAwake(); ledPoke(); }
+let ledIdleT = 0;
+function ledPoke() { $('#led').classList.remove('idle'); clearTimeout(ledIdleT); if (ledRunning()) ledIdleT = setTimeout(() => $('#led').classList.add('idle'), 4000); }
+$('#led').addEventListener('pointerdown', ledPoke, true);
 $('#ledX').onclick = () => { $('#led').hidden = true; cancelAnimationFrame(LED.raf); if (RV.tab === 'R') paintRec(); };
 $('#ledC').onclick = () => { ls.set('wt.ledC', (ls.get('wt.ledC', 0) + 1) % LCOL.length); LED.key = ''; };
 $('#ledSnd').onclick = () => { LSET.snd = !LSET.snd; ensureAudio(); saveLS(); paintLed(); };
-$('#ledGo').onclick = ledToggle;
+$('#ledGo').onclick = () => { ledToggle(); ledPoke(); };
 $('#ledRs').onclick = ledReset;
 $('#ledSave').onclick = ledSave;
 $('#ledFs').onclick = () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => {})); } catch (x) {} };
 document.addEventListener('keydown', e => { if ($('#led').hidden || e.target.isContentEditable) return; if (e.code === 'Space') { e.preventDefault(); ledToggle(); } });
-if (CD.mode === 't' && CD.t.running && CD.t.endAt <= Date.now()) { CD.t.running = false; CD.t.remain = 0; CD.runs.push({t: 1, ms: CD.dur, e: CD.t.endAt}); ledDone = true; saveCD(); }
+if (CD.mode === 't' && CD.t.running && CD.t.endAt <= Date.now() && !(pgOn() && CD.pi != null)) { CD.t.running = false; CD.t.remain = 0; CD.runs.push({t: 1, ms: CD.dur, e: CD.t.endAt}); ledDone = true; saveCD(); }
 
 function setTab(t) {
   RV.tab = t; ls.set('wt.tab', t);
