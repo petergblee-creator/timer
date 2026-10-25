@@ -374,6 +374,10 @@ html.light img,html.light video,html.light canvas,html.light .th:not(.add),html.
 /* 10/25 삭제 규칙: 팝업 없이 — 1번 누르면 「삭제할까요?」, 3초 안에 한 번 더 누르면 실행 */
 .armd{background:#c62828!important;color:#fff!important;border-color:#c62828!important}
 .arm2chip{position:absolute;right:6px;top:50%;transform:translateY(-50%);z-index:5;background:#c62828;color:#fff;border:0;border-radius:999px;padding:6px 12px;font:700 13px inherit;box-shadow:0 2px 8px rgba(0,0,0,.35);cursor:pointer}
+.askbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex-basis:100%;width:100%;margin:6px 0;padding:6px;border:2px solid #c9a227;border-radius:12px;background:rgba(201,162,39,.12)}
+.askbar input{flex:1;min-width:8em;font:inherit;font-size:16px;padding:8px 10px;border-radius:8px;border:1px solid #888;background:#111;color:#fff}
+.askbar button{font:700 14px inherit;padding:8px 12px;border-radius:8px;border:1px solid #666;background:#222;color:#eee;cursor:pointer}
+.askbar .ok{background:#c9a227;color:#111;border-color:#c9a227}
 </style>
 <script>
 function arm2(el, msg, fn) {
@@ -389,6 +393,23 @@ function arm2(el, msg, fn) {
   const c = document.createElement('button'); c.type = 'button'; c.className = 'arm2chip'; c.textContent = msg + ' (한 번 더)';
   c.onclick = e => { e.stopPropagation(); clearTimeout(c._t); c.remove(); fn(); };
   el.appendChild(c); c._t = setTimeout(() => c.remove(), 3000);
+}
+/* 10/25 팝업 없이 그 자리 입력칸 (Enter=확인 · Esc=취소) */
+function askHere(anchor, o) {
+  document.querySelectorAll('.askbar').forEach(x => x.remove());
+  const bar = document.createElement('div'); bar.className = 'askbar';
+  bar.innerHTML = `<input type="text" autocomplete="off"><button type="button" class="ok"></button>${o.onDel ? '<button type="button" class="dl">삭제</button>' : ''}<button type="button" class="cx">취소</button>`;
+  const inp = bar.querySelector('input'), ok = bar.querySelector('.ok');
+  inp.value = o.value || ''; inp.placeholder = o.ph || ''; ok.textContent = o.ok || '확인';
+  const done = () => bar.remove();
+  const go = () => { const v = inp.value.trim(); const w = o.warn && v ? o.warn(v) : ''; if (w) return arm2(ok, w, () => { done(); o.onOk(v); }); done(); o.onOk(v); };
+  ok.onclick = e => { e.stopPropagation(); go(); };
+  bar.querySelector('.cx').onclick = e => { e.stopPropagation(); done(); };
+  const dl = bar.querySelector('.dl'); if (dl) dl.onclick = e => { e.stopPropagation(); arm2(dl, '삭제할까요?', () => { done(); o.onDel(); }); };
+  inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } else if (e.key === 'Escape') done(); };
+  bar.onclick = e => e.stopPropagation();
+  if (anchor && anchor.parentNode) anchor.insertAdjacentElement('afterend', bar); else document.body.prepend(bar);
+  setTimeout(() => { inp.focus(); inp.select(); }, 30);
 }
 </script>
 </head>
@@ -647,7 +668,7 @@ function applyFont() {
   document.documentElement.style.setProperty('--capf', f === 'my' ? (myFont ? '"MyCap"' : 'inherit') : f ? `"${f}"` : 'inherit');
   if (document.fonts) document.fonts.ready.then(fitCap);
 }
-async function loadMyFont(blob) { try { const ff = new FontFace('MyCap', await blob.arrayBuffer()); await ff.load(); document.fonts.add(ff); myFont = blob.name || '내 글꼴'; } catch (e) { myFont = ''; alert('글꼴 파일을 읽지 못했습니다 (ttf·otf·woff만 가능)'); } applyFont(); }
+async function loadMyFont(blob) { try { const ff = new FontFace('MyCap', await blob.arrayBuffer()); await ff.load(); document.fonts.add(ff); myFont = blob.name || '내 글꼴'; } catch (e) { myFont = ''; toast('글꼴 파일을 읽지 못했습니다 (ttf·otf·woff만 가능)'); } applyFont(); }
 idb.get('font').then(r => { if (r) loadMyFont(r).then(paintCap); else applyFont(); }).catch(() => applyFont());
 let bgURL = '';
 function setBg(blob) { if (bgURL) URL.revokeObjectURL(bgURL); bgURL = blob ? URL.createObjectURL(blob) : ''; paintBg(); }
@@ -701,7 +722,7 @@ function preview(kind, style) {
 /* ================= 설정 화면 ================= */
 function longPress(el, onLong, onTap) {
   let t = 0, fired = false;
-  const down = () => { fired = false; t = setTimeout(() => { fired = true; vib(30); onLong(); }, 550); };
+  const down = () => { fired = false; t = setTimeout(() => { fired = true; vib(30); window.__lpEl = el; onLong(); }, 550); };
   const up = () => clearTimeout(t);
   el.addEventListener('touchstart', down, {passive: true}); el.addEventListener('mousedown', down);
   ['touchend', 'touchmove', 'mouseup', 'mouseleave'].forEach(e => el.addEventListener(e, up));
@@ -709,8 +730,7 @@ function longPress(el, onLong, onTap) {
   el.addEventListener('click', () => { if (!fired && onTap) onTap(); });
 }
 function editName(cur, onSet, onDel) {
-  const v = prompt('이름 바꾸기 (비우고 확인 = 지우기)', cur);
-  if (v === null) return; v.trim() ? onSet(v.trim()) : onDel();
+  askHere(window.__lpEl, {value: cur, ok: '바꾸기', onOk: v => v ? onSet(v) : onDel(), onDel});
 }
 function renPal(i, v) { const old = cfg.pal[i]; cfg.pal[i] = v; cfg.rt.forEach(it => { if (it.nm === old) it.nm = v; }); saveC(); paintSetup(); }
 function delPal(i) { cfg.pal.splice(i, 1); saveC(); paintSetup(); }
@@ -732,7 +752,7 @@ function paintPal() {
     () => editName(cfg.pal[i], v => renPal(i, v), () => delPal(i)),
     () => { bump(cfg.pal[i]); cfg.rt.push(itemFor(cfg.pal[i])); openItem = cfg.rt.length - 1; saveC(); paintSetup(); }); });
   if ($('#palMore')) $('#palMore').onclick = () => { palOpen = !palOpen; paintPal(); };
-  $('#palAdd').onclick = () => { const v = (prompt('새 종목 이름 (예: 윗등, 러닝)') || '').trim(); if (!v) return; cfg.pal.push(v); bump(v); cfg.rt.push(itemFor(v)); openItem = cfg.rt.length - 1; saveC(); paintSetup(); };
+  $('#palAdd').onclick = () => askHere($('#palAdd'), {ph: '새 종목 이름 (예: 윗등, 러닝)', ok: '추가', onOk: v => { if (!v) return; cfg.pal.push(v); bump(v); cfg.rt.push(itemFor(v)); openItem = cfg.rt.length - 1; saveC(); paintSetup(); }});
 }
 /* ---- 루틴 저장·불러오기 + 4분할 다음 차례 ---- */
 function nextSplit() { try { return splitInfo().nx; } catch (e) { const L = getLog().filter(x => SPLIT.includes(x.nm)).sort((a, b) => b.s - a.s)[0]; return L ? SPLIT[(SPLIT.indexOf(L.nm) + 1) % SPLIT.length] : SPLIT[0]; } }
@@ -745,11 +765,12 @@ function paintRts() {
     () => { const x = cfg.rts[i]; cfg.rt = clone(x.rt); cfg.rtName = x.nm; x.rt.forEach(it => bump(it.nm)); openItem = -1; saveC(); paintSetup(); toast(`「${x.nm}」 불러옴`); }); });
   $('#rtSave').onclick = () => {
     if (!cfg.rt.length) return toast('오늘 할 운동이 비어 있어요');
-    const v = (prompt('루틴 이름 (예: 등날)', cfg.rtName || '') || '').trim(); if (!v) return;
-    const j = cfg.rts.findIndex(x => x.nm === v);
-    if (j >= 0) { if (!confirm(`「${v}」를 지금 것으로 덮어쓸까요?`)) return; cfg.rts[j].rt = clone(cfg.rt); }
-    else cfg.rts.push({nm: v, rt: clone(cfg.rt)});
-    cfg.rtName = v; saveC(); paintSetup(); toast(`「${v}」 저장`);
+    askHere($('#rtSave'), {value: cfg.rtName || '', ph: '루틴 이름 (예: 등날)', ok: '저장',
+      warn: v => cfg.rts.some(x => x.nm === v) ? '덮어쓸까요?' : '',
+      onOk: v => { if (!v) return;
+        const j = cfg.rts.findIndex(x => x.nm === v);
+        if (j >= 0) cfg.rts[j].rt = clone(cfg.rt); else cfg.rts.push({nm: v, rt: clone(cfg.rt)});
+        cfg.rtName = v; saveC(); paintSetup(); toast(`「${v}」 저장`); }});
   };
 }
 const itemSum = it => it.rounds * it.sets === 1 ? `${fmtS(it.work)} 한 번` : `${it.rounds}라운드 × ${it.sets}세트 · 운동 ${fmtS(it.work)} / 쉬기 ${fmtS(it.rest)}${it.rounds > 1 ? ` · 라운드 사이 ${fmtS(it.rrest)}` : ''}`;
@@ -776,7 +797,7 @@ function paintRt() {
     () => editName(cfg.pal[pi], v => renPal(pi, v), () => delPal(pi)),
     () => { const it = cfg.rt[+b.dataset.ii], n = b.dataset.sw, kind = x => /러닝|달리기|유산소|걷기/.test(x) ? 'run' : /스트레칭/.test(x) ? 'st' : 'w';
     bump(n); if (kind(n) !== kind(it.nm)) Object.assign(it, itemFor(n)); else it.nm = n; saveC(); paintSetup(); }); });
-  $('#rtList').querySelectorAll('[data-ren]').forEach(b => b.onclick = () => { const i = +b.dataset.ren, v = (prompt('종목 이름', cfg.rt[i].nm) || '').trim(); if (v) { cfg.rt[i].nm = v; saveC(); paintSetup(); } });
+  $('#rtList').querySelectorAll('[data-ren]').forEach(b => b.onclick = e => { e.stopPropagation(); const i = +b.dataset.ren; askHere(b, {value: cfg.rt[i].nm, ok: '바꾸기', onOk: v => { if (v) { cfg.rt[i].nm = v; saveC(); paintSetup(); } }}); });
   $('#rtList').querySelectorAll('[data-del]').forEach(b => b.onclick = e => { e.stopPropagation(); arm2(b, '뺄까요?', () => { cfg.rt.splice(+b.dataset.del, 1); openItem = -1; saveC(); paintSetup(); }); });
 }
 /* 숫자를 누르면 그 자리에서 입력: 초(90) · 분:초(1:30) · 1분30초 · 2분 — Enter/바깥 누르면 저장, Esc 취소 */
@@ -1739,9 +1760,12 @@ function ledToggle() {
   }
   saveCD(); paintLed();
 }
-function ledReset() {
+function ledReset(ev) {
+  if (CD.mode !== 't' && CD.w.acc + (CD.w.running ? Date.now() - CD.w.startAt : 0) > 3000 && !(ev && ev.__armed)) {
+    const b = $('#ledRs'); return arm2(b, '기록+초기화?', () => ledReset({__armed: true}));
+  }
   if (CD.mode === 't') { CD.t.running = false; if (pgOn()) { CD.pi = null; CD.dur = LSET.prog[0] * 60000; } CD.t.remain = CD.dur; ledDone = false; }
-  else { if (CD.w.acc + (CD.w.running ? Date.now() - CD.w.startAt : 0) > 3000 && confirm('스톱워치 시간을 기록에 넣고 초기화할까요?')) CD.runs.push({t: 0, ms: wElapsed(Date.now()), e: Date.now()}); CD.w = {running: false, startAt: 0, acc: 0}; }
+  else { if (CD.w.acc + (CD.w.running ? Date.now() - CD.w.startAt : 0) > 3000 && ev && ev.__armed) CD.runs.push({t: 0, ms: wElapsed(Date.now()), e: Date.now()}); CD.w = {running: false, startAt: 0, acc: 0}; }
   saveCD(); paintLed();
 }
 function setDur(ms) { ms = Math.max(1000, Math.min(5999000, ms)); CD.dur = ms; CD.t.remain = ms; CD.t.running = false; ledDone = false; saveCD(); paintLed(); }
@@ -1808,7 +1832,7 @@ $('#ledX').onclick = () => { $('#led').hidden = true; cancelAnimationFrame(LED.r
 $('#ledC').onclick = () => { ls.set('wt.ledC', (ls.get('wt.ledC', 0) + 1) % LCOL.length); LED.key = ''; };
 $('#ledSnd').onclick = () => { LSET.snd = !LSET.snd; ensureAudio(); saveLS(); paintLed(); };
 $('#ledGo').onclick = () => { ledToggle(); ledPoke(); };
-$('#ledRs').onclick = ledReset;
+$('#ledRs').onclick = () => ledReset();
 $('#ledSave').onclick = ledSave;
 $('#ledFs').onclick = () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => {})); } catch (x) {} };
 document.addEventListener('keydown', e => { if ($('#led').hidden || e.target.isContentEditable) return; if (e.code === 'Space') { e.preventDefault(); ledToggle(); } });
