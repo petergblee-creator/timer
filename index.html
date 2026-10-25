@@ -288,6 +288,17 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 #pvTxt .b button.on{background:#F5C400;color:#111;border-color:#F5C400;font-weight:800}
 #pv.kb #pvTop,#pv.kb #pvHint,#pv.kb #pvTxt .r.o{display:none}
 #pvMark{position:absolute;pointer-events:none;white-space:pre;font-weight:800;line-height:1.25;text-shadow:0 0 4px #000,0 0 2px #000;transform:translate(-50%,-50%);text-align:center;outline:1.5px dashed rgba(245,196,0,.8);outline-offset:5px;border-radius:2px}
+.sets{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:5px}
+.sets .gl{font-size:10px;color:#888}
+.sc{font-size:12px;padding:2px 7px;border-radius:8px;background:#1a1a1a;border:1px solid #333;display:inline-flex;gap:2px;align-items:baseline}
+.sc b{font-weight:800;color:#fff;min-width:12px;text-align:center;cursor:pointer}.sc i{font-style:normal;font-size:9.5px;color:#888}
+.sc.on{border-color:#F5C400}.sc b[contenteditable]{background:#1d1d12;padding:0 2px}
+.sc .r{color:#F5C400}
+.wst{display:flex;gap:5px;align-items:center;margin-top:4px;flex-wrap:wrap}
+.wst button{font-size:12px;padding:6px 12px;border-radius:9px;background:#1d1d1d;border:1px solid #333;color:#fff;font-weight:700}
+.wst b{font-size:15px;min-width:60px;text-align:center;color:#F5C400}
+.up{color:#22C55E;font-size:10px;flex:none;align-self:center}.dn{color:#E5484D;font-size:10px;flex:none;align-self:center}
+.wh{font-size:11.5px;line-height:1.55;padding:2px 0;border-bottom:1px solid #1c1c1c}.wh b{color:#fff;margin-right:4px}.wh .u{color:#22C55E}.wh .d{color:#E5484D}
 #led.idle .lt,#led.idle .lrow,#led.idle #ledRs,#led.idle #ledSave{visibility:hidden}
 /* 유산소 전광판 */
 #led{position:fixed;inset:0;z-index:60;background:#050505;color:#d8d1c4;display:flex;flex-direction:column;gap:6px;padding:max(8px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom))}
@@ -364,7 +375,7 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 </div>
 <div id="pv" hidden><div id="pvTop"><div id="pvCap"></div><button id="pvX" data-pt="x" aria-label="닫기">✕</button></div><div id="pvStage"><button class="pvn" data-pv="-1">‹</button><div id="pvBox"></div><button class="pvn" data-pv="1">›</button></div><div id="pvHint"></div><div id="pvTools"></div></div>
 <div id="led" hidden><div class="lt"><div class="seg" id="ledM"></div><span style="flex:1"></span><button id="ledC">색</button><button id="ledSnd">소리</button><button id="ledFs">⛶</button><button id="ledX">닫기</button></div><div class="lrow" id="ledTy"></div><div class="lrow" id="ledPg"></div><div id="ledStage"><canvas id="ledCv"></canvas><div id="ledInfo"></div></div><div class="lrow" id="ledP"></div><div class="lrow lruns" id="ledRuns"></div><div class="lb2"><button id="ledGo">시작</button><button id="ledRs" class="sm">초기화</button><button id="ledSave" class="sm">끝·기록</button></div></div>
-<script src="rec/data.js?v=6"></script>
+<script src="rec/data.js?v=7"></script>
 
 <div id="toast"></div>
 <div id="run" data-ph="prep" hidden>
@@ -927,9 +938,63 @@ const cardTxt = c => [c.t, c.cat, c.ti, c.cap, c.my, (c.gear || []).join(' ')].j
 const shortItem = s => s.split(/ — | → /)[0];
 function sumText(k, cards) {
   const d = dayInfo(k); if (d.sum != null) return d.sum;
+  if (d.items.length && cards.some(c => Array.isArray(c.sets) && c.sets.length && !c.base0)) {
+    const L = d.items.map(shortItem); cards.filter(c => Array.isArray(c.sets) && c.sets.some(x => x.w != null)).forEach(c => { const a = nz(c.ti); const i = L.findIndex(t => { const b = nz(t.split(/ · /)[0]); return a.length > 2 && (b.includes(a) || a.includes(b)); }); if (i >= 0) L[i] = `${L[i].split(/ · /)[0]} · ${fmtSets(c.sets)}`; });
+    return L.map((x, i) => String(i + 1).padStart(2, '0') + '  ' + x).join('\n'); }
   const L = d.items.length ? d.items.map(shortItem) : cards.filter(c => c.cat === '근력' || c.cat === '유산소').map(c => c.ti);
   return L.map((x, i) => String(i + 1).padStart(2, '0') + '  ' + x).join('\n');
 }
+/* ---- 세트 칸: 무게(kg)·횟수 · 횟수 누르면 2회씩 줄어듦(12→10→8…) · 무게 누르면 ±2.5 · 길게 누르면 숫자 직접 ---- */
+const kgs = t => [...String(t || '').matchAll(/(\d+(?:\.\d+)?)\s*kg/g)].map(m => +m[1]);
+function setsOf(c) {
+  if (Array.isArray(c.sets)) return c.sets;
+  if (c.cat !== '근력' || /루틴 설정|푸크크크/.test(c.ti || '')) return null;
+  const w = kgs((c.cap || '') + ' ' + (c.ti || '')), n = (/(\d+)\s*세트/.exec(c.cap || '') || [])[1], r = +((/(\d+)\s*회/.exec(c.cap || '') || [])[1] || 12);
+  return [...Array(Math.min(+(n || 4), 12))].map(() => ({w: w.length ? w[w.length - 1] : null, r}));
+}
+function fmtSets(S) {
+  if (!S || !S.length) return '';
+  if (S.every(x => x.w === S[0].w && x.r === S[0].r)) return `${S[0].w != null ? S[0].w + 'kg · ' : ''}${S.length}세트 × ${S[0].r}회`;
+  const g = []; S.forEach(x => { const l = g[g.length - 1]; if (l && l.w === x.w) l.r.push(x.r); else g.push({w: x.w, r: [x.r]}); });
+  return g.map(x => `${x.w != null ? x.w + 'kg ' : ''}${x.r.length > 1 && x.r.every(r => r === x.r[0]) ? `${x.r.length}세트 × ${x.r[0]}회` : x.r.join('·') + '회'}`).join(' + ');
+}
+function setsHTML(c) {
+  const S = setsOf(c); if (!S) return '';
+  const sel = RV.wSel && RV.wSel.startsWith(c.id + '|') ? +RV.wSel.split('|')[1] : -1;
+  return `<div class="sets"><span class="gl">세트</span>${S.map((x, i) => `<span class="sc ${sel === i ? 'on' : ''}"><b data-sw="${c.id}|${i}">${x.w != null ? x.w : '–'}</b><i>kg</i><b class="r" data-sr="${c.id}|${i}">${x.r}</b><i>회</i></span>`).join('')}<button class="gc add" data-sa="${c.id}">＋세트</button>${S.length ? `<button class="gc" data-sd="${c.id}">−세트</button>` : ''}</div>`
+    + (sel >= 0 ? `<div class="wst"><button data-wd="${c.id}|-2.5">−2.5</button><b>${S[sel].w != null ? S[sel].w : 0}kg</b><button data-wd="${c.id}|2.5">+2.5</button><button data-wall="${c.id}">모든 세트 이 무게</button><button data-wx>닫기</button></div>` : '');
+}
+function bindSets(box, find) {
+  const get = id => (setsOf(find(id)) || []).map(x => Object.assign({}, x)), put = (id, S) => { editCard(id, {sets: S}); paintRec(); };
+  const numEdit = (el, cur, done) => { el.contentEditable = 'true'; el.textContent = cur == null ? '' : cur; el.focus(); document.getSelection().selectAllChildren(el);
+    el.onblur = () => { const v = parseFloat(el.textContent.replace(/[^\d.]/g, '')); done(isNaN(v) ? null : v); }; el.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } }; };
+  box.querySelectorAll('[data-sr]').forEach(b => { const [id, i] = b.dataset.sr.split('|');
+    longPress(b, () => numEdit(b, get(id)[+i].r, v => { const S = get(id); if (v != null) S[+i].r = Math.round(v); put(id, S); }),
+      () => { if (b.isContentEditable) return; const S = get(id); S[+i].r = S[+i].r > 2 ? S[+i].r - 2 : 12; vib(15); put(id, S); }); });
+  box.querySelectorAll('[data-sw]').forEach(b => { const [id, i] = b.dataset.sw.split('|');
+    longPress(b, () => numEdit(b, get(id)[+i].w, v => { const S = get(id); S[+i].w = v; put(id, S); }),
+      () => { if (b.isContentEditable) return; RV.wSel = RV.wSel === b.dataset.sw ? '' : b.dataset.sw; paintRec(); }); });
+  box.querySelectorAll('[data-wd]').forEach(b => b.onclick = () => { const [id, d] = b.dataset.wd.split('|'), i = +RV.wSel.split('|')[1], S = get(id); S[i].w = Math.max(0, Math.round(((S[i].w || 0) + +d) * 10) / 10); vib(10); put(id, S); });
+  box.querySelectorAll('[data-wall]').forEach(b => b.onclick = () => { const id = b.dataset.wall, i = +RV.wSel.split('|')[1], S = get(id); S.forEach(x => x.w = S[i].w); put(id, S); toast('모든 세트 같은 무게'); });
+  box.querySelectorAll('[data-wx]').forEach(b => b.onclick = () => { RV.wSel = ''; paintRec(); });
+  box.querySelectorAll('[data-sa]').forEach(b => b.onclick = () => { const id = b.dataset.sa, S = get(id); S.push(Object.assign({w: null, r: 12}, S[S.length - 1])); put(id, S); });
+  box.querySelectorAll('[data-sd]').forEach(b => b.onclick = () => { const id = b.dataset.sd, S = get(id); S.pop(); RV.wSel = ''; put(id, S); });
+}
+/* 종목별 무게 기록 (날짜순) */
+const exName = t => String(t || '').split(/ · | — /)[0].replace(/\s*(\d|\(|\+|→|×).*$/, '').trim();
+function wHist() {
+  const H = {};
+  const add = (n, k, w) => { let key = nz(n); if (key.length < 2) return; const ex = Object.keys(H).find(x => x.length > 3 && key.length > 3 && (x.includes(key) || key.includes(x))); if (ex) key = ex; const h = H[key] = H[key] || {n, L: []}; if (n.length > h.n.length) h.n = n; const e = h.L.find(x => x.k === k); if (e) e.w = Math.max(e.w, w); else h.L.push({k, w}); };
+  allDays().forEach(k => { const seen = new Set();
+    dayCards(k).forEach(c => { const S = setsOf(c); if (!S) return; const ws = S.map(x => x.w).filter(w => w != null && w > 0); if (!ws.length) return; const n = exName(c.ti); seen.add(nz(n)); add(n, k, Math.max(...ws)); });
+    dayInfo(k).items.forEach(t => { const n = exName(t), w = kgs(t); if (w.length && !seen.has(nz(n))) add(n, k, Math.max(...w)); }); });
+  Object.values(H).forEach(h => h.L.sort((a, b) => a.k - b.k)); return H;
+}
+function histFor(H, name) { const key = nz(name); if (!key) return null; if (H[key]) return H[key]; return Object.values(H).find(h => { const a = nz(h.n); return a.length > 3 && key.length > 3 && (a.includes(key) || key.includes(a)); }) || null; }
+function trendMark(H, line) { const n = exName(line), w = kgs(line), h = histFor(H, n); if (!h || !w.length) return '';
+  const tw = Math.max(...w), L = h.L, last = L[L.length - 1], prev = L[L.length - 2];
+  if (tw > last.w || (tw === last.w && prev && last.w > prev.w)) return '<span class="up" title="지난번보다 무게 올림">▲</span>';
+  if (tw < last.w) return '<span class="dn" title="지난번보다 낮음">▼</span>'; return ''; }
 const ordOf = c => c.o != null ? c.o : c.sm != null ? c.sm : (toMin(c.t) ?? c.tt ?? 9999);
 function moveCard(list, id, d) {
   const i = list.findIndex(x => x.id === id), j = i + d; if (i < 0 || j < 0 || j >= list.length) return toast(d < 0 ? '맨 위예요' : '맨 아래예요');
@@ -965,14 +1030,14 @@ function paintRec() {
   h += `<div id="recList">` + (shown.length ? shown.map(c => {
     const head = RV.q && c.k !== last ? `<div class="lgd">${md(kDate(c.k))}${c.k === today ? ' · 오늘' : ''}</div>` : ''; last = c.k;
     const g = c.gear || [], o = ok[c.id] || {}, ce = c.auto ? '' : 'contenteditable="true"';
-    const media = (c.vd ? `<span class="th vd" data-pv="${c.id}|v" style="background-image:url('${dirOf(c.k)}/${c.vd}.jpg')"></span>` : '')
+    const media = (c.vd ? `<span class="th vd" data-pv="${c.id}|v" style="background-image:url('${dirOf(c.pk || c.k)}/${c.vd}.jpg')"></span>` : '')
       + (c.ph || []).map((p, i) => thHTML(c, p, i)).join('')
       + (c.auto ? '' : `<span class="th add" data-padd="${c.id}"><i>＋</i>사진</span>`);
     const delB = `<span class="cbt">${RV.q ? '' : `<button data-mv="${c.id}|-1" aria-label="위로">↑</button><button data-mv="${c.id}|1" aria-label="아래로">↓</button>`}${c.auto ? '' : `<button data-ed="${c.id}">✎ 수정</button>`}<button class="del ${RV.delArm === c.id ? 'arm' : ''}" data-del="${c.id}">${RV.delArm === c.id ? '정말 삭제' : '🗑'}</button></span>`;
     return head + `<div class="tl" data-cid="${c.id}"><div class="hd2"><span class="tm ${c.t && !c.tq ? '' : 'q'}" data-tm="${c.id}" data-raw="${esc(c.t || '')}">${c.t ? cute(c.t) + (c.tq ? '쯤' : '') : '시각 ✎'}</span><span class="ti" ${ce} data-e="${c.id}|ti" data-ph="제목">${esc(c.ti)}</span><span class="ct" data-cc="${c.id}">${c.cat}</span>${delB}</div>`
       + (media ? `<div class="ph2">${media}</div>` : '')
       + (RV.cAdd === c.id ? `<div class="cadd"><button data-ca="gal">🖼 갤러리·영상</button><button data-ca="cam">📷 찍기</button><button data-ca="clip">📋 붙여넣기</button><button data-ca="x">닫기</button><div class="pz2" tabindex="0" id="pz2">PC: 여기를 누르고 Ctrl+V (여러 장 가능)</div></div>` : '')
-      + `<div class="cp" ${ce} data-e="${c.id}|cap" data-ph="설명 쓰기">${esc(c.cap || '')}</div>`
+      + `<div class="cp" ${ce} data-e="${c.id}|cap" data-ph="설명 쓰기">${esc(c.cap || '')}</div>` + (c.auto ? '' : setsHTML(c))
       + (c.auto ? '' : `<div class="my" contenteditable="true" data-e="${c.id}|my" data-ph="✎ 내 메모">${esc(c.my || '')}</div>`)
       + (c.auto ? '' : `<div class="gr"><span class="gl">준비물</span>${g.map((x, i) => `<button class="gc ${o[x] ? 'ok' : ''}" data-g="${c.id}|${i}">${esc(x)}</button>`).join('')}<button class="gc add" data-ga="${c.id}">＋</button></div>`)
       + `</div>` + (RV.q ? '' : `<button class="ins" data-ins="${c.id}" aria-label="여기 아래에 추가">＋</button>`);
@@ -992,6 +1057,7 @@ function paintRec() {
   /* 🗑 두 번 누르면 카드 삭제 (확인창 없이) */
   box.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { const id = b.dataset.del; if (RV.delArm !== id) { RV.delArm = id; clearTimeout(RV.delT); RV.delT = setTimeout(() => { RV.delArm = ''; paintRec(); }, 3000); return paintRec(); }
     RV.delArm = ''; delCard(id); toast('카드 삭제'); paintRec(); });
+  bindSets(box, find);
   /* ↑ ↓ 순서 바꾸기 · ＋ 사이에 끼워 넣기 · ✎ 기록 수정 */
   box.querySelectorAll('[data-mv]').forEach(b => b.onclick = () => { const [id, d] = b.dataset.mv.split('|'); moveCard(shown, id, +d); paintRec(); });
   box.querySelectorAll('[data-ins]').forEach(b => b.onclick = () => { const i = shown.findIndex(x => x.id === b.dataset.ins), a = shown[i], n = shown[i + 1];
@@ -1031,12 +1097,12 @@ function paintRec() {
 /* ---- 사진: idb 키(rp: 사진 · rv: 영상) 또는 rec/ 폴더 파일 ---- */
 const isIdbK = p => /^r[pv]:/.test(p), isVid = p => /^rv:/.test(p);
 async function idbURL(k) { if (!urlCache[k]) { const b = await idb.get(k).catch(() => null); if (b) urlCache[k] = URL.createObjectURL(b); } return urlCache[k] || ''; }
-const fileURL = (c, p) => isIdbK(p) ? (urlCache[p] || '') : `${dirOf(c.k)}/${p}.jpg`;
+const fileURL = (c, p) => isIdbK(p) ? (urlCache[p] || '') : `${dirOf(c.pk || c.k)}/${p}.jpg`;
 function trStyle(c, p) { const r = (c.tr || {})[p]; if (!r) return ''; const [x, y, w, h] = r; return `background-size:${(100 / w).toFixed(2)}% ${(100 / h).toFixed(2)}%;background-position:${w < 1 ? (x / (1 - w) * 100).toFixed(2) : 0}% ${h < 1 ? (y / (1 - h) * 100).toFixed(2) : 0}%;`; }
 function thHTML(c, p, i) {
   const v = isVid(p), st = trStyle(c, p);
   return isIdbK(p) ? `<span class="th${v ? ' vd' : ''}" data-pv="${c.id}|${i}" data-idb="${p}" style="${st}">${v ? '<video muted playsinline preload="metadata"></video>' : ''}</span>`
-    : `<span class="th" data-pv="${c.id}|${i}" style="background-image:url('${dirOf(c.k)}/${p}.jpg');${st}"></span>`;
+    : `<span class="th" data-pv="${c.id}|${i}" style="background-image:url('${dirOf(c.pk || c.k)}/${p}.jpg');${st}"></span>`;
 }
 async function storeFiles(fs, id) { const ph = []; for (let i = 0; i < fs.length; i++) { const key = (/^video/.test(fs[i].type) ? 'rv:' : 'rp:') + id + ':' + Date.now() + ':' + i; await idb.put(key, fs[i]); ph.push(key); } return ph; }
 const cardNow = (k, id) => dayCards(k).find(x => x.id === id);
@@ -1054,6 +1120,7 @@ function openEd(id) {
   let el = $('#ed'); if (!el) { el = document.createElement('div'); el.id = 'ed'; document.body.appendChild(el); }
   el.hidden = false; el.innerHTML = `<div class="sh"><div class="eh"><b>기록 수정</b><button id="edTidy">줄 정리</button><button class="sv" id="edOk">저장</button><button id="edX">닫기</button></div>
     <div class="two"><div><label>제목</label><input id="edTi" value="${esc(c.ti || '')}" placeholder="종목·장면"></div><div><label>시각</label><input id="edT" value="${esc(c.t || '')}" placeholder="15:40 또는 18:25~18:40"></div></div>
+    <label>날짜 · 바꾸면 그 날로 옮겨짐</label><input type="date" id="edD" value="${(d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`)(kDate(c.k))}">
     <label>분류</label><div class="cats" id="edC"></div>
     <label>설명 (무게 · 세트 · 느낌) · 캡처 이미지도 여기에 붙여넣기(Ctrl+V)</label><textarea id="edCap" placeholder="예: 47kg 2세트 + 33kg 2세트 × 12회">${esc(c.cap || '')}</textarea>
     <label>내 메모</label><textarea id="edMy" style="min-height:54px">${esc(c.my || '')}</textarea>
@@ -1063,9 +1130,16 @@ function openEd(id) {
   edPaint();
   $('#edX').onclick = closeEd; el.onclick = e => { if (e.target === el) closeEd(); };
   $('#edTidy').onclick = () => ['edCap', 'edMy'].forEach(k => { const t = $('#' + k); t.value = t.value.split('\n').map(x => x.replace(/\s+/g, ' ').trim()).filter((x, i, a) => x || (a[i - 1] && a[i - 1].trim())).join('\n').trim(); });
-  $('#edOk').onclick = () => { editCard(ED.id, {ti: $('#edTi').value.trim(), t: $('#edT').value.trim(), tq: 0, cat: ED.cat, cap: $('#edCap').value.replace(/\s+$/, ''), my: $('#edMy').value.replace(/\s+$/, ''), ph: ED.ph.slice(), vd: ED.vd, gear: ED.gear.slice()}); closeEd(); toast('저장됨'); paintRec(); };
+  $('#edOk').onclick = () => { const dv = $('#edD').value, nk = dv ? +dv.replace(/-/g, '') : ED.k; editCard(ED.id, {ti: $('#edTi').value.trim(), t: $('#edT').value.trim(), tq: 0, cat: ED.cat, cap: $('#edCap').value.replace(/\s+$/, ''), my: $('#edMy').value.replace(/\s+$/, ''), ph: ED.ph.slice(), vd: ED.vd, gear: ED.gear.slice()}); if (nk !== ED.k) moveDay(ED.id, ED.k, nk); else toast('저장됨'); closeEd(); paintRec(); };
   $('#edF').onchange = async e => { const fs = [...e.target.files]; if (!fs.length) return; const ph = await storeFiles(fs, ED.id); ED.ph = ED.ph.concat(ph); edPaint(); };
   $('#edCap').addEventListener('paste', async e => { const fs = [...(e.clipboardData || {}).files || []].filter(f => /^image|^video/.test(f.type)); if (!fs.length) return; e.preventDefault(); const ph = await storeFiles(fs.map(f => new File([f], f.name || 'paste.png', {type: f.type})), ED.id); ED.ph = ED.ph.concat(ph); edPaint(); toast(`${fs.length}장 붙임`); });
+}
+function moveDay(id, k0, nk) {
+  const c = dayCards(k0).find(x => x.id === id); if (!c || c.auto) return;
+  if (String(id).startsWith('u')) editCard(id, {k: nk, pk: c.pk || c.k});
+  else { const cp = {}; ['t', 'tq', 'tt', 'cat', 'ti', 'cap', 'my', 'ph', 'vd', 'gear', 'tr', 'orig', 'sets', 'runs', 'tx', 'o'].forEach(f => { if (c[f] !== undefined) cp[f] = c[f]; });
+    const L = recMine(); L.push(Object.assign(cp, {id: 'u' + Date.now() + Math.floor(Math.random() * 1000), k: nk, pk: c.pk || c.k})); ls.set('wt.rec', L); ls.set('wt.recDel', ls.get('wt.recDel', []).concat(id)); }
+  RV.k = nk; toast(`${md(kDate(nk))}로 옮김`);
 }
 function closeEd() { const el = $('#ed'); if (el) { el.hidden = true; el.innerHTML = ''; } }
 async function edPaint() {
@@ -1075,7 +1149,7 @@ async function edPaint() {
   await Promise.all(ED.ph.filter(isIdbK).map(idbURL));
   const tile = (p, i) => { const u = fileURL(c, p), v = isVid(p);
     return `<div class="ei" data-ei="${i}" style="${v ? '' : `background-image:url('${u}');`}${trStyle(c, p)}">${v ? `<video muted playsinline preload="metadata" src="${u}#t=0.5"></video>` : ''}<span class="mv"><button data-em="${i}|-1">◀</button><button data-em="${i}|1">▶</button></span><button class="x" data-ex="${i}">✕</button><span>누르면 편집</span></div>`; };
-  $('#edG').innerHTML = (ED.vd ? `<div class="ei" style="background-image:url('${dirOf(c.k)}/${ED.vd}.jpg')"><button class="x" data-exv>✕</button><span>영상</span></div>` : '') + ED.ph.map(tile).join('') + `<div class="ei ea" id="edAdd"><b style="font-size:22px">＋</b>사진·영상</div>`;
+  $('#edG').innerHTML = (ED.vd ? `<div class="ei" style="background-image:url('${dirOf(c.pk || c.k)}/${ED.vd}.jpg')"><button class="x" data-exv>✕</button><span>영상</span></div>` : '') + ED.ph.map(tile).join('') + `<div class="ei ea" id="edAdd"><b style="font-size:22px">＋</b>사진·영상</div>`;
   $('#edG').querySelectorAll('[data-ex]').forEach(b => b.onclick = e => { e.stopPropagation(); ED.ph.splice(+b.dataset.ex, 1); edPaint(); });
   const xv = $('#edG').querySelector('[data-exv]'); if (xv) xv.onclick = e => { e.stopPropagation(); ED.vd = ''; edPaint(); };
   $('#edG').querySelectorAll('[data-em]').forEach(b => b.onclick = e => { e.stopPropagation(); const [i, d] = b.dataset.em.split('|').map(Number), j = i + d; if (j < 0 || j >= ED.ph.length) return; [ED.ph[i], ED.ph[j]] = [ED.ph[j], ED.ph[i]]; edPaint(); });
@@ -1107,7 +1181,7 @@ async function addFiles(fs) {
 document.addEventListener('paste', e => { if (RV.tab === 'R' && RV.cAdd) { const fs = [...(e.clipboardData || {}).files || []].filter(f => /^image|^video/.test(f.type)); if (fs.length) { e.preventDefault(); addToCard(RV.cAdd, fs.map(f => new File([f], f.name || 'paste.png', {type: f.type, lastModified: Date.now()}))); } return; }
   if (RV.tab !== 'R' || !RV.addOn) return; const fs = [...(e.clipboardData || {}).files || []].filter(f => /^image|^video/.test(f.type)); if (fs.length) { e.preventDefault(); addFiles(fs.map(f => new File([f], f.name, {type: f.type, lastModified: f.lastModified || Date.now()}))); } });
 const PV = {c: null, i: 0, list: [], mode: '', sel: null, arm: false};
-function pvList(c) { return (c.vd ? [{v: `${dirOf(c.k)}/${c.vd}.mp4`, base: 1}] : []).concat((c.ph || []).map((p, j) => ({key: p, j, v: isVid(p) ? fileURL(c, p) : '', p: isVid(p) ? '' : fileURL(c, p)}))); }
+function pvList(c) { return (c.vd ? [{v: `${dirOf(c.pk || c.k)}/${c.vd}.mp4`, base: 1}] : []).concat((c.ph || []).map((p, j) => ({key: p, j, v: isVid(p) ? fileURL(c, p) : '', p: isVid(p) ? '' : fileURL(c, p)}))); }
 async function openPv(c, i) {
   if (!c) return; await Promise.all((c.ph || []).filter(isIdbK).map(idbURL));
   PV.c = c; PV.list = pvList(c); PV.i = i === 'v' ? 0 : +i + (c.vd ? 1 : 0); PV.mode = ''; PV.sel = null; PV.arm = false; $('#pv').hidden = false; pvVV(); showPv();
@@ -1123,8 +1197,9 @@ function showPv() {
   const ed = !PV.c.auto, img = !x.v, B = (k, ic, l, cls) => `<button data-pt="${k}" class="${cls || ''}"><span>${ic}</span>${l}</button>`;
   const tb = $('#pvTxt'); if (PV.mode !== 'txt' && tb) tb.remove();
   if (PV.mode === 'txt') { $('#pvTools').innerHTML = ''; showTxt(); }
+  else if (PV.mode === 'pin') $('#pvTools').innerHTML = B('cancel', '✕', '취소');
   else $('#pvTools').innerHTML = !ed ? '' : PV.mode ? B('cancel', '✕', '취소') + B('reset', '↩', PV.mode === 'th' ? '원래대로' : '원본으로') + B('ok', '✓', '저장', 'on')
-    : (img ? B('crop', '✂', '자르기') + B('rot', '↻', '회전') + B('txt', 'Aa', (PV.c.tx || {})[x.key] ? '글씨 고침' : '글씨') + B('th', '▣', '썸네일') + ((PV.c.orig || {})[x.key] ? B('orig', '↺', '원본') : '') : B('cap', '📸', '장면 담기')) + B('rm', '🗑', PV.arm ? '정말 빼기' : '빼기', PV.arm ? 'arm' : '');
+    : (img ? B('crop', '✂', '자르기') + (PV.c.cat === '근력' ? B('pin', '🔢', '핀 무게') : '') + B('rot', '↻', '회전') + B('txt', 'Aa', (PV.c.tx || {})[x.key] ? '글씨 고침' : '글씨') + B('th', '▣', '썸네일') + ((PV.c.orig || {})[x.key] ? B('orig', '↺', '원본') : '') : B('cap', '📸', '장면 담기')) + B('rm', '🗑', PV.arm ? '정말 빼기' : '빼기', PV.arm ? 'arm' : '');
   $('#pvHint').textContent = PV.mode === 'th' ? '네 모서리를 끌어 크기 · 안쪽을 끌어 위치 (정사각형)' : PV.mode === 'crop' ? '네 모서리·가장자리를 끌어 크기 · 안쪽을 끌어 위치 (원본은 보관)' : PV.mode === 'txt' ? '글씨를 손가락으로 끌어 옮기기' : x.v && ed ? '원하는 장면에서 멈추고 「장면 담기」' : '';
   const m = $('#pvBox img, #pvBox video'); if (m) { if (m.tagName === 'IMG') m.onload = pvFit; else m.onloadedmetadata = pvFit; }
   requestAnimationFrame(pvFit);
@@ -1153,6 +1228,30 @@ function showTxt() { /* 사진 위 글씨: 쓰는 대로 사진에 바로 보임
 }
 function markTxt() { const T = PV.tx, im = $('#pvBox img'); if (!T || !im || PV.mode !== 'txt') return; let m = $('#pvMark'); if (!m) { m = document.createElement('div'); m.id = 'pvMark'; $('#pvBox').appendChild(m); }
   m.textContent = (T.date ? cardDateTxt(PV.c) + (T.t ? '\n' : '') : '') + T.t || ' '; m.style.color = T.col; m.style.fontSize = Math.min(im.clientWidth, im.clientHeight) * T.sz / 100 + 'px'; m.style.left = im.offsetLeft + T.x * im.clientWidth + 'px'; m.style.top = im.offsetTop + T.y * im.clientHeight + 'px'; }
+let tessP = null;
+function tess() { return tessP || (tessP = new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+  sc.onload = async () => { try { const w = await Tesseract.createWorker('eng'); await w.setParameters({tessedit_char_whitelist: '0123456789', tessedit_pageseg_mode: '11'}); res(w); } catch (e) { tessP = null; rej(e); } };
+  sc.onerror = () => { tessP = null; rej(new Error('load')); }; document.head.appendChild(sc); })); }
+async function readPin(im, fx, fy) { /* 누른 줄 주변 띠를 잘라 4배 키움 → 밝기 늘이기 → (그대로·반전·흑백) 3번 읽어 가장 많이 나온 숫자 */
+  const W = im.naturalWidth, H = im.naturalHeight, bh = H * .05, bw = W * .6, sx = Math.max(0, fx * W - bw / 2), sy = Math.max(0, fy * H - bh / 2), cw = Math.min(bw, W - sx), ch = Math.min(bh, H - sy), k = 4;
+  const cv = document.createElement('canvas'); cv.width = Math.round(cw * k); cv.height = Math.round(ch * k); const g = cv.getContext('2d'); g.drawImage(im, sx, sy, cw, ch, 0, 0, cv.width, cv.height);
+  const base = g.getImageData(0, 0, cv.width, cv.height), Y = new Float32Array(cv.width * cv.height); let lo = 255, hi = 0;
+  for (let i = 0; i < Y.length; i++) { const d = base.data; Y[i] = .299 * d[i * 4] + .587 * d[i * 4 + 1] + .114 * d[i * 4 + 2]; lo = Math.min(lo, Y[i]); hi = Math.max(hi, Y[i]); }
+  const out = [], w = await tess();
+  for (const mode of ['n', 'i', 't']) { const im2 = g.createImageData(cv.width, cv.height);
+    for (let i = 0; i < Y.length; i++) { let v = (Y[i] - lo) / Math.max(1, hi - lo) * 255; if (mode === 'i') v = 255 - v; if (mode === 't') v = v > 140 ? 255 : 0; im2.data[i * 4] = im2.data[i * 4 + 1] = im2.data[i * 4 + 2] = v; im2.data[i * 4 + 3] = 255; }
+    g.putImageData(im2, 0, 0); const r = await w.recognize(cv); out.push(...((r.data.text || '').match(/\d{1,3}/g) || []).map(Number).filter(n => n > 0 && n < 400)); }
+  const cnt = {}; out.forEach(n => cnt[n] = (cnt[n] || 0) + 1); return Object.keys(cnt).map(Number).sort((a, b) => cnt[b] - cnt[a] || b - a);
+}
+async function pinTap(fx, fy) {
+  const im = $('#pvBox img'), c = PV.c; if (!im) return; $('#pvHint').textContent = '숫자 읽는 중… (처음 한 번은 10초쯤)';
+  let nums = []; try { nums = await readPin(im, fx, fy); } catch (e) { $('#pvHint').textContent = '읽기 도구를 못 불러왔어요 · 인터넷 확인 후 다시'; return; }
+  if (!nums.length) { $('#pvHint').textContent = '숫자를 못 읽었어요 · 숫자 줄 가운데를 다시 누르거나, 기록의 무게 숫자를 직접 고쳐요'; return; }
+  const n = nums[0], S = (setsOf(c) || [...Array(4)].map(() => ({r: 12}))).map(x => Object.assign({}, x, {w: n}));
+  editCard(c.id, {sets: S, cap: ((c.cap || '').trim() + `\n핀 ${n}kg (사진 자동 읽기${nums.length > 1 ? ` · 후보 ${nums.slice(1, 3).join('·')}` : ''})`).trim()});
+  toast(`핀 ${n}kg → 세트 무게로 넣음`); PV.mode = ''; pvRefresh();
+}
+(() => { const box = $('#pvBox'); box.addEventListener('pointerdown', e => { if (PV.mode !== 'pin') return; const im = $('#pvBox img'); if (!im) return; e.preventDefault(); e.stopPropagation(); const r = im.getBoundingClientRect(); pinTap((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height); }, true); })();
 function drawSel() { const el = $('#pvSel'), im = $('#pvBox img'); if (!el || !im || !PV.sel) return; const [x, y, w, h] = PV.sel; el.style.left = im.offsetLeft + x * im.clientWidth + 'px'; el.style.top = im.offsetTop + y * im.clientHeight + 'px'; el.style.width = w * im.clientWidth + 'px'; el.style.height = h * im.clientHeight + 'px'; }
 (() => { /* 자르기·썸네일: 처음부터 전체 틀이 있고 모서리·가장자리를 끌어 크기, 안쪽을 끌어 이동 / 글씨: 끌어서 위치 */
   const box = $('#pvBox'), cl = (v, a, b) => Math.max(a, Math.min(b, v)); let D = null;
@@ -1182,6 +1281,7 @@ const toBlob = cv => new Promise(r => cv.toBlob(r, 'image/jpeg', .9));
 async function pvTool(k) {
   const c = PV.c, x = PV.list[PV.i]; if (!x) return;
   if (k === 'x') return closePv();
+  if (k === 'pin') { PV.mode = 'pin'; PV.sel = null; showPv(); $('#pvHint').textContent = '핀이 꽂힌 칸(숫자 줄)을 한 번 누르세요 → 숫자를 읽어 세트 무게로 넣어요'; return; }
   if (k === 'cancel') { PV.mode = ''; PV.sel = null; PV.tx = null; PV.txBase = null; const b = $('#pvTxt'); if (b) b.remove(); $('#pv').classList.remove('kb'); pvVV(); return showPv(); }
   if (k === 'txtDel') { const e = (c.tx || {})[x.key]; if (!e) return; const L = c.ph.slice(); L[x.j] = e.base; const tx = Object.assign({}, c.tx); delete tx[x.key]; editCard(c.id, {ph: L, tx}); PV.tx = null; PV.txBase = null; toast('글씨 뺌'); return pvRefresh(); }
   if (k === 'rot' || k === 'txtOk') { const im = $('#pvBox img'); if (!im || !im.naturalWidth) return; const W = im.naturalWidth, H = im.naturalHeight, cv = document.createElement('canvas'), g = cv.getContext('2d');
@@ -1254,7 +1354,7 @@ function paintParts() {
     h += `<p class="sum">「${esc(PW.q)}」 ${hits.length}일</p>` + hits.map(x => dayBlock(x.k, today, PW.q)).join('');
   } else {
     h += `<div class="lnav"><button class="nb" data-pn="-1">‹</button><div class="ld">${md(kDate(days[0]))} ~ ${md(kDate(days[6]))}${days.includes(today) ? '<span class="today">이번 주</span>' : ''}<small>일요일 시작</small></div><button class="nb" data-pn="1">›</button></div>`
-      + `<div id="pList"><div class="p2g"><div>${partTable(days, today)}</div><div>${nextBox(today)}${tplBox()}</div></div>`
+      + `<div id="pList"><div class="p2g"><div>${partTable(days, today)}</div><div>${nextBox(today)}${tplBox()}</div></div>${histBox()}`
       + days.slice().reverse().filter(k => dayLabel(k) || dayInfo(k).items.length).map(k => dayBlock(k, today)).join('') + `</div>`;
   }
   box.innerHTML = h;
@@ -1326,7 +1426,7 @@ const TPL0 = {
 };
 const SETS0 = '4세트 × 12회';
 function lastSplitDay(sp, today) { for (const k of pastDays(today || dkey(Date.now()))) { const ps = partsOf(k); let hit = SPLIT.filter(s => SPLIT_P[s].some(p => ps.has(p))); if (hit.length > 1) hit = hit.filter(s => s !== '어깨+복부날'); if (hit[0] === sp) return k; } return 0; }
-function dayLines(k) { const d = dayInfo(k); const L = d.sum != null ? d.sum.split('\n').map(x => x.replace(/^\s*\d+\s+/, '').trim()).filter(Boolean) : d.items.slice(); return L; }
+function dayLines(k) { return sumText(k, dayCards(k)).split('\n').map(x => x.replace(/^\s*\d+\s+/, '').trim()).filter(Boolean); }
 const withSets = t => /세트|×|\bx\s*\d|분|라운드|푸크크크|달리기|계단|러닝|스트레칭/.test(t) ? t : `${t} · ${SETS0}`;
 function tplGet() { /* 내가 고친 틀이 그 뒤 운동보다 새것이면 그대로, 아니면 지난번 같은 분할 날 기록으로 */
   const U = ls.get('wt.tpl', {}), o = {};
@@ -1335,15 +1435,21 @@ function tplGet() { /* 내가 고친 틀이 그 뒤 운동보다 새것이면 �
       const CR = /계단|달리기|러닝|트레드/; if (!o[sp].some(t => CR.test(t))) o[sp] = o[sp].concat((TPL0[sp] || []).filter(t => CR.test(t))); /* 유산소 줄이 빠졌으면 기본 틀 것을 붙임 */ } else o[sp] = TPL0[sp]; });
   return o;
 }
+function histBox() {
+  const H = Object.values(wHist()).filter(h => h.L.length).sort((a, b) => b.L[b.L.length - 1].k - a.L[a.L.length - 1].k);
+  if (!H.length) return '';
+  const row = h => `<div class="wh"><b>${esc(h.n)}</b>${h.L.map((x, i) => { const p = h.L[i - 1], c = p ? (x.w > p.w ? 'u' : x.w < p.w ? 'd' : '') : ''; return `${i ? ' → ' : ''}${md(kDate(x.k)).split(' ')[0]} <span class="${c}">${x.w}${c === 'u' ? '▲' : c === 'd' ? '▼' : ''}</span>`; }).join('')}</div>`;
+  return `<div class="box2"><h3>종목별 무게 변화<small>날짜순 · kg · 최근 종목 먼저</small></h3>${H.map(row).join('')}</div>`;
+}
 function tplBox() {
   const si = splitInfo(), sp = PW.tp || si.nx, T = tplGet();
   const lk = lastSplitDay(sp);
   return `<div class="box2"><h3>다음 틀 · ${sp.replace(/날$/, '')}<small>${lk && dayLines(lk).some(x => !/미기록/.test(x)) ? `지난번 ${md(kDate(lk)).split(' ')[0]} 기록 그대로 추천 · ` : ''}기본 ${SETS0} · 그 자리에서 고침</small></h3>`
     + `<div class="rbar" style="margin:2px 0 4px">${SPLIT.map(s => `<button class="chip ${s === sp ? 'on' : ''}" data-tp="${s}">${s.replace(/날$/, '')}${s === si.nx ? ' 다음' : ''}</button>`).join('')}</div>`
-    + lines('tpl|' + sp, T[sp] || [], '종목 × 세트 × 횟수') + `</div>`;
+    + lines('tpl|' + sp, T[sp] || [], '종목 × 세트 × 횟수', (() => { const H = wHist(); return (T[sp] || []).map(t => trendMark(H, t)); })()) + `<div class="hint" style="text-align:left;margin:4px 0 0">▲ 지난번보다 무게 올림 · ▼ 낮음</div></div>`;
 }
 /* 한 줄씩 편집되는 목록: 누르면 바로 고침 · Enter = 아래 줄 추가 · 비우거나 ✕ = 삭제 · ＋ = 추가 */
-function lines(id, L, ph) { return L.map((t, i) => `<div class="ln"><span class="x" contenteditable="true" data-ll="${id}|${i}" data-ph="${ph}">${esc(t)}</span><span class="mv2"><button data-lm="${id}|${i}|-1" aria-label="위로">↑</button><button data-lm="${id}|${i}|1" aria-label="아래로">↓</button><button data-li="${id}|${i}" aria-label="아래에 끼우기">＋</button></span><button class="lx" data-lx="${id}|${i}">✕</button></div>`).join('') + `<div class="ln"><button class="gc add" data-la="${id}">＋ 추가</button></div>`; }
+function lines(id, L, ph, mk) { return L.map((t, i) => `<div class="ln">${(mk || [])[i] || ''}<span class="x" contenteditable="true" data-ll="${id}|${i}" data-ph="${ph}">${esc(t)}</span><span class="mv2"><button data-lm="${id}|${i}|-1" aria-label="위로">↑</button><button data-lm="${id}|${i}|1" aria-label="아래로">↓</button><button data-li="${id}|${i}" aria-label="아래에 끼우기">＋</button></span><button class="lx" data-lx="${id}|${i}">✕</button></div>`).join('') + `<div class="ln"><button class="gc add" data-la="${id}">＋ 추가</button></div>`; }
 function lnGet(id) { if (id === 'rcv') return ls.get('wt.rcv', RCV0).slice(); const sp = id.split('|')[1]; return (tplGet()[sp] || []).slice(); }
 function lnSet(id, L) { if (id === 'rcv') return ls.set('wt.rcv', L); const sp = id.split('|')[1], T = ls.get('wt.tpl', {}); T[sp] = {L, at: dkey(Date.now())}; ls.set('wt.tpl', T); }
 function bindLines(box, repaint) {
