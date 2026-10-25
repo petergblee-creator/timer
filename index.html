@@ -371,7 +371,26 @@ html.light img,html.light video,html.light canvas,html.light .th:not(.add),html.
 @media (min-aspect-ratio:4/3){#led .lb2 button{padding:9px}}
 /* 펼친 화면·가로 분할: 버튼을 오른쪽 세로로 */
 @media (min-aspect-ratio:9/10){.ctrl{position:absolute;right:3vmin;top:50%;transform:translateY(-50%);flex-direction:column;align-items:center;padding:0;gap:2.5vmin}.ctrl #prev,.ctrl #nxt{margin:0}.ctrl button{width:12vmin;height:12vmin;font-size:6vmin}.core,#cap{margin-right:18vmin}#cap{margin-left:4vmin}}
+/* 10/25 삭제 규칙: 팝업 없이 — 1번 누르면 「삭제할까요?」, 3초 안에 한 번 더 누르면 실행 */
+.armd{background:#c62828!important;color:#fff!important;border-color:#c62828!important}
+.arm2chip{position:absolute;right:6px;top:50%;transform:translateY(-50%);z-index:5;background:#c62828;color:#fff;border:0;border-radius:999px;padding:6px 12px;font:700 13px inherit;box-shadow:0 2px 8px rgba(0,0,0,.35);cursor:pointer}
 </style>
+<script>
+function arm2(el, msg, fn) {
+  if (!el) return;
+  if (el.tagName === 'BUTTON') {
+    if (el.dataset.arm === '1') { clearTimeout(el._armT); el.dataset.arm = ''; el.classList.remove('armd'); if (el._armH != null) el.innerHTML = el._armH; fn(); return; }
+    el._armH = el.innerHTML; el.dataset.arm = '1'; el.classList.add('armd'); el.textContent = msg;
+    el._armT = setTimeout(() => { el.dataset.arm = ''; el.classList.remove('armd'); el.innerHTML = el._armH; }, 3000);
+    return;
+  }
+  const old = el.querySelector(':scope > .arm2chip'); if (old) old.remove();
+  if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+  const c = document.createElement('button'); c.type = 'button'; c.className = 'arm2chip'; c.textContent = msg + ' (한 번 더)';
+  c.onclick = e => { e.stopPropagation(); clearTimeout(c._t); c.remove(); fn(); };
+  el.appendChild(c); c._t = setTimeout(() => c.remove(), 3000);
+}
+</script>
 </head>
 <body>
 
@@ -691,7 +710,7 @@ function longPress(el, onLong, onTap) {
 }
 function editName(cur, onSet, onDel) {
   const v = prompt('이름 바꾸기 (비우고 확인 = 지우기)', cur);
-  if (v === null) return; v.trim() ? onSet(v.trim()) : (confirm(`「${cur}」 지울까요?`) && onDel());
+  if (v === null) return; v.trim() ? onSet(v.trim()) : onDel();
 }
 function renPal(i, v) { const old = cfg.pal[i]; cfg.pal[i] = v; cfg.rt.forEach(it => { if (it.nm === old) it.nm = v; }); saveC(); paintSetup(); }
 function delPal(i) { cfg.pal.splice(i, 1); saveC(); paintSetup(); }
@@ -758,7 +777,7 @@ function paintRt() {
     () => { const it = cfg.rt[+b.dataset.ii], n = b.dataset.sw, kind = x => /러닝|달리기|유산소|걷기/.test(x) ? 'run' : /스트레칭/.test(x) ? 'st' : 'w';
     bump(n); if (kind(n) !== kind(it.nm)) Object.assign(it, itemFor(n)); else it.nm = n; saveC(); paintSetup(); }); });
   $('#rtList').querySelectorAll('[data-ren]').forEach(b => b.onclick = () => { const i = +b.dataset.ren, v = (prompt('종목 이름', cfg.rt[i].nm) || '').trim(); if (v) { cfg.rt[i].nm = v; saveC(); paintSetup(); } });
-  $('#rtList').querySelectorAll('[data-del]').forEach(b => b.onclick = e => { e.stopPropagation(); if (!confirm(`「${cfg.rt[+b.dataset.del].nm}」 빼기?`)) return; cfg.rt.splice(+b.dataset.del, 1); openItem = -1; saveC(); paintSetup(); });
+  $('#rtList').querySelectorAll('[data-del]').forEach(b => b.onclick = e => { e.stopPropagation(); arm2(b, '뺄까요?', () => { cfg.rt.splice(+b.dataset.del, 1); openItem = -1; saveC(); paintSetup(); }); });
 }
 /* 숫자를 누르면 그 자리에서 입력: 초(90) · 분:초(1:30) · 1분30초 · 2분 — Enter/바깥 누르면 저장, Esc 취소 */
 function parseSec(t) { t = String(t).trim().replace(/\s/g, ''); let m;
@@ -874,7 +893,7 @@ function paintPhrases() {
   $('#phrBox').querySelectorAll('[data-c]').forEach(t => t.oninput = () => { vc.cap2 = vc.cap2 || {}; vc.cap2[t.dataset.c] = t.value; saveV(); });
   $('#phReset').onclick = () => { vc.ph2 = {}; vc.cap2 = {}; saveV(); paintPhrases(); };
 }
-$('#reset').onclick = () => { if (!confirm('운동 목록을 기본값(등·이두·스트레칭·러닝)으로 바꿀까요?')) return; cfg = Object.assign(clone(DEF), {pal: cfg.pal, rts: cfg.rts, palUse: cfg.palUse}); openItem = -1; saveC(); paintSetup(); };
+$('#reset').onclick = () => arm2($('#reset'), '기본값으로 바꿀까요?', () => { cfg = Object.assign(clone(DEF), {pal: cfg.pal, rts: cfg.rts, palUse: cfg.palUse}); openItem = -1; saveC(); paintSetup(); });
 
 
 /* ================= 운동 기록 (이 기기에 날짜별 저장) ================= */
@@ -936,7 +955,7 @@ function paintLog() {
   if ($('#lgAll')) $('#lgAll').onclick = () => copyTxt(list.slice().reverse().map(recTxt).join('\n'));
   box.querySelectorAll('[data-ln]').forEach(b => b.onclick = () => logMove(+b.dataset.ln));
   box.querySelectorAll('[data-lc]').forEach(b => b.onclick = e => { e.stopPropagation(); const x = L.find(z => z.id === +b.dataset.lc); if (x) copyTxt(recTxt(x)); });
-  box.querySelectorAll('[data-lid]').forEach(el => longPress(el, () => { const id = +el.dataset.lid; if (!confirm('이 기록을 지울까요?')) return; ls.set('wt.log', getLog().filter(z => z.id !== id)); paintLog(); paintRts(); }));
+  box.querySelectorAll('[data-lid]').forEach(el => longPress(el, () => { const id = +el.dataset.lid; arm2(el, '삭제할까요?', () => { ls.set('wt.log', getLog().filter(z => z.id !== id)); paintLog(); paintRts(); }); }));
   swipeLog();
 }
 function logMove(d) {
