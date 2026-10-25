@@ -325,8 +325,10 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 .swc.cu input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .pt td:first-child b,.vol>b{-webkit-user-select:none;user-select:none}
 .dsum{font-size:11.5px;color:#ccc;margin:2px 0 4px;display:flex;gap:8px;flex-wrap:wrap}.dsum b{color:#4ADE80}
+.lsub{font-size:10.5px;color:#8a8f98;padding:0 0 2px 4px;line-height:1.4}.lsub .dt{color:#8a8f98}.lsub .kg{color:#F5C400;font-weight:700}.lsub .ls{color:#aaa}.lnw{border-bottom:1px solid #1c1c1c}.lnw>.ln{border-bottom:0}
+.rtall{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:12px;padding:6px 8px;margin-top:6px;border:1px dashed #444;border-radius:8px}.rtall .lb{width:100%;color:#aaa;font-size:11px}.rtall .ra small{color:#888;margin-right:3px}
 .nume{cursor:text;border-bottom:1px dashed #555;min-width:3.2em;text-align:center;display:inline-block}.numin{width:4.2em;font:inherit;font-weight:700;text-align:center;background:#000;color:#fff;border:1px solid #F5C400;border-radius:6px;padding:1px 2px}
-.whp{font-size:11.5px;font-weight:700;margin:6px 0 1px}.wh .no{color:#777;margin-right:3px;font-variant-numeric:tabular-nums}.wh .dt{color:#8a8f98}.wh .kg{color:#F5C400;font-weight:700}.wh .kg.u{color:#22C55E}.wh .kg.d{color:#E5484D}
+.whp{font-size:11.5px;font-weight:700;margin:6px 0 1px;cursor:pointer;user-select:none}.wh.old{opacity:.4}.wh .no{color:#777;margin-right:3px;font-variant-numeric:tabular-nums}.wh .dt{color:#8a8f98}.wh .kg{color:#F5C400;font-weight:700}.wh .kg.u{color:#22C55E}.wh .kg.d{color:#E5484D}
 .wh .gk{cursor:pointer;text-decoration:underline dotted #777}
 /* 낮 모드: 화면 전체를 밝게 뒤집고 사진·영상만 다시 원래대로 */
 html.light{filter:invert(1) hue-rotate(180deg);background:#000}
@@ -735,6 +737,10 @@ const itemSum = it => it.rounds * it.sets === 1 ? `${fmtS(it.work)} 한 번` : `
 function paintRt() {
   $('#rtList').innerHTML = cfg.rt.length ? cfg.rt.map((it, i) => `<div class="rt"><div class="hd" data-ri="${i}"><b>${i + 1}. ${it.nm}</b><span>${itemSum(it)}</span><em>${openItem === i ? '접기' : '고치기'}</em><button class="mini" data-del="${i}">빼기</button></div>${openItem === i ? `<div class="bd"><div class="row" style="display:block"><span class="lb">부위</span>${grouped(cfg.pal, n => `<button class="chip ${n === it.nm ? 'on' : ''}" data-sw="${n}" data-pi2="${cfg.pal.indexOf(n)}" data-ii="${i}">${n}</button>`)}<div class="pg"><span class="pgl"></span><span class="chips pgc"><button class="chip add" data-ren="${i}">이름 직접</button></span></div></div>${IF.map(([k, n]) => `<div class="row"><span class="lb">${n}</span><span class="step"><button data-ik="${k}" data-ii="${i}" data-d="-1">−</button><b class="nume" data-ie="${k}|${i}">${k === 'rounds' || k === 'sets' ? it[k] : fmtS(it[k])}</b><button data-ik="${k}" data-ii="${i}" data-d="1">+</button></span></div>`).join('')}${isPuk(it) ? `<div class="row" style="display:block"><span class="lb">라운드별 동작 <small>쉼표로 구분 · 누르고 바로 고치기</small></span><div class="ph" contenteditable="true" data-subs="${i}">${SUBS(it).join(', ')}</div></div>` : ''}<div class="row"><span class="chips" style="justify-content:flex-start"><button class="mini" data-mv="-1" data-ii="${i}">위로</button><button class="mini" data-mv="1" data-ii="${i}">아래로</button></span></div></div>` : ''}</div>`).join('')
     : `<p class="hint">위에서 운동을 눌러 추가하세요</p>`;
+  if (cfg.rt.length > 1) { const v = k => { const a = cfg.rt.map(x => x[k]); return a.every(x => x === a[0]) ? (k === 'rounds' || k === 'sets' ? a[0] : fmtS(a[0])) : '–'; };
+    $('#rtList').insertAdjacentHTML('beforeend', `<div class="rtall"><span class="lb">모든 종목 한 번에</span>${IF.map(([k, n]) => `<span class="ra"><small>${n.replace('라운드당 ', '')}</small><b class="nume" data-ae="${k}">${v(k)}</b></span>`).join('')}</div>`);
+    $('#rtList').querySelectorAll('[data-ae]').forEach(el => el.onclick = () => { const k = el.dataset.ae, f = IF.find(x => x[0] === k), c = cfg.rt[0][k];
+      numEdit(el, c, k !== 'rounds' && k !== 'sets', x => { const y = Math.min(f[4], Math.max(f[3], x)); cfg.rt.forEach(it => it[k] = y); saveC(); paintSetup(); toast(`${cfg.rt.length}종목 모두 ${f[1]} ${k === 'rounds' || k === 'sets' ? y : fmtS(y)}`); }); }); }
   $('#rtList').querySelectorAll('[data-ri]').forEach(h => { const i = +h.dataset.ri; longPress(h,
     () => editName(cfg.rt[i].nm, v => { cfg.rt[i].nm = v; saveC(); paintSetup(); }, () => { cfg.rt.splice(i, 1); openItem = -1; saveC(); paintSetup(); }),
     () => { openItem = openItem === i ? -1 : i; paintRt(); }); });
@@ -1039,22 +1045,50 @@ function bindSets(box, find) {
 }
 /* 종목별 무게 기록 (날짜순) */
 const exName = t => String(t || '').split(/ · | — /)[0].replace(/\s*(\d|\(|\+|→|×).*$/, '').trim();
+/* 같은 종목 다른 이름 합치기: 「가슴 프레스」 = 「체스트프레스」 */
+const canonEx = s => String(s || '').replace(/가슴\s*프레스/g, '체스트프레스');
 function wHist() {
   const H = {};
-  const add = (n, k, w) => { let key = nz(n); if (key.length < 2) return; const ex = Object.keys(H).find(x => x.length > 3 && key.length > 3 && (x.includes(key) || key.includes(x))); if (ex) key = ex; const h = H[key] = H[key] || {n, L: []}; if (n.length > h.n.length) h.n = n; const e = h.L.find(x => x.k === k); if (e) e.w = Math.max(e.w, w); else h.L.push({k, w}); };
+  const add = (n, k, w) => { n = canonEx(n); let key = nz(n); if (key.length < 2) return; const ex = Object.keys(H).find(x => x.length > 3 && key.length > 3 && (x.includes(key) || key.includes(x))); if (ex) key = ex; const h = H[key] = H[key] || {n, L: []}; if (n.length > h.n.length) h.n = n; const e = h.L.find(x => x.k === k); if (e) e.w = Math.max(e.w, w); else h.L.push({k, w}); };
   allDays().forEach(k => { const seen = new Set();
     dayCards(k).forEach(c => { const S = setsOf(c); if (!S) return; const ws = S.map(x => x.w).filter(w => w != null && w > 0); if (!ws.length) return; const n = exName(c.ti); seen.add(nz(n)); add(n, k, Math.max(...ws)); });
     dayInfo(k).items.forEach(t => { const n = exName(t), w = kgs(t); if (w.length && !seen.has(nz(n))) add(n, k, Math.max(...w)); }); });
   Object.values(H).forEach(h => h.L.sort((a, b) => a.k - b.k)); return H;
 }
-function histFor(H, name) { const key = nz(name); if (!key) return null; if (H[key]) return H[key]; return Object.values(H).find(h => { const a = nz(h.n); return a.length > 3 && key.length > 3 && (a.includes(key) || key.includes(a)); }) || null; }
-function trendMark(H, line) { const n = exName(line), h = histFor(H, n);
+function histFor(H, name) { const key = nz(canonEx(name)); if (!key) return null; if (H[key]) return H[key]; return Object.values(H).find(h => { const a = nz(h.n); return a.length > 3 && key.length > 3 && (a.includes(key) || key.includes(a)); }) || null; }
+const PLUSKG = /(\d+(?:\.\d+)?)\s*kg\s*\+\s*(\d+(?:\.\d+)?)\s*kg/g;
+function trendInfo(H, line) { const n = exName(line), h = histFor(H, n);
   /* 「20kg + 2.5kg」처럼 더한 무게는 합(22.5)으로 봄 */
-  const w = kgs(String(line).replace(/(\d+(?:\.\d+)?)\s*kg\s*\+\s*(\d+(?:\.\d+)?)\s*kg/g, (m, a, b) => (+a + +b) + 'kg'));
-  if (!h || !w.length) return '';
+  const w = kgs(String(line).replace(PLUSKG, (m, a, b) => (+a + +b) + 'kg'));
+  if (!h || !w.length) return null;
   const tw = Math.max(...w), L = h.L, last = L[L.length - 1], prev = L[L.length - 2];
-  if (tw > last.w || (tw === last.w && prev && last.w > prev.w)) return '<span class="up" title="지난번보다 무게 올림">▲</span>';
-  if (tw < last.w) return '<span class="dn" title="지난번보다 낮음">▼</span>'; return ''; }
+  return {tw, last: last.w, d: tw > last.w || (tw === last.w && prev && last.w > prev.w) ? 1 : tw < last.w ? -1 : 0}; }
+function trendMark(H, line) { const t = trendInfo(H, line); if (!t) return '';
+  if (t.d > 0) return '<span class="up" title="지난번보다 무게 올림">▲</span>';
+  if (t.d < 0) return `<span class="dn" title="지난 기록 ${t.last}kg보다 낮음">▼</span>`; return ''; }
+/* 다음 틀 줄 아래: 그 종목 지난 기록 최근 3번 + 마지막 날 세트 */
+function pastOf(H, line) { const h = histFor(H, exName(line)); if (!h || !h.L.length) return '';
+  const L = h.L.slice(-3), last = L[L.length - 1];
+  const c = dayCards(last.k).find(c => { const S = setsOf(c); return S && S.length && histFor(H, exName(c.ti)) === h; }), S = c && setsOf(c);
+  return L.map(x => `<span class="dt">${md(kDate(x.k)).split(' ')[0]}</span> <span class="kg">${x.w}</span>`).join(' → ') + (S ? ` <span class="ls">· 마지막 ${esc(fmtSets(S))}</span>` : ''); }
+/* 틀 한 줄 → 세트 목록 [{w, r}] (「47kg 2세트 + 33kg 2세트 × 12회」 · 「20kg + 2.5kg」은 합) */
+function setsFromLine(t) { const s = String(t).replace(PLUSKG, (m, a, b) => (+a + +b) + 'kg'), R0 = +((/(\d+)\s*회(?!.*\d+\s*회)/.exec(s) || [])[1] || 12), out = [];
+  s.split('+').forEach(pt => { const w = (/(\d+(?:\.\d+)?)\s*kg/.exec(pt) || [])[1], n = +((/(\d+)\s*세트/.exec(pt) || [])[1] || (w ? 1 : 0)), r = +((/(\d+)\s*회/.exec(pt) || [])[1] || R0);
+    for (let i = 0; i < n; i++) out.push({w: w != null ? +w : null, r}); });
+  if (!out.length) { const n = +((/(\d+)\s*세트/.exec(s) || [])[1] || 4); for (let i = 0; i < n; i++) out.push({w: null, r: R0}); }
+  return out.slice(0, 12); }
+/* 확정한 틀 → 타이머 루틴: 근력 = 종목마다 1라운드 × 세트 수(세트마다 무게·횟수 자막), 유산소 = 분 그대로 */
+function tplToRt(sp) { const T = tplGet()[sp] || [];
+  return T.filter(t => t.trim()).map(t => { const nm = t.split(/ · | — /)[0].trim() || t.trim(), en = exName(nm) || nm;
+    if (/푸크크크/.test(t)) return itemFor('푸크크크');
+    if (/계단|달리기|러닝|트레드|유산소/.test(t)) { const m = +((/(\d+)\s*분/.exec(t) || [])[1] || 30); return Object.assign(itemFor(en), {nm: en, rounds: 1, sets: 1, work: m * 60, rest: 0, rrest: 0}); }
+    if (/스트레칭/.test(t)) return Object.assign(itemFor('스트레칭'), {rounds: 1, sets: 1, work: 300, rest: 0, rrest: 0});
+    const S = setsFromLine(t); return Object.assign(itemFor(en), {nm: en, rounds: 1, sets: S.length, subs: S.map(x => `${x.w != null ? x.w + 'kg × ' : ''}${x.r}회`)}); }); }
+/* ▼ 줄의 무게를 지난 기록 무게로 바꿈 (가장 무거운 무게 자리만) */
+function fixDown(line, H) { const t = trendInfo(H, line); if (!t || t.d >= 0) return line; let s = String(line), done = false;
+  s = s.replace(PLUSKG, (m, a, b) => { if (!done && +a + +b === t.tw) { done = true; return t.last + 'kg'; } return m; });
+  if (!done) s = s.replace(new RegExp('(^|[^\\d.])' + String(t.tw).replace('.', '\\.') + '(\\s*kg)'), (m, a, b) => a + t.last + b);
+  return s; }
 const ordOf = c => c.o != null ? c.o : c.sm != null ? c.sm : (toMin(c.t) ?? c.tt ?? 9999);
 function moveCard(list, id, d) {
   const i = list.findIndex(x => x.id === id), j = i + d; if (i < 0 || j < 0 || j >= list.length) return toast(d < 0 ? '맨 위예요' : '맨 아래예요');
@@ -1447,6 +1481,9 @@ function paintParts() {
     if (!el) return toast('무게 기록이 없는 종목이에요'); el.scrollIntoView({block: 'center', behavior: 'smooth'}); el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); });
   box.querySelectorAll('.bar[data-vp]').forEach(b => b.onclick = () => { PW.vp = PW.vp === b.dataset.vp ? '' : b.dataset.vp; paintParts(); });
   box.querySelectorAll('[data-mk],[data-mk2]').forEach(b => b.onclick = () => { const sp = b.dataset.mk || b.dataset.mk2, d = new Date(); if (b.dataset.mk2) d.setDate(d.getDate() + 1); const k = dkey(d), n = makeCards(sp, k); if (!n) return toast('이미 그 날에 같은 카드가 있어요'); toast(`${md(kDate(k))}에 카드 ${n}개 · 지난번 무게 그대로`); RV.k = k; setTab('R'); });
+  box.querySelectorAll('[data-trt]').forEach(b => b.onclick = () => { const sp = b.dataset.trt, rt = tplToRt(sp); if (!rt.length) return toast('틀이 비어 있어요');
+    cfg.rt = rt; const nm = sp + ' (틀)', j = cfg.rts.findIndex(x => x.nm === nm); j >= 0 ? (cfg.rts[j].rt = clone(rt)) : cfg.rts.push({nm, rt: clone(rt)}); cfg.rtName = nm; openItem = -1; saveC(); paintSetup(); setTab('T'); toast(`${rt.length}종목 타이머 루틴 · 「${nm}」로 저장`); });
+  box.querySelectorAll('[data-whp]').forEach(b => b.onclick = () => { const C = ls.get('wt.whc', {}), p = b.dataset.whp; C[p] = !C[p]; ls.set('wt.whc', C); paintParts(); });
   box.querySelectorAll('[data-tp]').forEach(b => b.onclick = () => { PW.tp = PW.tp === b.dataset.tp ? '' : b.dataset.tp; paintParts(); });
   if (!PW.q) swipeOn($('#pList'), d => { const x = kDate(PW.k); x.setDate(x.getDate() + 7 * d); const k = dkey(x); if (k > today) return toast('이번 주가 마지막이에요'); PW.k = k; paintParts(); });
 }
@@ -1551,8 +1588,8 @@ function makeCards(sp, k) {
   if (n) ls.set('wt.rec', mine); return n;
 }
 /* 이번 주 부위별 볼륨 = 무게 × 횟수 합 (보조 기구는 제외) */
-const PART_RX = [['가슴', /가슴|체스트|벤치|플라이|펙|딥스/], ['등', /(?<!플)랫|풀다운|로우|턱걸이|등|데드|백익스텐션|풀업/], ['하체', /레그|스쿼트|런지|하체|힙|어브덕션|모으기|벌리기|다리/], ['어깨', /어깨|레이즈|밀리터리|숄더|사레|델트/], ['이두', /컬|이두/], ['삼두', /삼두|푸시다운|트라이셉|오버헤드/], ['목', /^목|넥/]];
-function partOfEx(t, k) { const n = String(t || ''); if (/로우|풀다운/.test(n)) return '등'; for (const [p, rx] of PART_RX) if (rx.test(n)) return p; const ps = [...partsOf(k)].filter(x => !/유산소|복근|기타/.test(x)); return ps[0] ? ps[0].replace(/윗등|아랫등/, '등') : '기타'; }
+const PART_RX = [['가슴', /가슴|체스트|벤치|플라이|펙|딥스/], ['등', /(?<!플)랫|풀다운|로우|턱걸이|등|데드|백익스텐션|풀업/], ['하체', /레그|스쿼트|런지|하체|힙|어브덕션|모으기|벌리기|다리/], ['어깨', /어깨|레이즈|밀리터리|숄더|사레|델트/], ['이두', /컬|이두/], ['삼두', /삼두|푸시다운|트라이셉|오버헤드|익스텐션|킥백|스컬|프레스다운/], ['목', /^목|넥/]];
+function partOfEx(t, k) { const n = String(t || ''); if (/로우|풀다운/.test(n)) return '등'; if (/스컬|킥백|트라이셉/.test(n)) return '삼두'; for (const [p, rx] of PART_RX) if (rx.test(n)) return p; const ps = [...partsOf(k)].filter(x => !/유산소|복근|기타/.test(x)); return ps[0] ? ps[0].replace(/윗등|아랫등/, '등') : '기타'; }
 function weekVolE(days) { const V = {}, E = {}; days.forEach(k => { const cs = dayCards(k); if (!cs.some(c => !c.auto && Array.isArray(c.sets))) { /* 세트 칸이 없던 예전 날: 「종목 30kg · 4세트」 글에서 추정 (횟수 12회 기준) */
     dayInfo(k).items.forEach(t => { const w = kgs(t); if (!w.length || /어시스트|보조/.test(t)) return; const ns = +((/(\d+)\s*세트/.exec(t) || [])[1] || 4), v = Math.max(...w) * ns * 12, p = partOfEx(t, k), n = exName(t) + ' (추정)'; V[p] = (V[p] || 0) + v; E[p] = E[p] || {}; E[p][n] = (E[p][n] || 0) + v; }); }
   cs.forEach(c => { if (c.auto || /어시스트|보조/.test((c.ti || '') + (c.cap || ''))) return; const S = setsOf(c); if (!S) return; const v = S.reduce((a, x) => a + (x.w || 0) * (x.r || 0), 0); if (!v) return; const p = partOfEx(c.ti, k), n = exName(c.ti) || c.ti; V[p] = (V[p] || 0) + v; E[p] = E[p] || {}; E[p][n] = (E[p][n] || 0) + v; }); }); return {V, E}; }
@@ -1575,8 +1612,9 @@ function histBox() {
   if (!H.length) return '';
   const G = {}; H.forEach(h => { const p = partOfEx(h.n, h.L[h.L.length - 1].k); (G[p] = G[p] || []).push(h); });
   const ORD = PART_RX.map(x => x[0]), ps = Object.keys(G).sort((a, b) => (ORD.indexOf(a) + 1 || 99) - (ORD.indexOf(b) + 1 || 99));
-  const row = (h, n) => `<div class="wh" data-whk="${esc(nz(h.n))}"><span class="no">${n}.</span><b>${esc(h.n)}</b>${h.L.map((x, i) => { const p = h.L[i - 1], c = p ? (x.w > p.w ? 'u' : x.w < p.w ? 'd' : '') : ''; return `${i ? ' → ' : ''}<span class="gk dt" data-gk="${x.k}">${md(kDate(x.k)).split(' ')[0]}</span> <span class="kg ${c}">${x.w}${c === 'u' ? '▲' : c === 'd' ? '▼' : ''}</span>`; }).join('')}</div>`;
-  return `<div class="box2 wh2" id="whBox"><h3>종목별 무게 변화<small>부위별 · 자주 한 순 · 회색=날짜 · 노랑=kg</small></h3>${ps.map(p => `<div class="whp" style="color:${pcOf(p) || '#ddd'}">${p} <small style="color:#777;font-weight:400">${G[p].length}종목</small></div>` + G[p].sort((a, b) => b.L.length - a.L.length || b.L[b.L.length - 1].k - a.L[a.L.length - 1].k).map((h, i) => row(h, i + 1)).join('')).join('')}</div>`;
+  const C = ls.get('wt.whc', {}), now = Date.now(), old = h => (now - kDate(h.L[h.L.length - 1].k)) / 864e5 > 21;
+  const row = (h, n) => `<div class="wh${old(h) ? ' old' : ''}" data-whk="${esc(nz(h.n))}"><span class="no">${n}.</span><b>${esc(h.n)}</b>${h.L.map((x, i) => { const p = h.L[i - 1], c = p ? (x.w > p.w ? 'u' : x.w < p.w ? 'd' : '') : ''; return `${i ? ' → ' : ''}<span class="gk dt" data-gk="${x.k}">${md(kDate(x.k)).split(' ')[0]}</span> <span class="kg ${c}">${x.w}${c === 'u' ? '▲' : c === 'd' ? '▼' : ''}</span>`; }).join('')}</div>`;
+  return `<div class="box2 wh2" id="whBox"><h3>종목별 무게 변화<small>부위별 · 자주 한 순 · 회색=날짜 · 노랑=kg</small></h3>${ps.map(p => `<div class="whp" data-whp="${p}" style="color:${pcOf(p) || '#ddd'}">${C[p] ? '▸' : '▾'} ${p} <small style="color:#777;font-weight:400">${G[p].length}종목</small></div>` + (C[p] ? '' : G[p].sort((a, b) => b.L.length - a.L.length || b.L[b.L.length - 1].k - a.L[a.L.length - 1].k).map((h, i) => row(h, i + 1)).join(''))).join('')}<div class="hint" style="text-align:left;margin:4px 0 0">흐린 줄 = 3주 넘게 안 한 종목 · 부위 이름을 누르면 접기/펼치기</div></div>`;
 }
 function tplBox() {
   const si = splitInfo(), sp = PW.tp || si.nx, T = tplGet();
@@ -1584,10 +1622,12 @@ function tplBox() {
   return `<div class="box2 tp"><h3>다음 틀 · ${sp.replace(/날$/, '')}<small>${lk && dayLines(lk).some(x => !/미기록/.test(x)) ? `지난번 ${md(kDate(lk)).split(' ')[0]} 기록 그대로 추천 · ` : ''}기본 ${SETS0} · 그 자리에서 고침</small></h3>`
     + `<div class="rbar" style="margin:2px 0 4px">${SPLIT.map(s => { const col = pcOf({'가슴날': '가슴', '등날': '윗등', '하체날': '하체', '어깨+복부날': '어깨'}[s] || '기타'); return `<button class="chip ${s === sp ? 'on' : ''}" style="border:1px solid ${col};${s === sp ? `background:${col};color:#111` : `background:transparent;color:${col}`}" data-tp="${s}">${s.replace(/날$/, '')}${s === si.nx ? ' 다음' : ''}</button>`; }).join('')}</div>`
     + `<div class="rbar" style="margin:2px 0 4px"><button class="chip" data-mk="${sp}">📋 이 틀로 오늘 카드 만들기</button><button class="chip" data-mk2="${sp}">내일로</button></div>`
-    + lines('tpl|' + sp, T[sp] || [], '종목 × 세트 × 횟수', (() => { const H = wHist(); return (T[sp] || []).map(t => trendMark(H, t)); })()) + `<div class="hint" style="text-align:left;margin:4px 0 0">▲ 지난 기록보다 높음, 또는 지난번에 올린 무게 그대로 · ▼ 지난 기록보다 낮음 · 없음 = 같음</div></div>`;
+    + (() => { const H = wHist(); return lines('tpl|' + sp, T[sp] || [], '종목 × 세트 × 횟수', null, (T[sp] || []).map(t => pastOf(H, t))); })()
+    + `<div class="rbar" style="margin:6px 0 0"><button class="chip on" data-trt="${sp}">⏱ 이 틀로 타이머 루틴</button></div>`
+    + `<div class="hint" style="text-align:left;margin:4px 0 0">줄 아래 회색 = 지난 기록(날짜 · kg · 마지막 세트) → 보고 이번 무게를 고쳐 확정 → ⏱로 타이머에 넣기</div></div>`;
 }
 /* 한 줄씩 편집되는 목록: 누르면 바로 고침 · Enter = 아래 줄 추가 · 비우거나 ✕ = 삭제 · ＋ = 추가 */
-function lines(id, L, ph, mk) { return L.map((t, i) => `<div class="ln">${(mk || [])[i] || ''}<span class="x" contenteditable="true" data-ll="${id}|${i}" data-ph="${ph}">${esc(t)}</span><span class="mv2"><button data-lm="${id}|${i}|-1" aria-label="위로">↑</button><button data-lm="${id}|${i}|1" aria-label="아래로">↓</button><button data-li="${id}|${i}" aria-label="아래에 끼우기">＋</button></span><button class="lx" data-lx="${id}|${i}">✕</button></div>`).join('') + `<div class="ln"><button class="gc add" data-la="${id}">＋ 추가</button></div>`; }
+function lines(id, L, ph, mk, sub) { return L.map((t, i) => `${sub && sub[i] ? '<div class="lnw">' : ''}<div class="ln">${(mk || [])[i] || ''}<span class="x" contenteditable="true" data-ll="${id}|${i}" data-ph="${ph}">${esc(t)}</span><span class="mv2"><button data-lm="${id}|${i}|-1" aria-label="위로">↑</button><button data-lm="${id}|${i}|1" aria-label="아래로">↓</button><button data-li="${id}|${i}" aria-label="아래에 끼우기">＋</button></span><button class="lx" data-lx="${id}|${i}">✕</button></div>${sub && sub[i] ? `<div class="lsub">${sub[i]}</div></div>` : ''}`).join('') + `<div class="ln"><button class="gc add" data-la="${id}">＋ 추가</button></div>`; }
 function lnGet(id) { if (id === 'rcv') return ls.get('wt.rcv', RCV0).slice(); const sp = id.split('|')[1]; return (tplGet()[sp] || []).slice(); }
 function lnSet(id, L) { if (id === 'rcv') return ls.set('wt.rcv', L); const sp = id.split('|')[1], T = ls.get('wt.tpl', {}); T[sp] = {L, at: dkey(Date.now())}; ls.set('wt.tpl', T); }
 function bindLines(box, repaint) {
