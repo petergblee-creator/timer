@@ -306,6 +306,26 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 .mon div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:10.5px;color:#aaa;gap:2px}
 .mon i{display:block;width:70%;background:#F5C400;border-radius:4px 4px 0 0;min-height:2px}.mon div.cur i{background:#FF4D2E}
 .mon b{color:#fff;font-size:11px;font-variant-numeric:tabular-nums}
+/* 섹션별 배경색 (알록달록) */
+.box2.nx{background:linear-gradient(135deg,#0d1a2e,#101826);border-color:#24406b}.box2.nx h3{color:#7FB2FF}
+.box2.tp{background:linear-gradient(135deg,#0d2216,#0f1a14);border-color:#1f5a35}.box2.tp h3{color:#5EE08F}
+.box2.vo{background:linear-gradient(135deg,#2a1a08,#1a130b);border-color:#6b4512}.box2.vo h3{color:#FFB547}
+.box2.wh2{background:linear-gradient(135deg,#1f1230,#161020);border-color:#4d2d78}.box2.wh2 h3{color:#C49BFF}
+.pt{background:linear-gradient(135deg,#0b2224,#0d1718);border-radius:10px;overflow:hidden}
+.pt th{background:rgba(32,196,190,.12)}.pt td.o{background:rgba(32,196,190,.18);color:#4FE3DC}
+.code{background:linear-gradient(135deg,#1d1a08,#151309);border-color:#5a4c12;color:#f3e7b0}
+.addp{background:linear-gradient(135deg,#1a0f22,#120d17);border-color:#4a2a63}
+.tl{border-radius:10px;padding:6px 8px 6px 18px;margin:6px 0;background:#121212}
+.tl.c-근력{background:linear-gradient(135deg,#2a130c,#161010)}.tl.c-근력::after{background:#FF7A45}
+.tl.c-유산소{background:linear-gradient(135deg,#0b1d2c,#0f1418)}.tl.c-유산소::after{background:#4FB3FF}
+.tl.c-식단{background:linear-gradient(135deg,#0e2414,#0f1611)}.tl.c-식단::after{background:#4ADE80}
+.tl.c-준비{background:linear-gradient(135deg,#1d1330,#13101b)}.tl.c-준비::after{background:#B48CFF}
+.tl.c-메모{background:linear-gradient(135deg,#232323,#161616)}.tl.c-메모::after{background:#bbb}
+.tl.c-타이머{background:linear-gradient(135deg,#2a2208,#17140b)}
+.tl::before{left:8px}.tl::after{left:4px;top:11px}
+.sets{background:rgba(255,122,69,.08);border-radius:8px;padding:4px 6px}
+.wh.hit{animation:whf .5s 5 alternate;border-radius:6px}@keyframes whf{to{background:#4d2d78}}
+.vol .ex span{cursor:pointer;text-decoration:underline dotted #666}
 .dn2{font-size:10px;font-weight:800;color:#062;background:#22C55E;border-radius:99px;padding:1px 7px}
 .vol{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;font-size:12px;align-items:center}
 .vol .bar{height:8px;border-radius:4px;background:#F5C400;min-width:2px}.vol .n{text-align:right;font-variant-numeric:tabular-nums;color:#ddd}.vol .n small{color:#888;font-size:10px;margin-left:3px}
@@ -1047,7 +1067,7 @@ function paintRec() {
       + (c.ph || []).map((p, i) => thHTML(c, p, i)).join('')
       + (c.auto ? '' : `<span class="th add" data-padd="${c.id}"><i>＋</i>사진</span>`);
     const delB = `<span class="cbt">${RV.q ? '' : `<button data-mv="${c.id}|-1" aria-label="위로">↑</button><button data-mv="${c.id}|1" aria-label="아래로">↓</button>`}${c.auto ? '' : `<button data-ed="${c.id}">✎ 수정</button>`}<button class="del ${RV.delArm === c.id ? 'arm' : ''}" data-del="${c.id}">${RV.delArm === c.id ? '정말 삭제' : '🗑'}</button></span>`;
-    return head + `<div class="tl${c.plan && !(setsOf(c) || []).some(x => x.d) && !(c.ph || []).length ? ' plan' : ''}" data-cid="${c.id}"><div class="hd2"><span class="tm ${c.t && !c.tq ? '' : 'q'}" data-tm="${c.id}" data-raw="${esc(c.t || '')}">${c.t ? cute(c.t) + (c.tq ? '쯤' : '') : '시각 ✎'}</span><span class="ti" ${ce} data-e="${c.id}|ti" data-ph="제목">${esc(c.ti)}</span><span class="ct" data-cc="${c.id}">${c.cat}</span>${c.plan && !(setsOf(c) || []).some(x => x.d) && !(c.ph || []).length ? '<span class="pl">아직</span>' : ''}${(S => S && S.length && S.every(x => x.d) ? '<span class="dn2">✓ 완료</span>' : '')(c.auto ? null : setsOf(c))}${delB}</div>`
+    return head + `<div class="tl c-${c.cat}${c.plan && !(setsOf(c) || []).some(x => x.d) && !(c.ph || []).length ? ' plan' : ''}" data-cid="${c.id}"><div class="hd2"><span class="tm ${c.t && !c.tq ? '' : 'q'}" data-tm="${c.id}" data-raw="${esc(c.t || '')}">${c.t ? cute(c.t) + (c.tq ? '쯤' : '') : '시각 ✎'}</span><span class="ti" ${ce} data-e="${c.id}|ti" data-ph="제목">${esc(c.ti)}</span><span class="ct" data-cc="${c.id}">${c.cat}</span>${c.plan && !(setsOf(c) || []).some(x => x.d) && !(c.ph || []).length ? '<span class="pl">아직</span>' : ''}${(S => S && S.length && S.every(x => x.d) ? '<span class="dn2">✓ 완료</span>' : '')(c.auto ? null : setsOf(c))}${delB}</div>`
       + (media ? `<div class="ph2">${media}</div>` : '')
       + (RV.cAdd === c.id ? `<div class="cadd"><button data-ca="gal">🖼 갤러리·영상</button><button data-ca="cam">📷 찍기</button><button data-ca="clip">📋 붙여넣기</button><button data-ca="x">닫기</button><div class="pz2" tabindex="0" id="pz2">PC: 여기를 누르고 Ctrl+V (여러 장 가능)</div></div>` : '')
       + `<div class="cp" ${ce} data-e="${c.id}|cap" data-ph="설명 쓰기">${esc(c.cap || '')}</div>` + (c.auto ? '' : setsHTML(c))
@@ -1387,6 +1407,8 @@ function paintParts() {
   box.querySelectorAll('[data-dadd]').forEach(b => b.onclick = () => { const k = b.dataset.dadd, L = dayInfo(k).items.concat(''); setDay(k, {items: L}); paintParts(); const n = box.querySelector(`[data-di="${k}|${L.length - 1}"]`); if (n) n.focus(); });
   box.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { RV.k = +b.dataset.open; setTab('R'); });
   bindLines(box, paintParts);
+  box.querySelectorAll('[data-wgo]').forEach(b => b.onclick = e => { e.stopPropagation(); const h = histFor(wHist(), b.dataset.wgo), el = h && box.querySelector(`[data-whk="${CSS.escape(nz(h.n))}"]`);
+    if (!el) return toast('무게 기록이 없는 종목이에요'); el.scrollIntoView({block: 'center', behavior: 'smooth'}); el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); });
   box.querySelectorAll('[data-vp]').forEach(b => b.onclick = () => { PW.vp = PW.vp === b.dataset.vp ? '' : b.dataset.vp; paintParts(); });
   box.querySelectorAll('[data-mk],[data-mk2]').forEach(b => b.onclick = () => { const sp = b.dataset.mk || b.dataset.mk2, d = new Date(); if (b.dataset.mk2) d.setDate(d.getDate() + 1); const k = dkey(d), n = makeCards(sp, k); if (!n) return toast('이미 그 날에 같은 카드가 있어요'); toast(`${md(kDate(k))}에 카드 ${n}개 · 지난번 무게 그대로`); RV.k = k; setTab('R'); });
   box.querySelectorAll('[data-tp]').forEach(b => b.onclick = () => { PW.tp = PW.tp === b.dataset.tp ? '' : b.dataset.tp; paintParts(); });
@@ -1432,7 +1454,7 @@ function nextBox(today) {
   else if (y && main(partsOf(y)).length) L.push(`${md(kDate(y)).split(' ')[0]}에 한 부위: ${main(partsOf(y)).join('·')} → 오늘은 이 부위 쉼`);
   const two = ds.slice(0, 2); if (two.length === 2 && Math.round((kDate(two[0]) - kDate(two[1])) / 864e5) === 1) { const both = main(partsOf(two[0])).filter(p => partsOf(two[1]).has(p)); if (both.length) L.push(`${both.join('·')} 이틀 연속(${md(kDate(two[1])).split(' ')[0]}·${md(kDate(two[0])).split(' ')[0]}) → 다음 날은 쉼`); }
   const R = ls.get('wt.rcv', RCV0);
-  return `<div class="box2"><h3>다음 차례 · 회복 체크<small>무엇을 할지·쉴 부위 판단 (자동)</small></h3>${L.map(x => `<div class="li">${x}</div>`).join('')}${lines('rcv', R, '체크할 것')}</div>`;
+  return `<div class="box2 nx"><h3>다음 차례 · 회복 체크<small>무엇을 할지·쉴 부위 판단 (자동)</small></h3>${L.map(x => `<div class="li">${x}</div>`).join('')}${lines('rcv', R, '체크할 것')}</div>`;
 }
 /* 다음 틀: 4분할마다 종목 × 세트 × 횟수 (첫 세트 기준 → 모자라거나 과하면 수정) */
 const TPL0 = {
@@ -1452,13 +1474,18 @@ function tplGet() { /* 내가 고친 틀이 그 뒤 운동보다 새것이면 �
       const CR = /계단|달리기|러닝|트레드/; if (!o[sp].some(t => CR.test(t))) o[sp] = o[sp].concat((TPL0[sp] || []).filter(t => CR.test(t))); /* 유산소 줄이 빠졌으면 기본 틀 것을 붙임 */ } else o[sp] = TPL0[sp]; });
   return o;
 }
+/* 종목별 기본 준비물 (지난번 그 카드 준비물 + 아래 규칙을 합침 · 카드에서 길게 눌러 고침) */
+const GEAR_RX = [[/계단/, ['수건', '밴드(턱걸이 끈)', '쉐이커', '헤드폰', '발목 보호대(루미힐)']], [/달리기|러닝|트레드/, ['수건', '쉐이커', '헤드폰', '러닝화']],
+  [/랫|풀다운|로우|턱걸이|데드|풀업/, ['밴드(턱걸이 끈)', '장갑']], [/벤치|프레스|플라이|펙|딥스|체스트/, ['장갑', '수건']], [/레그|스쿼트|런지|힙|어브덕션|모으기|벌리기/, ['벨트', '수건']],
+  [/레이즈|밀리터리|숄더|어깨|델트/, ['장갑']], [/^목|넥/, ['밴드', '수건']], [/컬|이두|삼두|푸시다운/, ['장갑']], [/푸크크크|크런치|복근/, ['매트', '수건']]];
+const gearFor = t => { const o = []; GEAR_RX.forEach(([rx, g]) => { if (rx.test(t)) o.push(...g); }); return [...new Set(o)]; };
 /* 틀 → 그 날 카드: 지난번 같은 종목 카드의 세트(무게·횟수)를 그대로 복사, 완료 표시는 지움 */
 function makeCards(sp, k) {
   const L = (tplGet()[sp] || []).filter(t => t.trim()), lk = lastSplitDay(sp), prev = lk ? dayCards(lk) : [], have = dayCards(k).map(c => nz(exName(c.ti))), mine = recMine(); let n = 0, o = Math.max(600, ...dayCards(k).map(ordOf).filter(x => x < 9000));
   L.forEach(t => { const nm = t.split(/ · | — /)[0].trim(), key = nz(exName(nm)); if (have.includes(key)) return; o += 10;
     const cr = /계단|달리기|러닝|트레드|유산소/.test(t), pc = prev.find(c => nz(exName(c.ti)) === key) || prev.find(c => { const a = nz(exName(c.ti)); return a.length > 2 && (a.includes(key) || key.includes(a)) && Math.abs(a.length - key.length) < 6; }), ps = pc ? setsOf(pc) : null;
     let S = null; if (!cr && !/푸크크크|스트레칭/.test(t)) { if (ps && ps.length) S = ps.map(x => ({w: x.w, r: x.r})); else { const w = kgs(t), ns = +((/(\d+)\s*세트/.exec(t) || [])[1] || 4), r = +((/(\d+)\s*회/.exec(t) || [])[1] || 12); S = [...Array(Math.min(ns, 12))].map(() => ({w: w.length ? w[w.length - 1] : null, r})); } }
-    mine.push(Object.assign({id: 'u' + Date.now() + n + Math.floor(Math.random() * 1000), k, t: '', cat: cr ? '유산소' : '근력', ti: nm, cap: t.slice(nm.length).replace(/^\s*[·—]\s*/, ''), ph: [], gear: pc ? (pc.gear || []).slice() : [], o, plan: 1}, S ? {sets: S} : {})); n++; });
+    mine.push(Object.assign({id: 'u' + Date.now() + n + Math.floor(Math.random() * 1000), k, t: '', cat: cr ? '유산소' : '근력', ti: nm, cap: t.slice(nm.length).replace(/^\s*[·—]\s*/, ''), ph: [], gear: [...new Set((pc ? pc.gear || [] : []).concat(gearFor(t)))], o, plan: 1}, S ? {sets: S} : {})); n++; });
   if (n) ls.set('wt.rec', mine); return n;
 }
 /* 이번 주 부위별 볼륨 = 무게 × 횟수 합 (보조 기구는 제외) */
@@ -1475,22 +1502,22 @@ function volBox(days) {
   const mon = `<div class="hint" style="text-align:left;margin:8px 0 0">4주 추이 (합계 · t = 1,000kg · 세트 칸 없던 날은 글에서 추정)</div><div class="mon">${weeks.map((x, i) => { const p = weeks[i - 1], d = p && p.t ? x.t - p.t : 0;
     return `<div class="${x.w === 0 ? 'cur' : ''}"><b>${x.t ? f(x.t / 1000) + 't' : '–'}</b>${d ? `<small class="${d > 0 ? 'up' : 'dn'}">${d > 0 ? '▲' : '▼'}</small>` : ''}<i style="height:${x.t / wm * 60}px"></i>${md(kDate(x.s)).split(' ')[0]}~</div>`; }).join('')}</div>`;
   const head = `<h3>이번 주 볼륨<small>무게 × 횟수 합 · 지난주 대비 · 보조 기구 제외 · 부위를 누르면 종목별</small></h3>`;
-  if (!ks.length) return `<div class="box2">${head}<div class="hint" style="text-align:left;margin:0">이 주는 아직 세트 기록이 없어요</div>${mon}</div>`;
+  if (!ks.length) return `<div class="box2 vo">${head}<div class="hint" style="text-align:left;margin:0">이 주는 아직 세트 기록이 없어요</div>${mon}</div>`;
   const mx = Math.max(...ks.map(k => V[k]));
-  return `<div class="box2">${head}<div class="vol">${ks.map(p => { const d = P[p] ? V[p] - P[p] : 0, open = PW.vp === p;
+  return `<div class="box2 vo">${head}<div class="vol">${ks.map(p => { const d = P[p] ? V[p] - P[p] : 0, open = PW.vp === p;
     return `<b data-vp="${p}">${open ? '▾' : '▸'} ${p}</b><div class="bar" data-vp="${p}" style="width:${Math.max(2, V[p] / mx * 100)}%"></div><span class="n">${f(V[p])}kg${P[p] ? `<small class="${d >= 0 ? 'up' : 'dn'}">${d >= 0 ? '▲' : '▼'}${f(Math.abs(d))}</small>` : ''}</span>`
-      + (open ? `<div class="ex">${Object.entries(E[p]).sort((a, b) => b[1] - a[1]).map(([n, v]) => `<span>${esc(n)} <b>${f(v)}kg</b></span>`).join('')}</div>` : ''); }).join('')}</div><div class="hint" style="text-align:left;margin:4px 0 0">합계 ${f(ks.reduce((a, k) => a + V[k], 0))}kg</div>${mon}</div>`;
+      + (open ? `<div class="ex">${Object.entries(E[p]).sort((a, b) => b[1] - a[1]).map(([n, v]) => `<span data-wgo="${esc(n.replace(/ \(추정\)$/, ''))}">${esc(n)} <b>${f(v)}kg</b></span>`).join('')}</div>` : ''); }).join('')}</div><div class="hint" style="text-align:left;margin:4px 0 0">합계 ${f(ks.reduce((a, k) => a + V[k], 0))}kg</div>${mon}</div>`;
 }
 function histBox() {
   const H = Object.values(wHist()).filter(h => h.L.length).sort((a, b) => b.L[b.L.length - 1].k - a.L[a.L.length - 1].k);
   if (!H.length) return '';
-  const row = h => `<div class="wh"><b>${esc(h.n)}</b>${h.L.map((x, i) => { const p = h.L[i - 1], c = p ? (x.w > p.w ? 'u' : x.w < p.w ? 'd' : '') : ''; return `${i ? ' → ' : ''}${md(kDate(x.k)).split(' ')[0]} <span class="${c}">${x.w}${c === 'u' ? '▲' : c === 'd' ? '▼' : ''}</span>`; }).join('')}</div>`;
-  return `<div class="box2"><h3>종목별 무게 변화<small>날짜순 · kg · 최근 종목 먼저</small></h3>${H.map(row).join('')}</div>`;
+  const row = h => `<div class="wh" data-whk="${esc(nz(h.n))}"><b>${esc(h.n)}</b>${h.L.map((x, i) => { const p = h.L[i - 1], c = p ? (x.w > p.w ? 'u' : x.w < p.w ? 'd' : '') : ''; return `${i ? ' → ' : ''}${md(kDate(x.k)).split(' ')[0]} <span class="${c}">${x.w}${c === 'u' ? '▲' : c === 'd' ? '▼' : ''}</span>`; }).join('')}</div>`;
+  return `<div class="box2 wh2" id="whBox"><h3>종목별 무게 변화<small>날짜순 · kg · 최근 종목 먼저</small></h3>${H.map(row).join('')}</div>`;
 }
 function tplBox() {
   const si = splitInfo(), sp = PW.tp || si.nx, T = tplGet();
   const lk = lastSplitDay(sp);
-  return `<div class="box2"><h3>다음 틀 · ${sp.replace(/날$/, '')}<small>${lk && dayLines(lk).some(x => !/미기록/.test(x)) ? `지난번 ${md(kDate(lk)).split(' ')[0]} 기록 그대로 추천 · ` : ''}기본 ${SETS0} · 그 자리에서 고침</small></h3>`
+  return `<div class="box2 tp"><h3>다음 틀 · ${sp.replace(/날$/, '')}<small>${lk && dayLines(lk).some(x => !/미기록/.test(x)) ? `지난번 ${md(kDate(lk)).split(' ')[0]} 기록 그대로 추천 · ` : ''}기본 ${SETS0} · 그 자리에서 고침</small></h3>`
     + `<div class="rbar" style="margin:2px 0 4px">${SPLIT.map(s => `<button class="chip ${s === sp ? 'on' : ''}" data-tp="${s}">${s.replace(/날$/, '')}${s === si.nx ? ' 다음' : ''}</button>`).join('')}</div>`
     + `<div class="rbar" style="margin:2px 0 4px"><button class="chip" data-mk="${sp}">📋 이 틀로 오늘 카드 만들기</button><button class="chip" data-mk2="${sp}">내일로</button></div>`
     + lines('tpl|' + sp, T[sp] || [], '종목 × 세트 × 횟수', (() => { const H = wHist(); return (T[sp] || []).map(t => trendMark(H, t)); })()) + `<div class="hint" style="text-align:left;margin:4px 0 0">▲ 지난번보다 무게 올림 · ▼ 낮음</div></div>`;
