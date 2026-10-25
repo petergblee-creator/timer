@@ -317,12 +317,9 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 .code{background:linear-gradient(135deg,rgba(245,196,0,calc(var(--ci) * 0.16)),rgba(245,196,0,calc(var(--ci) * 0.05))),#111;border-color:rgba(245,196,0,calc(var(--ci)*.35));color:#f3e7b0}
 .addp{background:linear-gradient(135deg,rgba(180,120,255,calc(var(--ci) * 0.16)),rgba(180,120,255,calc(var(--ci) * 0.05))),#111;border-color:rgba(180,120,255,calc(var(--ci)*.35))}
 .tl{border-radius:10px;padding:6px 8px 6px 18px;margin:6px 0;background:#121212}
-.tl.c-근력{background:linear-gradient(135deg,rgba(255,110,60,calc(var(--ci) * 0.2)),rgba(255,110,60,calc(var(--ci) * 0.05))),#111}.tl.c-근력::after{background:#FF7A45}
-.tl.c-유산소{background:linear-gradient(135deg,rgba(70,170,255,calc(var(--ci) * 0.2)),rgba(70,170,255,calc(var(--ci) * 0.05))),#111}.tl.c-유산소::after{background:#4FB3FF}
-.tl.c-식단{background:linear-gradient(135deg,rgba(70,220,120,calc(var(--ci) * 0.2)),rgba(70,220,120,calc(var(--ci) * 0.05))),#111}.tl.c-식단::after{background:#4ADE80}
-.tl.c-준비{background:linear-gradient(135deg,rgba(170,120,255,calc(var(--ci) * 0.2)),rgba(170,120,255,calc(var(--ci) * 0.05))),#111}.tl.c-준비::after{background:#B48CFF}
-.tl.c-메모{background:linear-gradient(135deg,rgba(200,200,200,calc(var(--ci) * 0.12)),rgba(200,200,200,calc(var(--ci) * 0.04))),#111}.tl.c-메모::after{background:#bbb}
-.tl.c-타이머{background:linear-gradient(135deg,rgba(245,196,0,calc(var(--ci) * 0.18)),rgba(245,196,0,calc(var(--ci) * 0.05))),#111}
+.tl[class*="c-"]{background:linear-gradient(135deg,color-mix(in srgb,var(--cc,#888) calc(var(--ci) * 20%),transparent),color-mix(in srgb,var(--cc,#888) calc(var(--ci) * 5%),transparent)),#111}.tl[class*="c-"]::after{background:var(--cc,#888)}
+.tl .ct{border-color:var(--cc,#333);color:var(--cc,#aaa)}
+.prs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.prs button{flex:1 1 0;min-width:90px;border-radius:10px;padding:6px;background:#161616;border:1px solid #333;font-size:12px;display:flex;flex-direction:column;gap:4px;align-items:center}.prs button.on{border-color:#fff}.prs i{display:flex;gap:2px}.prs i b{width:10px;height:10px;border-radius:50%}
 .tbx{flex:0 0 auto!important;padding:8px 10px!important;font-size:13px!important}
 .swr{display:flex;flex-wrap:wrap;gap:6px}.swc{width:30px;height:30px;border-radius:50%;border:3px solid #222;padding:0;position:relative;display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#111;cursor:pointer}.swc.on{border-color:#fff}
 .swc.cu input{position:absolute;inset:0;opacity:0;cursor:pointer}
@@ -1053,7 +1050,7 @@ function paintRec() {
   const today = dkey(Date.now()), ok = gearOk();
   const cards = RV.q ? allDays().slice().reverse().flatMap(k => dayCards(k)).filter(c => hit(cardTxt(c), RV.q)) : dayCards(RV.k);
   const shown = RV.cat ? cards.filter(c => c.cat === RV.cat) : cards;
-  let h = `<div class="rbar"><button class="chip ${RV.sOn ? 'on' : ''}" id="rS">🔍</button>${CATS.map(c => `<button class="chip ${RV.cat === c ? 'on' : ''}" data-rc="${c}">${c}</button>`).join('')}<button class="chip ${RV.addOn ? 'on' : ''}" id="rAddT">＋ 추가</button><button class="chip ${ledLive() ? 'live' : ''}" id="rLed">유산소 전광판</button></div>`
+  let h = `<div class="rbar"><button class="chip ${RV.sOn ? 'on' : ''}" id="rS">🔍</button><button class="chip ${RV.pre ? 'on' : ''}" id="rPre">🎨</button>${CATS.map(c => `<button class="chip ${RV.cat === c ? 'on' : ''}" data-rc="${c}">${c}</button>`).join('')}<button class="chip ${RV.addOn ? 'on' : ''}" id="rAddT">＋ 추가</button><button class="chip ${ledLive() ? 'live' : ''}" id="rLed">유산소 전광판</button></div>`
     + (RV.sOn ? `<input class="srch" id="rQ" placeholder="종목·캡션·준비물 검색 (초성 가능: ㅊㄱ)" value="${esc(RV.q)}">` : '');
   if (RV.addOn) h += `<div class="addp"><div class="ah">＋ 추가<small>${md(kDate(RV.k))}에 넣음</small></div><div class="addg">
     <button id="aGal"><i>🖼</i><b>갤러리</b><small>여러 장·영상</small></button>
@@ -1066,6 +1063,7 @@ function paintRec() {
   h += `<input type="file" id="fCard" accept="image/*,video/*" multiple hidden><input type="file" id="fCardCam" accept="image/*" capture="environment" hidden>`;
   if (!RV.q) {
     h += `<div class="lnav"><button class="nb" data-rn="-1">‹</button><div class="ld">${md(kDate(RV.k))}${RV.k === today ? '<span class="today">오늘</span>' : ''}<small>${shown.length}건</small></div><button class="nb" data-rn="1">›</button></div>`;
+    if (RV.ccp) h += pickRow('c', RV.ccp); else if (RV.pre) h += `<div class="box2"><h3>색 조합<small>기록 분류·부위 색을 한 번에 · 분류 칩을 길게 누르면 하나씩</small></h3>${presetRow()}<div class="rbar" style="margin:6px 0 0"><button class="chip" data-pcx>닫기</button></div></div>`;
     const st = sumText(RV.k, cards); const allGear = [...new Set(cards.flatMap(c => c.gear || []))], got = allGear.filter(g => cards.some(c => (ok[c.id] || {})[g]));
     const SS = cards.filter(c => !c.auto).map(c => setsOf(c)).filter(Boolean), sAll = SS.reduce((a, S) => a + S.length, 0), sDone = SS.reduce((a, S) => a + S.filter(x => x.d).length, 0), cDone = SS.filter(S => S.length && S.every(x => x.d)).length;
     if (cards.length || st) h += `<div class="code" contenteditable="true" data-sum="${RV.k}" data-ph="종목 한 줄씩">${esc(st)}</div>` + (sAll ? `<div class="dsum">${RV.k === today ? '오늘' : '이 날'} 완료 세트 <b>${sDone}/${sAll}</b> · 끝낸 종목 <b>${cDone}/${SS.length}</b>${sDone ? ` · 볼륨 <b>${Math.round(cards.filter(c => !c.auto && !/어시스트|보조/.test(c.ti + (c.cap || ''))).reduce((a, c) => a + (setsOf(c) || []).filter(x => x.d).reduce((b, x) => b + (x.w || 0) * (x.r || 0), 0), 0)).toLocaleString()}kg</b>` : ''}</div>` : '') + (allGear.length ? `<div class="hint" style="text-align:left;margin:0">준비물 ${got.length}/${allGear.length} 챙김</div>` : '');
@@ -1078,7 +1076,7 @@ function paintRec() {
       + (c.ph || []).map((p, i) => thHTML(c, p, i)).join('')
       + (c.auto ? '' : `<span class="th add" data-padd="${c.id}"><i>＋</i>사진</span>`);
     const delB = `<span class="cbt">${RV.q ? '' : `<button data-mv="${c.id}|-1" aria-label="위로">↑</button><button data-mv="${c.id}|1" aria-label="아래로">↓</button>`}${c.auto ? '' : `<button data-ed="${c.id}">✎ 수정</button>`}<button class="del ${RV.delArm === c.id ? 'arm' : ''}" data-del="${c.id}">${RV.delArm === c.id ? '정말 삭제' : '🗑'}</button></span>`;
-    return head + `<div class="tl c-${c.cat}${c.plan && !(setsOf(c) || []).some(x => x.d) && !(c.ph || []).length ? ' plan' : ''}" data-cid="${c.id}"><div class="hd2"><span class="tm ${c.t && !c.tq ? '' : 'q'}" data-tm="${c.id}" data-raw="${esc(c.t || '')}">${c.t ? cute(c.t) + (c.tq ? '쯤' : '') : '시각 ✎'}</span><span class="ti" ${ce} data-e="${c.id}|ti" data-ph="제목">${esc(c.ti)}</span><span class="ct" data-cc="${c.id}">${c.cat}</span>${c.plan && !(setsOf(c) || []).some(x => x.d) && !(c.ph || []).length ? '<span class="pl">아직</span>' : ''}${(S => S && S.length && S.every(x => x.d) ? '<span class="dn2">✓ 완료</span>' : '')(c.auto ? null : setsOf(c))}${delB}</div>`
+    return head + `<div style="--cc:${ccOf(c.cat)}" class="tl c-${c.cat}${c.plan && !(setsOf(c) || []).some(x => x.d) && !(c.ph || []).length ? ' plan' : ''}" data-cid="${c.id}"><div class="hd2"><span class="tm ${c.t && !c.tq ? '' : 'q'}" data-tm="${c.id}" data-raw="${esc(c.t || '')}">${c.t ? cute(c.t) + (c.tq ? '쯤' : '') : '시각 ✎'}</span><span class="ti" ${ce} data-e="${c.id}|ti" data-ph="제목">${esc(c.ti)}</span><span class="ct" data-cc="${c.id}">${c.cat}</span>${c.plan && !(setsOf(c) || []).some(x => x.d) && !(c.ph || []).length ? '<span class="pl">아직</span>' : ''}${(S => S && S.length && S.every(x => x.d) ? '<span class="dn2">✓ 완료</span>' : '')(c.auto ? null : setsOf(c))}${delB}</div>`
       + (media ? `<div class="ph2">${media}</div>` : '')
       + (RV.cAdd === c.id ? `<div class="cadd"><button data-ca="gal">🖼 갤러리·영상</button><button data-ca="cam">📷 찍기</button><button data-ca="clip">📋 붙여넣기</button><button data-ca="x">닫기</button><div class="pz2" tabindex="0" id="pz2">PC: 여기를 누르고 Ctrl+V (여러 장 가능)</div></div>` : '')
       + `<div class="cp" ${ce} data-e="${c.id}|cap" data-ph="설명 쓰기">${esc(c.cap || '')}</div>` + (c.auto ? '' : setsHTML(c))
@@ -1097,7 +1095,9 @@ function paintRec() {
     b.innerHTML = `<input value="${esc(c.t || '')}" placeholder="15:40 또는 18:25~18:40">`; const i = b.firstChild; i.focus(); i.select();
     const done = () => { editCard(c.id, {t: i.value.trim(), tq: 0}); paintRec(); }; i.onblur = done; i.onkeydown = e => { if (e.key === 'Enter') i.blur(); if (e.key === 'Escape') { i.onblur = null; paintRec(); } }; });
   box.querySelectorAll('[data-cc]').forEach(b => { const c = find(b.dataset.cc); if (!c || c.auto) return;
-    b.onclick = () => { const C = CATS.filter(x => x !== '타이머'); editCard(c.id, {cat: C[(C.indexOf(c.cat) + 1) % C.length]}); paintRec(); }; });
+    longPress(b, () => { RV.ccp = c.cat; RV.pre = false; paintRec(); const r = box.querySelector('.swr'); if (r) r.scrollIntoView({block: 'center', behavior: 'smooth'}); }, () => { const C = CATS.filter(x => x !== '타이머'); editCard(c.id, {cat: C[(C.indexOf(c.cat) + 1) % C.length]}); paintRec(); }); });
+  bindPick(box, 'c', RV.ccp, () => { RV.ccp = ''; RV.pre = false; }, paintRec);
+  const rpr = $('#rPre'); if (rpr) rpr.onclick = () => { RV.pre = !RV.pre; RV.ccp = ''; paintRec(); };
   /* 🗑 두 번 누르면 카드 삭제 (확인창 없이) */
   box.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { const id = b.dataset.del; if (RV.delArm !== id) { RV.delArm = id; clearTimeout(RV.delT); RV.delT = setTimeout(() => { RV.delArm = ''; paintRec(); }, 3000); return paintRec(); }
     RV.delArm = ''; delCard(id); toast('카드 삭제'); paintRec(); });
@@ -1393,7 +1393,7 @@ function paintParts() {
   const box = $('#tabP'); if (!box) return;
   const today = dkey(Date.now()); if (!PW.k) PW.k = sunOf(today);
   const days = [...Array(7)].map((_, i) => { const d = kDate(PW.k); d.setDate(d.getDate() + i); return dkey(d); });
-  let h = `<div class="rbar"><button class="chip ${PW.sOn ? 'on' : ''}" id="pS">🔍</button><button class="chip" id="pT">이번 주</button><button class="chip" id="pCp">이 주 복사</button></div>`
+  let h = `<div class="rbar"><button class="chip ${PW.sOn ? 'on' : ''}" id="pS">🔍</button><button class="chip ${PW.pre ? 'on' : ''}" id="pPre">🎨 색 조합</button><button class="chip" id="pT">이번 주</button><button class="chip" id="pCp">이 주 복사</button></div>`
     + (PW.sOn ? `<input class="srch" id="pQ" placeholder="종목 검색 (초성 가능: ㅍㄹㅇ)" value="${esc(PW.q)}">` : '');
   if (PW.q) {
     const hits = allDays().slice().reverse().map(k => ({k, d: dayInfo(k)})).filter(x => x.d.items.some(t => hit(t, PW.q)) || hit(x.d.parts, PW.q));
@@ -1420,11 +1420,8 @@ function paintParts() {
   bindLines(box, paintParts);
   /* 부위 이름(주간표·볼륨)을 길게 누르면 색 고르기 */
   box.querySelectorAll('[data-pcl],b[data-vp]').forEach(b => longPress(b, () => { PW.cp = b.dataset.pcl || b.dataset.vp; paintParts(); const r = box.querySelector('.swr'); if (r) r.scrollIntoView({block: 'nearest', behavior: 'smooth'}); }, b.dataset.vp ? () => { PW.vp = PW.vp === b.dataset.vp ? '' : b.dataset.vp; paintParts(); } : null));
-  const setPc = c => { const M = ls.get('wt.pcol', {}); if (c) M[PW.cp] = c; else delete M[PW.cp]; ls.set('wt.pcol', M); paintParts(); };
-  box.querySelectorAll('[data-pc]').forEach(b => b.onclick = () => setPc(b.dataset.pc));
-  const pi = $('#pcIn'); if (pi) pi.onchange = e => setPc(e.target.value);
-  box.querySelectorAll('[data-pcr]').forEach(b => b.onclick = () => setPc(''));
-  box.querySelectorAll('[data-pcx]').forEach(b => b.onclick = () => { PW.cp = ''; paintParts(); });
+  bindPick(box, 'p', PW.cp, () => { PW.cp = ''; }, paintParts);
+  const prB = $('#pPre'); if (prB) prB.onclick = () => { PW.pre = !PW.pre; PW.cp = ''; paintParts(); };
   box.querySelectorAll('[data-gk]').forEach(b => b.onclick = () => { RV.k = +b.dataset.gk; setTab('R'); });
   box.querySelectorAll('[data-wgo]').forEach(b => b.onclick = e => { e.stopPropagation(); const h = histFor(wHist(), b.dataset.wgo), el = h && box.querySelector(`[data-whk="${CSS.escape(nz(h.n))}"]`);
     if (!el) return toast('무게 기록이 없는 종목이에요'); el.scrollIntoView({block: 'center', behavior: 'smooth'}); el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); });
@@ -1437,8 +1434,29 @@ function paintParts() {
 const PCOL = {'가슴': '#FF7A45', '윗등': '#4FB3FF', '아랫등': '#2F7FE0', '등': '#4FB3FF', '하체': '#4ADE80', '어깨': '#B48CFF', '이두': '#FFD23F', '삼두': '#F59E0B', '복근': '#F472B6', '목': '#22D3EE', '유산소': '#93C5FD', '기타': '#aaaaaa'};
 const pcOf = p => (ls.get('wt.pcol', {})[p]) || PCOL[p];
 const SWATCH = ['#FF7A45', '#FF4D6D', '#F472B6', '#E879F9', '#B48CFF', '#818CF8', '#4FB3FF', '#2F7FE0', '#22D3EE', '#2DD4BF', '#4ADE80', '#A3E635', '#FFD23F', '#F59E0B', '#93C5FD', '#aaaaaa'];
-function colorRow() { const p = PW.cp; if (!p) return ''; const cur = pcOf(p);
-  return `<div class="box2" style="border-color:${cur}"><h3 style="color:${cur}">${p} 색 고르기<small>누르면 바로 바뀜 · 주간표·볼륨 막대에 같이 적용</small></h3><div class="swr">${SWATCH.map(c => `<button class="swc ${c.toLowerCase() === String(cur).toLowerCase() ? 'on' : ''}" data-pc="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}<label class="swc cu" title="직접 고르기" style="background:${cur}">✎<input type="color" id="pcIn" value="${cur.length === 7 ? cur : '#ffffff'}"></label></div><div class="rbar" style="margin:6px 0 0"><button class="chip" data-pcr>원래 색</button><button class="chip" data-pcx>닫기</button></div></div>`; }
+const CCOL = {'근력': '#FF7A45', '유산소': '#4FB3FF', '식단': '#4ADE80', '준비': '#B48CFF', '메모': '#bbbbbb', '타이머': '#F5C400'};
+const ccOf = c => (ls.get('wt.ccol', {})[c]) || CCOL[c] || '#888888';
+const PRESETS = {
+  '선명': {p: {}, c: {}},
+  '파스텔': {p: {'가슴': '#FFB199', '윗등': '#A8D8FF', '아랫등': '#8FB8F0', '등': '#A8D8FF', '하체': '#A7F3C0', '어깨': '#D6C2FF', '이두': '#FFE99A', '삼두': '#FCD59A', '복근': '#F9B8D8', '목': '#A5F0FA', '유산소': '#C7DDFB', '기타': '#cccccc'}, c: {'근력': '#FFB199', '유산소': '#A8D8FF', '식단': '#A7F3C0', '준비': '#D6C2FF', '메모': '#dddddd', '타이머': '#FFE99A'}},
+  '차분': {p: {'가슴': '#C08A6E', '윗등': '#7E9CB8', '아랫등': '#6F88A8', '등': '#7E9CB8', '하체': '#84A88E', '어깨': '#9C8FB8', '이두': '#B8A86E', '삼두': '#B89A6E', '복근': '#B88E9F', '목': '#6EA8B0', '유산소': '#8FA3B8', '기타': '#999999'}, c: {'근력': '#A88470', '유산소': '#7E95AE', '식단': '#7FA08A', '준비': '#9488AE', '메모': '#999999', '타이머': '#B0A070'}},
+};
+const curPreset = () => { const P = JSON.stringify(ls.get('wt.pcol', {})), C = JSON.stringify(ls.get('wt.ccol', {})); return Object.keys(PRESETS).find(k => JSON.stringify(PRESETS[k].p) === P && JSON.stringify(PRESETS[k].c) === C) || ''; };
+function presetRow() { const cur = curPreset(); return `<div class="prs">${Object.entries(PRESETS).map(([k, v]) => { const cs = Object.keys(PCOL).slice(0, 6).map(p => v.p[p] || PCOL[p]);
+  return `<button data-pre="${k}" class="${cur === k ? 'on' : ''}"><i>${cs.map(c => `<b style="background:${c}"></b>`).join('')}</i>${k}</button>`; }).join('')}</div>`; }
+/* 색 고르기 칸 — kind p = 부위(wt.pcol) · c = 기록 분류(wt.ccol) */
+function pickRow(kind, nm) { if (!nm) return ''; const cur = kind === 'p' ? pcOf(nm) : ccOf(nm);
+  return `<div class="box2" style="border-color:${cur}"><h3 style="color:${cur}">${nm} 색 고르기<small>누르면 바로 바뀜 · 아래는 한 번에 바꾸는 색 조합 3가지</small></h3><div class="swr">${SWATCH.map(c => `<button class="swc ${c.toLowerCase() === String(cur).toLowerCase() ? 'on' : ''}" data-pc="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}<label class="swc cu" title="직접 고르기" style="background:${cur}">✎<input type="color" id="pcIn" value="${cur.length === 7 ? cur : '#ffffff'}"></label></div>`
+    + presetRow() + `<div class="rbar" style="margin:6px 0 0" data-pk="${kind}" data-pn2="${esc(nm)}"><button class="chip" data-pcr>원래 색</button><button class="chip" data-pcx>닫기</button></div></div>`; }
+function bindPick(box, kind, nm, close, repaint) {
+  const key = kind === 'p' ? 'wt.pcol' : 'wt.ccol', set = c => { const M = ls.get(key, {}); if (c) M[nm] = c; else delete M[nm]; ls.set(key, M); repaint(); };
+  box.querySelectorAll('[data-pc]').forEach(b => b.onclick = () => set(b.dataset.pc));
+  const pi = box.querySelector('#pcIn'); if (pi) pi.onchange = e => set(e.target.value);
+  box.querySelectorAll('[data-pcr]').forEach(b => b.onclick = () => set(''));
+  box.querySelectorAll('[data-pcx]').forEach(b => b.onclick = () => { close(); repaint(); });
+  box.querySelectorAll('[data-pre]').forEach(b => b.onclick = () => { const v = PRESETS[b.dataset.pre]; ls.set('wt.pcol', Object.assign({}, v.p)); ls.set('wt.ccol', Object.assign({}, v.c)); toast('색 조합 · ' + b.dataset.pre); repaint(); });
+}
+function colorRow() { return PW.pre && !PW.cp ? `<div class="box2"><h3>색 조합<small>부위·기록 분류 색을 한 번에</small></h3>${presetRow()}</div>` : pickRow('p', PW.cp); }
 const PROWS = ['가슴', '윗등', '아랫등', '하체', '어깨', '이두', '삼두', '복근', '목', '유산소', '기타'];
 function partsOf(k) {
   const d = dayInfo(k), set = new Set(), toks = d.parts.split(/[·+,\/]/).map(x => x.trim()).filter(Boolean);
@@ -1542,7 +1560,7 @@ function tplBox() {
   const si = splitInfo(), sp = PW.tp || si.nx, T = tplGet();
   const lk = lastSplitDay(sp);
   return `<div class="box2 tp"><h3>다음 틀 · ${sp.replace(/날$/, '')}<small>${lk && dayLines(lk).some(x => !/미기록/.test(x)) ? `지난번 ${md(kDate(lk)).split(' ')[0]} 기록 그대로 추천 · ` : ''}기본 ${SETS0} · 그 자리에서 고침</small></h3>`
-    + `<div class="rbar" style="margin:2px 0 4px">${SPLIT.map(s => `<button class="chip ${s === sp ? 'on' : ''}" data-tp="${s}">${s.replace(/날$/, '')}${s === si.nx ? ' 다음' : ''}</button>`).join('')}</div>`
+    + `<div class="rbar" style="margin:2px 0 4px">${SPLIT.map(s => { const col = pcOf({'가슴날': '가슴', '등날': '윗등', '하체날': '하체', '어깨+복부날': '어깨'}[s] || '기타'); return `<button class="chip ${s === sp ? 'on' : ''}" style="border:1px solid ${col};${s === sp ? `background:${col};color:#111` : `background:transparent;color:${col}`}" data-tp="${s}">${s.replace(/날$/, '')}${s === si.nx ? ' 다음' : ''}</button>`; }).join('')}</div>`
     + `<div class="rbar" style="margin:2px 0 4px"><button class="chip" data-mk="${sp}">📋 이 틀로 오늘 카드 만들기</button><button class="chip" data-mk2="${sp}">내일로</button></div>`
     + lines('tpl|' + sp, T[sp] || [], '종목 × 세트 × 횟수', (() => { const H = wHist(); return (T[sp] || []).map(t => trendMark(H, t)); })()) + `<div class="hint" style="text-align:left;margin:4px 0 0">▲ 지난번보다 무게 올림 · ▼ 낮음</div></div>`;
 }
