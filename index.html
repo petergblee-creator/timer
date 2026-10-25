@@ -306,24 +306,31 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 .mon div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:10.5px;color:#aaa;gap:2px}
 .mon i{display:block;width:70%;background:#F5C400;border-radius:4px 4px 0 0;min-height:2px}.mon div.cur i{background:#FF4D2E}
 .mon b{color:#fff;font-size:11px;font-variant-numeric:tabular-nums}
-/* 섹션별 배경색 (알록달록) */
-.box2.nx{background:linear-gradient(135deg,#0d1a2e,#101826);border-color:#24406b}.box2.nx h3{color:#7FB2FF}
-.box2.tp{background:linear-gradient(135deg,#0d2216,#0f1a14);border-color:#1f5a35}.box2.tp h3{color:#5EE08F}
-.box2.vo{background:linear-gradient(135deg,#2a1a08,#1a130b);border-color:#6b4512}.box2.vo h3{color:#FFB547}
-.box2.wh2{background:linear-gradient(135deg,#1f1230,#161020);border-color:#4d2d78}.box2.wh2 h3{color:#C49BFF}
-.pt{background:linear-gradient(135deg,#0b2224,#0d1718);border-radius:10px;overflow:hidden}
-.pt th{background:rgba(32,196,190,.12)}.pt td.o{background:rgba(32,196,190,.18);color:#4FE3DC}
-.code{background:linear-gradient(135deg,#1d1a08,#151309);border-color:#5a4c12;color:#f3e7b0}
-.addp{background:linear-gradient(135deg,#1a0f22,#120d17);border-color:#4a2a63}
+/* 섹션별 배경색 (알록달록) · 진하기 --ci : 은은 .5 · 보통 1 · 진하게 1.9 */
+:root{--ci:1}html.ci1{--ci:.5}html.ci3{--ci:1.9}
+.box2.nx{background:linear-gradient(135deg,rgba(70,140,255,calc(var(--ci) * 0.22)),rgba(70,140,255,calc(var(--ci) * 0.07))),#111;border-color:rgba(70,140,255,calc(var(--ci)*.45))}.box2.nx h3{color:#7FB2FF}
+.box2.tp{background:linear-gradient(135deg,rgba(60,220,130,calc(var(--ci) * 0.22)),rgba(60,220,130,calc(var(--ci) * 0.07))),#111;border-color:rgba(60,220,130,calc(var(--ci)*.4))}.box2.tp h3{color:#5EE08F}
+.box2.vo{background:linear-gradient(135deg,rgba(255,160,40,calc(var(--ci) * 0.22)),rgba(255,160,40,calc(var(--ci) * 0.07))),#111;border-color:rgba(255,160,40,calc(var(--ci)*.4))}.box2.vo h3{color:#FFB547}
+.box2.wh2{background:linear-gradient(135deg,rgba(170,110,255,calc(var(--ci) * 0.22)),rgba(170,110,255,calc(var(--ci) * 0.07))),#111;border-color:rgba(170,110,255,calc(var(--ci)*.4))}.box2.wh2 h3{color:#C49BFF}
+.pt{background:linear-gradient(135deg,rgba(32,196,190,calc(var(--ci) * 0.16)),rgba(32,196,190,calc(var(--ci) * 0.05))),#111;border-radius:10px;overflow:hidden}
+.pt th{background:rgba(32,196,190,calc(var(--ci)*.12))}
+.code{background:linear-gradient(135deg,rgba(245,196,0,calc(var(--ci) * 0.16)),rgba(245,196,0,calc(var(--ci) * 0.05))),#111;border-color:rgba(245,196,0,calc(var(--ci)*.35));color:#f3e7b0}
+.addp{background:linear-gradient(135deg,rgba(180,120,255,calc(var(--ci) * 0.16)),rgba(180,120,255,calc(var(--ci) * 0.05))),#111;border-color:rgba(180,120,255,calc(var(--ci)*.35))}
 .tl{border-radius:10px;padding:6px 8px 6px 18px;margin:6px 0;background:#121212}
-.tl.c-근력{background:linear-gradient(135deg,#2a130c,#161010)}.tl.c-근력::after{background:#FF7A45}
-.tl.c-유산소{background:linear-gradient(135deg,#0b1d2c,#0f1418)}.tl.c-유산소::after{background:#4FB3FF}
-.tl.c-식단{background:linear-gradient(135deg,#0e2414,#0f1611)}.tl.c-식단::after{background:#4ADE80}
-.tl.c-준비{background:linear-gradient(135deg,#1d1330,#13101b)}.tl.c-준비::after{background:#B48CFF}
-.tl.c-메모{background:linear-gradient(135deg,#232323,#161616)}.tl.c-메모::after{background:#bbb}
-.tl.c-타이머{background:linear-gradient(135deg,#2a2208,#17140b)}
+.tl.c-근력{background:linear-gradient(135deg,rgba(255,110,60,calc(var(--ci) * 0.2)),rgba(255,110,60,calc(var(--ci) * 0.05))),#111}.tl.c-근력::after{background:#FF7A45}
+.tl.c-유산소{background:linear-gradient(135deg,rgba(70,170,255,calc(var(--ci) * 0.2)),rgba(70,170,255,calc(var(--ci) * 0.05))),#111}.tl.c-유산소::after{background:#4FB3FF}
+.tl.c-식단{background:linear-gradient(135deg,rgba(70,220,120,calc(var(--ci) * 0.2)),rgba(70,220,120,calc(var(--ci) * 0.05))),#111}.tl.c-식단::after{background:#4ADE80}
+.tl.c-준비{background:linear-gradient(135deg,rgba(170,120,255,calc(var(--ci) * 0.2)),rgba(170,120,255,calc(var(--ci) * 0.05))),#111}.tl.c-준비::after{background:#B48CFF}
+.tl.c-메모{background:linear-gradient(135deg,rgba(200,200,200,calc(var(--ci) * 0.12)),rgba(200,200,200,calc(var(--ci) * 0.04))),#111}.tl.c-메모::after{background:#bbb}
+.tl.c-타이머{background:linear-gradient(135deg,rgba(245,196,0,calc(var(--ci) * 0.18)),rgba(245,196,0,calc(var(--ci) * 0.05))),#111}
+.tbx{flex:0 0 auto!important;padding:8px 10px!important;font-size:13px!important}
+.dsum{font-size:11.5px;color:#ccc;margin:2px 0 4px;display:flex;gap:8px;flex-wrap:wrap}.dsum b{color:#4ADE80}
+.wh .gk{cursor:pointer;text-decoration:underline dotted #777}
+/* 낮 모드: 화면 전체를 밝게 뒤집고 사진·영상만 다시 원래대로 */
+html.light{filter:invert(1) hue-rotate(180deg);background:#000}
+html.light img,html.light video,html.light canvas,html.light .th:not(.add),html.light .ei:not(.ea),html.light #bgimg{filter:invert(1) hue-rotate(180deg)}
 .tl::before{left:8px}.tl::after{left:4px;top:11px}
-.sets{background:rgba(255,122,69,.08);border-radius:8px;padding:4px 6px}
+.sets{background:rgba(255,122,69,calc(var(--ci)*.08));border-radius:8px;padding:4px 6px}
 .wh.hit{animation:whf .5s 5 alternate;border-radius:6px}@keyframes whf{to{background:#4d2d78}}
 .vol .ex span{cursor:pointer;text-decoration:underline dotted #666}
 .dn2{font-size:10px;font-weight:800;color:#062;background:#22C55E;border-radius:99px;padding:1px 7px}
@@ -367,7 +374,7 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 <div id="setup" class="on">
  <button class="fsb" data-fs>⛶</button>
  <div class="wrap">
-  <div class="tabs"><button data-tab="T">타이머</button><button data-tab="R">기록</button><button data-tab="P">부위</button></div>
+  <div class="tabs"><button data-tab="T">타이머</button><button data-tab="R">기록</button><button data-tab="P">부위</button><button class="tbx" id="ciB">색</button><button class="tbx" id="thB">☀</button></div>
   <div id="tabR" hidden></div>
   <div id="tabP" hidden></div>
   <div id="tabT">
@@ -1057,7 +1064,8 @@ function paintRec() {
   if (!RV.q) {
     h += `<div class="lnav"><button class="nb" data-rn="-1">‹</button><div class="ld">${md(kDate(RV.k))}${RV.k === today ? '<span class="today">오늘</span>' : ''}<small>${shown.length}건</small></div><button class="nb" data-rn="1">›</button></div>`;
     const st = sumText(RV.k, cards); const allGear = [...new Set(cards.flatMap(c => c.gear || []))], got = allGear.filter(g => cards.some(c => (ok[c.id] || {})[g]));
-    if (cards.length || st) h += `<div class="code" contenteditable="true" data-sum="${RV.k}" data-ph="종목 한 줄씩">${esc(st)}</div>` + (allGear.length ? `<div class="hint" style="text-align:left;margin:0">준비물 ${got.length}/${allGear.length} 챙김</div>` : '');
+    const SS = cards.filter(c => !c.auto).map(c => setsOf(c)).filter(Boolean), sAll = SS.reduce((a, S) => a + S.length, 0), sDone = SS.reduce((a, S) => a + S.filter(x => x.d).length, 0), cDone = SS.filter(S => S.length && S.every(x => x.d)).length;
+    if (cards.length || st) h += `<div class="code" contenteditable="true" data-sum="${RV.k}" data-ph="종목 한 줄씩">${esc(st)}</div>` + (sAll ? `<div class="dsum">${RV.k === today ? '오늘' : '이 날'} 완료 세트 <b>${sDone}/${sAll}</b> · 끝낸 종목 <b>${cDone}/${SS.length}</b>${sDone ? ` · 볼륨 <b>${Math.round(cards.filter(c => !c.auto && !/어시스트|보조/.test(c.ti + (c.cap || ''))).reduce((a, c) => a + (setsOf(c) || []).filter(x => x.d).reduce((b, x) => b + (x.w || 0) * (x.r || 0), 0), 0)).toLocaleString()}kg</b>` : ''}</div>` : '') + (allGear.length ? `<div class="hint" style="text-align:left;margin:0">준비물 ${got.length}/${allGear.length} 챙김</div>` : '');
   } else h += `<p class="sum">「${esc(RV.q)}」 ${shown.length}건</p>`;
   let last = 0;
   h += `<div id="recList">` + (shown.length ? shown.map(c => {
@@ -1407,6 +1415,7 @@ function paintParts() {
   box.querySelectorAll('[data-dadd]').forEach(b => b.onclick = () => { const k = b.dataset.dadd, L = dayInfo(k).items.concat(''); setDay(k, {items: L}); paintParts(); const n = box.querySelector(`[data-di="${k}|${L.length - 1}"]`); if (n) n.focus(); });
   box.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { RV.k = +b.dataset.open; setTab('R'); });
   bindLines(box, paintParts);
+  box.querySelectorAll('[data-gk]').forEach(b => b.onclick = () => { RV.k = +b.dataset.gk; setTab('R'); });
   box.querySelectorAll('[data-wgo]').forEach(b => b.onclick = e => { e.stopPropagation(); const h = histFor(wHist(), b.dataset.wgo), el = h && box.querySelector(`[data-whk="${CSS.escape(nz(h.n))}"]`);
     if (!el) return toast('무게 기록이 없는 종목이에요'); el.scrollIntoView({block: 'center', behavior: 'smooth'}); el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); });
   box.querySelectorAll('[data-vp]').forEach(b => b.onclick = () => { PW.vp = PW.vp === b.dataset.vp ? '' : b.dataset.vp; paintParts(); });
@@ -1415,6 +1424,7 @@ function paintParts() {
   if (!PW.q) swipeOn($('#pList'), d => { const x = kDate(PW.k); x.setDate(x.getDate() + 7 * d); const k = dkey(x); if (k > today) return toast('이번 주가 마지막이에요'); PW.k = k; paintParts(); });
 }
 /* 부위 × 요일 ○표 (운동 기록판과 같은 모양) */
+const PCOL = {'가슴': '#FF7A45', '윗등': '#4FB3FF', '아랫등': '#2F7FE0', '등': '#4FB3FF', '하체': '#4ADE80', '어깨': '#B48CFF', '이두': '#FFD23F', '삼두': '#F59E0B', '복근': '#F472B6', '목': '#22D3EE', '유산소': '#93C5FD', '기타': '#aaaaaa'};
 const PROWS = ['가슴', '윗등', '아랫등', '하체', '어깨', '이두', '삼두', '복근', '목', '유산소', '기타'];
 function partsOf(k) {
   const d = dayInfo(k), set = new Set(), toks = d.parts.split(/[·+,\/]/).map(x => x.trim()).filter(Boolean);
@@ -1435,7 +1445,7 @@ function weekAvg(p, today) { /* 최근 4주 평균 · 주 몇 회 */ const t0 = 
 function partTable(days, today) {
   const P = days.map(partsOf);
   return `<table class="pt"><tr><th>부위</th>${days.map(k => `<th class="${k === today ? 'td' : ''}">${DOW[kDate(k).getDay()]}<small>${k === today ? '오늘' : md(kDate(k)).split(' ')[0]}</small></th>`).join('')}</tr>`
-    + PROWS.filter(p => p !== '기타' || P.some(s => s.has('기타'))).map(p => `<tr><td><b>${p}</b><small>${lastOfP(p, today)}${(n => n ? ` · 이번 주 ${n}회` : '')(P.filter(s => s.has(p)).length)}${p === '목' ? ` · ${weekAvg('목', today)}` : ''}</small></td>${days.map((k, i) => P[i].has(p) ? `<td class="o" data-go="${k}" title="${esc(dayInfo(k).items.join(' / '))}">○</td>` : '<td></td>').join('')}</tr>`).join('') + `</table>`;
+    + PROWS.filter(p => p !== '기타' || P.some(s => s.has('기타'))).map(p => `<tr><td><b style="color:${PCOL[p] || '#fff'}">${p}</b><small>${lastOfP(p, today)}${(n => n ? ` · 이번 주 ${n}회` : '')(P.filter(s => s.has(p)).length)}${p === '목' ? ` · ${weekAvg('목', today)}` : ''}</small></td>${days.map((k, i) =>  P[i].has(p) ? `<td class="o" style="color:${PCOL[p] || '#4FE3DC'};background:${(PCOL[p] || '#4FE3DC')}${'2e'}" data-go="${k}" title="${esc(dayInfo(k).items.join(' / '))}">○</td>` : '<td></td>').join('')}</tr>`).join('') + `</table>`;
 }
 /* 4분할 다음 차례: 부위 기록으로 판단 (가슴 → 등 → 하체 → 어깨+복부) */
 const SPLIT_P = {'가슴날': ['가슴'], '등날': ['윗등', '아랫등'], '하체날': ['하체'], '어깨+복부날': ['어깨']};
@@ -1505,13 +1515,13 @@ function volBox(days) {
   if (!ks.length) return `<div class="box2 vo">${head}<div class="hint" style="text-align:left;margin:0">이 주는 아직 세트 기록이 없어요</div>${mon}</div>`;
   const mx = Math.max(...ks.map(k => V[k]));
   return `<div class="box2 vo">${head}<div class="vol">${ks.map(p => { const d = P[p] ? V[p] - P[p] : 0, open = PW.vp === p;
-    return `<b data-vp="${p}">${open ? '▾' : '▸'} ${p}</b><div class="bar" data-vp="${p}" style="width:${Math.max(2, V[p] / mx * 100)}%"></div><span class="n">${f(V[p])}kg${P[p] ? `<small class="${d >= 0 ? 'up' : 'dn'}">${d >= 0 ? '▲' : '▼'}${f(Math.abs(d))}</small>` : ''}</span>`
+    return `<b data-vp="${p}" style="color:${PCOL[p] || '#fff'}">${open ? '▾' : '▸'} ${p}</b><div class="bar" data-vp="${p}" style="background:${PCOL[p] || '#F5C400'};width:${Math.max(2, V[p] / mx * 100)}%"></div><span class="n">${f(V[p])}kg${P[p] ? `<small class="${d >= 0 ? 'up' : 'dn'}">${d >= 0 ? '▲' : '▼'}${f(Math.abs(d))}</small>` : ''}</span>`
       + (open ? `<div class="ex">${Object.entries(E[p]).sort((a, b) => b[1] - a[1]).map(([n, v]) => `<span data-wgo="${esc(n.replace(/ \(추정\)$/, ''))}">${esc(n)} <b>${f(v)}kg</b></span>`).join('')}</div>` : ''); }).join('')}</div><div class="hint" style="text-align:left;margin:4px 0 0">합계 ${f(ks.reduce((a, k) => a + V[k], 0))}kg</div>${mon}</div>`;
 }
 function histBox() {
   const H = Object.values(wHist()).filter(h => h.L.length).sort((a, b) => b.L[b.L.length - 1].k - a.L[a.L.length - 1].k);
   if (!H.length) return '';
-  const row = h => `<div class="wh" data-whk="${esc(nz(h.n))}"><b>${esc(h.n)}</b>${h.L.map((x, i) => { const p = h.L[i - 1], c = p ? (x.w > p.w ? 'u' : x.w < p.w ? 'd' : '') : ''; return `${i ? ' → ' : ''}${md(kDate(x.k)).split(' ')[0]} <span class="${c}">${x.w}${c === 'u' ? '▲' : c === 'd' ? '▼' : ''}</span>`; }).join('')}</div>`;
+  const row = h => `<div class="wh" data-whk="${esc(nz(h.n))}"><b>${esc(h.n)}</b>${h.L.map((x, i) => { const p = h.L[i - 1], c = p ? (x.w > p.w ? 'u' : x.w < p.w ? 'd' : '') : ''; return `${i ? ' → ' : ''}<span class="gk" data-gk="${x.k}">${md(kDate(x.k)).split(' ')[0]}</span> <span class="${c}">${x.w}${c === 'u' ? '▲' : c === 'd' ? '▼' : ''}</span>`; }).join('')}</div>`;
   return `<div class="box2 wh2" id="whBox"><h3>종목별 무게 변화<small>날짜순 · kg · 최근 종목 먼저</small></h3>${H.map(row).join('')}</div>`;
 }
 function tplBox() {
@@ -1698,6 +1708,13 @@ function setTab(t) {
   if (t === 'R') paintRec(); if (t === 'P') paintParts();
 }
 document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+/* 색 진하기 3단계 · 낮 모드 (마지막 고른 값 기억) */
+const CI = ['은은', '보통', '진하게'];
+function applyLook() { const h = document.documentElement, ci = ls.get('wt.ci', 1), lt = ls.get('wt.light', false); h.classList.remove('ci1', 'ci3'); if (ci === 0) h.classList.add('ci1'); if (ci === 2) h.classList.add('ci3'); h.classList.toggle('light', !!lt);
+  $('#ciB').textContent = '색 ' + CI[ci]; $('#thB').textContent = lt ? '🌙' : '☀'; $('#thB').title = lt ? '밤 모드로' : '낮 모드로'; }
+$('#ciB').onclick = () => { ls.set('wt.ci', (ls.get('wt.ci', 1) + 1) % 3); applyLook(); toast('색 ' + CI[ls.get('wt.ci', 1)]); };
+$('#thB').onclick = () => { ls.set('wt.light', !ls.get('wt.light', false)); applyLook(); };
+applyLook();
 
 /* ================= 타이머 ================= */
 const S ={steps: null, i: 0, endAt: 0, left: 0, paused: false, t0: 0, raf: 0, lastSec: -1, said: {}};
