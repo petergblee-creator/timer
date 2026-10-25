@@ -297,6 +297,10 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 .wst{display:flex;gap:5px;align-items:center;margin-top:4px;flex-wrap:wrap}
 .wst button{font-size:12px;padding:6px 12px;border-radius:9px;background:#1d1d1d;border:1px solid #333;color:#fff;font-weight:700}
 .wst b{font-size:15px;min-width:60px;text-align:center;color:#F5C400}
+.sc .k{font-weight:900;color:#666;margin-right:2px;cursor:pointer}.sc.dn{border-color:#22C55E;background:#0f2416}.sc.dn .k{color:#22C55E}
+.dn2{font-size:10px;font-weight:800;color:#062;background:#22C55E;border-radius:99px;padding:1px 7px}
+.vol{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;font-size:12px;align-items:center}
+.vol .bar{height:8px;border-radius:4px;background:#F5C400;min-width:2px}.vol .n{text-align:right;font-variant-numeric:tabular-nums;color:#ddd}.vol .n small{color:#888;font-size:10px;margin-left:3px}
 .up{color:#22C55E;font-size:10px;flex:none;align-self:center}.dn{color:#E5484D;font-size:10px;flex:none;align-self:center}
 .wh{font-size:11.5px;line-height:1.55;padding:2px 0;border-bottom:1px solid #1c1c1c}.wh b{color:#fff;margin-right:4px}.wh .u{color:#22C55E}.wh .d{color:#E5484D}
 #led.idle .lt,#led.idle .lrow,#led.idle #ledRs,#led.idle #ledSave{visibility:hidden}
@@ -961,7 +965,7 @@ function fmtSets(S) {
 function setsHTML(c) {
   const S = setsOf(c); if (!S) return '';
   const sel = RV.wSel && RV.wSel.startsWith(c.id + '|') ? +RV.wSel.split('|')[1] : -1;
-  return `<div class="sets"><span class="gl">세트</span>${S.map((x, i) => `<span class="sc ${sel === i ? 'on' : ''}"><b data-sw="${c.id}|${i}">${x.w != null ? x.w : '–'}</b><i>kg</i><b class="r" data-sr="${c.id}|${i}">${x.r}</b><i>회</i></span>`).join('')}<button class="gc add" data-sa="${c.id}">＋세트</button>${S.length ? `<button class="gc" data-sd="${c.id}">−세트</button>` : ''}</div>`
+  return `<div class="sets"><span class="gl">세트</span>${S.map((x, i) => `<span class="sc ${sel === i ? 'on' : ''} ${x.d ? 'dn' : ''}"><b class="k" data-sk="${c.id}|${i}">${x.d ? '✓' : '○'}</b><b data-sw="${c.id}|${i}">${x.w != null ? x.w : '–'}</b><i>kg</i><b class="r" data-sr="${c.id}|${i}">${x.r}</b><i>회</i></span>`).join('')}<button class="gc add" data-sa="${c.id}">＋세트</button>${S.length ? `<button class="gc" data-sd="${c.id}">−세트</button>` : ''}</div>`
     + (sel >= 0 ? `<div class="wst"><button data-wd="${c.id}|-2.5">−2.5</button><b>${S[sel].w != null ? S[sel].w : 0}kg</b><button data-wd="${c.id}|2.5">+2.5</button><button data-wall="${c.id}">모든 세트 이 무게</button><button data-wx>닫기</button></div>` : '');
 }
 function bindSets(box, find) {
@@ -976,6 +980,7 @@ function bindSets(box, find) {
       () => { if (b.isContentEditable) return; RV.wSel = RV.wSel === b.dataset.sw ? '' : b.dataset.sw; paintRec(); }); });
   box.querySelectorAll('[data-wd]').forEach(b => b.onclick = () => { const [id, d] = b.dataset.wd.split('|'), i = +RV.wSel.split('|')[1], S = get(id); S[i].w = Math.max(0, Math.round(((S[i].w || 0) + +d) * 10) / 10); vib(10); put(id, S); });
   box.querySelectorAll('[data-wall]').forEach(b => b.onclick = () => { const id = b.dataset.wall, i = +RV.wSel.split('|')[1], S = get(id); S.forEach(x => x.w = S[i].w); put(id, S); toast('모든 세트 같은 무게'); });
+  box.querySelectorAll('[data-sk]').forEach(b => b.onclick = () => { const [id, i] = b.dataset.sk.split('|'), S = get(id); S[+i].d = !S[+i].d; vib(S[+i].d ? 25 : 10); if (S.every(x => x.d)) toast('세트 다 했어요 ✓ 완료'); put(id, S); });
   box.querySelectorAll('[data-wx]').forEach(b => b.onclick = () => { RV.wSel = ''; paintRec(); });
   box.querySelectorAll('[data-sa]').forEach(b => b.onclick = () => { const id = b.dataset.sa, S = get(id); S.push(Object.assign({w: null, r: 12}, S[S.length - 1])); put(id, S); });
   box.querySelectorAll('[data-sd]').forEach(b => b.onclick = () => { const id = b.dataset.sd, S = get(id); S.pop(); RV.wSel = ''; put(id, S); });
@@ -1034,7 +1039,7 @@ function paintRec() {
       + (c.ph || []).map((p, i) => thHTML(c, p, i)).join('')
       + (c.auto ? '' : `<span class="th add" data-padd="${c.id}"><i>＋</i>사진</span>`);
     const delB = `<span class="cbt">${RV.q ? '' : `<button data-mv="${c.id}|-1" aria-label="위로">↑</button><button data-mv="${c.id}|1" aria-label="아래로">↓</button>`}${c.auto ? '' : `<button data-ed="${c.id}">✎ 수정</button>`}<button class="del ${RV.delArm === c.id ? 'arm' : ''}" data-del="${c.id}">${RV.delArm === c.id ? '정말 삭제' : '🗑'}</button></span>`;
-    return head + `<div class="tl" data-cid="${c.id}"><div class="hd2"><span class="tm ${c.t && !c.tq ? '' : 'q'}" data-tm="${c.id}" data-raw="${esc(c.t || '')}">${c.t ? cute(c.t) + (c.tq ? '쯤' : '') : '시각 ✎'}</span><span class="ti" ${ce} data-e="${c.id}|ti" data-ph="제목">${esc(c.ti)}</span><span class="ct" data-cc="${c.id}">${c.cat}</span>${delB}</div>`
+    return head + `<div class="tl" data-cid="${c.id}"><div class="hd2"><span class="tm ${c.t && !c.tq ? '' : 'q'}" data-tm="${c.id}" data-raw="${esc(c.t || '')}">${c.t ? cute(c.t) + (c.tq ? '쯤' : '') : '시각 ✎'}</span><span class="ti" ${ce} data-e="${c.id}|ti" data-ph="제목">${esc(c.ti)}</span><span class="ct" data-cc="${c.id}">${c.cat}</span>${(S => S && S.length && S.every(x => x.d) ? '<span class="dn2">✓ 완료</span>' : '')(c.auto ? null : setsOf(c))}${delB}</div>`
       + (media ? `<div class="ph2">${media}</div>` : '')
       + (RV.cAdd === c.id ? `<div class="cadd"><button data-ca="gal">🖼 갤러리·영상</button><button data-ca="cam">📷 찍기</button><button data-ca="clip">📋 붙여넣기</button><button data-ca="x">닫기</button><div class="pz2" tabindex="0" id="pz2">PC: 여기를 누르고 Ctrl+V (여러 장 가능)</div></div>` : '')
       + `<div class="cp" ${ce} data-e="${c.id}|cap" data-ph="설명 쓰기">${esc(c.cap || '')}</div>` + (c.auto ? '' : setsHTML(c))
@@ -1247,10 +1252,11 @@ async function pinTap(fx, fy) {
   const im = $('#pvBox img'), c = PV.c; if (!im) return; $('#pvHint').textContent = '숫자 읽는 중… (처음 한 번은 10초쯤)';
   let nums = []; try { nums = await readPin(im, fx, fy); } catch (e) { $('#pvHint').textContent = '읽기 도구를 못 불러왔어요 · 인터넷 확인 후 다시'; return; }
   if (!nums.length) { $('#pvHint').textContent = '숫자를 못 읽었어요 · 숫자 줄 가운데를 다시 누르거나, 기록의 무게 숫자를 직접 고쳐요'; return; }
-  const n = nums[0], S = (setsOf(c) || [...Array(4)].map(() => ({r: 12}))).map(x => Object.assign({}, x, {w: n}));
-  editCard(c.id, {sets: S, cap: ((c.cap || '').trim() + `\n핀 ${n}kg (사진 자동 읽기${nums.length > 1 ? ` · 후보 ${nums.slice(1, 3).join('·')}` : ''})`).trim()});
-  toast(`핀 ${n}kg → 세트 무게로 넣음`); PV.mode = ''; pvRefresh();
+  $('#pvTools').innerHTML = nums.slice(0, 3).map((n, i) => `<button data-pt="pn:${n}" class="${i ? '' : 'on'}"><span>${n}</span>kg${i ? '' : ' (유력)'}</button>`).join('') + `<button data-pt="cancel"><span>✕</span>취소</button>`;
+  $('#pvHint').textContent = '맞는 숫자를 누르면 세트 무게로 들어가요 · 없으면 다른 자리를 다시 누르기';
 }
+function applyPin(n) { const c = PV.c, S = (setsOf(c) || [...Array(4)].map(() => ({r: 12}))).map(x => Object.assign({}, x, {w: n}));
+  editCard(c.id, {sets: S, cap: ((c.cap || '').trim() + `\n핀 ${n}kg (사진 읽기)`).trim()}); toast(`핀 ${n}kg → 세트 무게로 넣음`); PV.mode = ''; pvRefresh(); }
 (() => { const box = $('#pvBox'); box.addEventListener('pointerdown', e => { if (PV.mode !== 'pin') return; const im = $('#pvBox img'); if (!im) return; e.preventDefault(); e.stopPropagation(); const r = im.getBoundingClientRect(); pinTap((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height); }, true); })();
 function drawSel() { const el = $('#pvSel'), im = $('#pvBox img'); if (!el || !im || !PV.sel) return; const [x, y, w, h] = PV.sel; el.style.left = im.offsetLeft + x * im.clientWidth + 'px'; el.style.top = im.offsetTop + y * im.clientHeight + 'px'; el.style.width = w * im.clientWidth + 'px'; el.style.height = h * im.clientHeight + 'px'; }
 (() => { /* 자르기·썸네일: 처음부터 전체 틀이 있고 모서리·가장자리를 끌어 크기, 안쪽을 끌어 이동 / 글씨: 끌어서 위치 */
@@ -1281,6 +1287,7 @@ const toBlob = cv => new Promise(r => cv.toBlob(r, 'image/jpeg', .9));
 async function pvTool(k) {
   const c = PV.c, x = PV.list[PV.i]; if (!x) return;
   if (k === 'x') return closePv();
+  if (k.startsWith('pn:')) return applyPin(+k.slice(3));
   if (k === 'pin') { PV.mode = 'pin'; PV.sel = null; showPv(); $('#pvHint').textContent = '핀이 꽂힌 칸(숫자 줄)을 한 번 누르세요 → 숫자를 읽어 세트 무게로 넣어요'; return; }
   if (k === 'cancel') { PV.mode = ''; PV.sel = null; PV.tx = null; PV.txBase = null; const b = $('#pvTxt'); if (b) b.remove(); $('#pv').classList.remove('kb'); pvVV(); return showPv(); }
   if (k === 'txtDel') { const e = (c.tx || {})[x.key]; if (!e) return; const L = c.ph.slice(); L[x.j] = e.base; const tx = Object.assign({}, c.tx); delete tx[x.key]; editCard(c.id, {ph: L, tx}); PV.tx = null; PV.txBase = null; toast('글씨 뺌'); return pvRefresh(); }
@@ -1354,7 +1361,7 @@ function paintParts() {
     h += `<p class="sum">「${esc(PW.q)}」 ${hits.length}일</p>` + hits.map(x => dayBlock(x.k, today, PW.q)).join('');
   } else {
     h += `<div class="lnav"><button class="nb" data-pn="-1">‹</button><div class="ld">${md(kDate(days[0]))} ~ ${md(kDate(days[6]))}${days.includes(today) ? '<span class="today">이번 주</span>' : ''}<small>일요일 시작</small></div><button class="nb" data-pn="1">›</button></div>`
-      + `<div id="pList"><div class="p2g"><div>${partTable(days, today)}</div><div>${nextBox(today)}${tplBox()}</div></div>${histBox()}`
+      + `<div id="pList"><div class="p2g"><div>${partTable(days, today)}</div><div>${nextBox(today)}${tplBox()}</div></div>${volBox(days)}${histBox()}`
       + days.slice().reverse().filter(k => dayLabel(k) || dayInfo(k).items.length).map(k => dayBlock(k, today)).join('') + `</div>`;
   }
   box.innerHTML = h;
@@ -1372,6 +1379,7 @@ function paintParts() {
   box.querySelectorAll('[data-dadd]').forEach(b => b.onclick = () => { const k = b.dataset.dadd, L = dayInfo(k).items.concat(''); setDay(k, {items: L}); paintParts(); const n = box.querySelector(`[data-di="${k}|${L.length - 1}"]`); if (n) n.focus(); });
   box.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { RV.k = +b.dataset.open; setTab('R'); });
   bindLines(box, paintParts);
+  box.querySelectorAll('[data-mk],[data-mk2]').forEach(b => b.onclick = () => { const sp = b.dataset.mk || b.dataset.mk2, d = new Date(); if (b.dataset.mk2) d.setDate(d.getDate() + 1); const k = dkey(d), n = makeCards(sp, k); if (!n) return toast('이미 그 날에 같은 카드가 있어요'); toast(`${md(kDate(k))}에 카드 ${n}개 · 지난번 무게 그대로`); RV.k = k; setTab('R'); });
   box.querySelectorAll('[data-tp]').forEach(b => b.onclick = () => { PW.tp = PW.tp === b.dataset.tp ? '' : b.dataset.tp; paintParts(); });
   if (!PW.q) swipeOn($('#pList'), d => { const x = kDate(PW.k); x.setDate(x.getDate() + 7 * d); const k = dkey(x); if (k > today) return toast('이번 주가 마지막이에요'); PW.k = k; paintParts(); });
 }
@@ -1435,6 +1443,25 @@ function tplGet() { /* 내가 고친 틀이 그 뒤 운동보다 새것이면 �
       const CR = /계단|달리기|러닝|트레드/; if (!o[sp].some(t => CR.test(t))) o[sp] = o[sp].concat((TPL0[sp] || []).filter(t => CR.test(t))); /* 유산소 줄이 빠졌으면 기본 틀 것을 붙임 */ } else o[sp] = TPL0[sp]; });
   return o;
 }
+/* 틀 → 그 날 카드: 지난번 같은 종목 카드의 세트(무게·횟수)를 그대로 복사, 완료 표시는 지움 */
+function makeCards(sp, k) {
+  const L = (tplGet()[sp] || []).filter(t => t.trim()), lk = lastSplitDay(sp), prev = lk ? dayCards(lk) : [], have = dayCards(k).map(c => nz(exName(c.ti))), mine = recMine(); let n = 0, o = Math.max(600, ...dayCards(k).map(ordOf).filter(x => x < 9000));
+  L.forEach(t => { const nm = t.split(/ · | — /)[0].trim(), key = nz(exName(nm)); if (have.includes(key)) return; o += 10;
+    const cr = /계단|달리기|러닝|트레드|유산소/.test(t), pc = prev.find(c => nz(exName(c.ti)) === key) || prev.find(c => { const a = nz(exName(c.ti)); return a.length > 2 && (a.includes(key) || key.includes(a)) && Math.abs(a.length - key.length) < 6; }), ps = pc ? setsOf(pc) : null;
+    let S = null; if (!cr && !/푸크크크|스트레칭/.test(t)) { if (ps && ps.length) S = ps.map(x => ({w: x.w, r: x.r})); else { const w = kgs(t), ns = +((/(\d+)\s*세트/.exec(t) || [])[1] || 4), r = +((/(\d+)\s*회/.exec(t) || [])[1] || 12); S = [...Array(Math.min(ns, 12))].map(() => ({w: w.length ? w[w.length - 1] : null, r})); } }
+    mine.push(Object.assign({id: 'u' + Date.now() + n + Math.floor(Math.random() * 1000), k, t: '', cat: cr ? '유산소' : '근력', ti: nm, cap: t.slice(nm.length).replace(/^\s*[·—]\s*/, ''), ph: [], gear: pc ? (pc.gear || []).slice() : [], o, plan: 1}, S ? {sets: S} : {})); n++; });
+  if (n) ls.set('wt.rec', mine); return n;
+}
+/* 이번 주 부위별 볼륨 = 무게 × 횟수 합 (보조 기구는 제외) */
+const PART_RX = [['가슴', /가슴|체스트|벤치|플라이|펙|딥스/], ['등', /랫|풀다운|로우|턱걸이|등|데드|백익스텐션|풀업/], ['하체', /레그|스쿼트|런지|하체|힙|어브덕션|모으기|벌리기|다리/], ['어깨', /어깨|레이즈|밀리터리|숄더|사레|델트/], ['이두', /컬|이두/], ['삼두', /삼두|푸시다운|트라이셉|오버헤드/], ['목', /^목|넥/]];
+function partOfEx(t, k) { const n = String(t || ''); for (const [p, rx] of PART_RX) if (rx.test(n)) return p; const ps = [...partsOf(k)].filter(x => !/유산소|복근|기타/.test(x)); return ps[0] ? ps[0].replace(/윗등|아랫등/, '등') : '기타'; }
+function weekVol(days) { const V = {}; days.forEach(k => dayCards(k).forEach(c => { if (c.auto || /어시스트|보조/.test((c.ti || '') + (c.cap || ''))) return; const S = setsOf(c); if (!S) return; const v = S.reduce((a, x) => a + (x.w || 0) * (x.r || 0), 0); if (!v) return; const p = partOfEx(c.ti, k); V[p] = (V[p] || 0) + v; })); return V; }
+function volBox(days) {
+  const V = weekVol(days), pd = days.map(k => { const d = kDate(k); d.setDate(d.getDate() - 7); return dkey(d); }), P = weekVol(pd), ks = Object.keys(V).sort((a, b) => V[b] - V[a]);
+  if (!ks.length) return `<div class="box2"><h3>이번 주 볼륨<small>무게 × 횟수 합 · 세트 칸이 있는 근력 카드만</small></h3><div class="hint" style="text-align:left;margin:0">이 주는 아직 세트 기록이 없어요</div></div>`;
+  const mx = Math.max(...ks.map(k => V[k])), f = n => Math.round(n).toLocaleString();
+  return `<div class="box2"><h3>이번 주 볼륨<small>무게 × 횟수 합 · 지난주 대비 · 보조 기구 제외</small></h3><div class="vol">${ks.map(p => { const d = P[p] ? V[p] - P[p] : 0; return `<b>${p}</b><div class="bar" style="width:${Math.max(2, V[p] / mx * 100)}%"></div><span class="n">${f(V[p])}kg${P[p] ? `<small class="${d >= 0 ? 'up' : 'dn'}">${d >= 0 ? '▲' : '▼'}${f(Math.abs(d))}</small>` : ''}</span>`; }).join('')}</div><div class="hint" style="text-align:left;margin:4px 0 0">합계 ${f(ks.reduce((a, k) => a + V[k], 0))}kg</div></div>`;
+}
 function histBox() {
   const H = Object.values(wHist()).filter(h => h.L.length).sort((a, b) => b.L[b.L.length - 1].k - a.L[a.L.length - 1].k);
   if (!H.length) return '';
@@ -1446,6 +1473,7 @@ function tplBox() {
   const lk = lastSplitDay(sp);
   return `<div class="box2"><h3>다음 틀 · ${sp.replace(/날$/, '')}<small>${lk && dayLines(lk).some(x => !/미기록/.test(x)) ? `지난번 ${md(kDate(lk)).split(' ')[0]} 기록 그대로 추천 · ` : ''}기본 ${SETS0} · 그 자리에서 고침</small></h3>`
     + `<div class="rbar" style="margin:2px 0 4px">${SPLIT.map(s => `<button class="chip ${s === sp ? 'on' : ''}" data-tp="${s}">${s.replace(/날$/, '')}${s === si.nx ? ' 다음' : ''}</button>`).join('')}</div>`
+    + `<div class="rbar" style="margin:2px 0 4px"><button class="chip" data-mk="${sp}">📋 이 틀로 오늘 카드 만들기</button><button class="chip" data-mk2="${sp}">내일로</button></div>`
     + lines('tpl|' + sp, T[sp] || [], '종목 × 세트 × 횟수', (() => { const H = wHist(); return (T[sp] || []).map(t => trendMark(H, t)); })()) + `<div class="hint" style="text-align:left;margin:4px 0 0">▲ 지난번보다 무게 올림 · ▼ 낮음</div></div>`;
 }
 /* 한 줄씩 편집되는 목록: 누르면 바로 고침 · Enter = 아래 줄 추가 · 비우거나 ✕ = 삭제 · ＋ = 추가 */
