@@ -49,12 +49,16 @@ a{color:#F5C400}
 .ctrl button:active{background:rgba(0,0,0,.5)}
 .tb{position:relative;z-index:4;padding:max(4vmin,env(safe-area-inset-top)) 4vmin 0;display:flex;justify-content:space-between;gap:2vmin}
 .tb button{font-size:4.2vmin;font-weight:800;padding:.8vmin 3vmin;border-radius:99px;background:rgba(0,0,0,.35);color:#fff;text-shadow:0 1px 3px #000}
-#left{position:absolute;inset:0;z-index:9;background:rgba(0,0,0,.88);color:#fff;padding:8vmin 6vmin;overflow-y:auto}
-#left h3{font-size:5.5vmin;margin-bottom:3vmin}
-#left .it{display:flex;justify-content:space-between;gap:3vmin;font-size:5vmin;padding:2.2vmin 0;border-bottom:1px solid #333}
+#left{position:absolute;inset:0;z-index:9;background:rgba(0,0,0,.88);color:#fff;padding:24px 20px;overflow-y:auto}
+#left>*{max-width:620px;margin-left:auto;margin-right:auto}
+#left h3{font-size:20px;margin-bottom:10px}
+#left .it{display:flex;justify-content:space-between;gap:12px;font-size:17px;padding:9px 0;border-bottom:1px solid #333}
 #left .it.cur{color:#F5C400;font-weight:900}
 #left .it.ok{opacity:.45;text-decoration:line-through}
-#left p{font-size:4vmin;color:#aaa;margin-top:4vmin;text-align:center}
+#left p{font-size:13px;color:#aaa;margin-top:14px;text-align:center}
+#menuBtn{background:#F5C400!important;color:#111!important;text-shadow:none!important;font-size:5vmin!important;padding:1.2vmin 4.4vmin!important;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+#pos .tg{font-family:system-ui,"Segoe UI",Arial,sans-serif;letter-spacing:.12em;font-size:.75em!important;font-weight:900!important;font-style:italic}
+#pos .tg.dn{background:#22C55E!important;color:#062}#pos .tg.td{background:#F5C400!important;color:#111}#pos .tg.nw{background:#fff!important;color:#c0261a}#pos .tg.lf{background:transparent!important;border:2px solid #fff}
 /* ---------- 설정 화면 ---------- */
 #setup{position:fixed;inset:0;overflow-y:auto;background:#0b0b0b;padding:14px 14px 60px;display:none}
 #setup.on{display:block}
@@ -379,8 +383,19 @@ html.light img,html.light video,html.light canvas,html.light .th:not(.add),html.
 .askbar button{font:700 14px inherit;padding:8px 12px;border-radius:8px;border:1px solid #666;background:#222;color:#eee;cursor:pointer}
 .askbar .ok{background:#c9a227;color:#111;border-color:#c9a227}
 /* 10/26 타이머: 시작 맨 위 · 이어서 하기 항상 떠 있음 · 칩 접기 */
-#resume{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(520px,calc(100% - 28px));z-index:30;margin:0;padding:12px;background:#22C55E;color:#062;font-size:16px;font-weight:900;box-shadow:0 6px 18px rgba(0,0,0,.55)}
-#tabT .go{margin-top:2px}
+#resume{position:fixed;right:max(14px,calc(50% - 266px));bottom:14px;width:min(200px,38vw);z-index:30;margin:0;padding:7px 10px;border-radius:14px;background:#22C55E;color:#062;font-size:15px;font-weight:900;line-height:1.25;box-shadow:0 6px 18px rgba(0,0,0,.55)}
+#resume small{display:block;font-size:11px;font-weight:700}
+#tabT .go{margin:2px 0 0 auto;width:34%;padding:10px;font-size:16px}
+.tabs{position:sticky;top:-14px;z-index:16;margin:-14px 44px 6px 0;padding:14px 0 6px;background:#0b0b0b}
+html.pic .tabs{background:rgba(6,8,12,.85);border-radius:0 0 12px 12px}
+.jmp{position:fixed;right:max(14px,calc(50% - 266px));bottom:70px;z-index:29;display:flex;flex-direction:column;gap:6px}
+.jmp button{width:40px;height:40px;border-radius:50%;background:rgba(40,40,40,.88);font-size:18px;font-weight:900;box-shadow:0 3px 10px rgba(0,0,0,.5)}
+.chip.addc{background:linear-gradient(135deg,#7C3AED,#C026D3);color:#fff;font-weight:800}.chip.addc.on{background:#3b1d6e}
+.pt td.o.lt{font-size:10px;letter-spacing:-.5px;line-height:1.1;padding:2px 0}
+.leg{font-size:11px;color:#aaa;margin:-4px 0 8px;line-height:1.6}.leg b{color:#ddd;margin-right:2px}.leg i{font-style:normal;color:#F5C400;font-weight:800}
+.leg .lg2{display:flex;gap:6px;align-items:baseline;border-bottom:1px solid #1c1c1c;padding:2px 0}.leg .lg2 [contenteditable]{border-bottom:1px dashed #444;min-width:1.5em;outline:0}
+.leg .lg2 .lp{width:3.2em;color:#ddd;font-weight:700}.leg .lg2 .lc{width:2.2em;color:#F5C400;font-weight:800;text-align:center}.leg .lg2 .lk{flex:1}
+.pdo{border:1px solid #F5C400!important}
 #chipFold{border:1px solid #262626;border-radius:10px;padding:6px 10px;margin:8px 0 0}
 #chipFold>summary{font-size:13px;font-weight:800;color:#F5C400}
 .msel{border:1px solid #2a2a2a;border-radius:10px;padding:0;margin:0}
@@ -395,7 +410,7 @@ html.light img,html.light video,html.light canvas,html.light .th:not(.add),html.
 .pt td .ago{color:#fff;font-weight:900;font-size:14px;margin-right:1px}
 .pt th.fu{opacity:.55}.pt td.fu{background:rgba(255,255,255,.025)}
 /* 10/26 기록 탭: 큰 추가 버튼 항상 위 · 목록(바둑판) */
-.raddw{position:sticky;top:-14px;z-index:15;margin:0 -14px 6px;padding:8px 14px 6px;background:linear-gradient(#0b0b0b 75%,rgba(11,11,11,0))}
+
 .radd{display:block;width:100%;padding:12px;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#C026D3);color:#fff;font-size:17px;font-weight:900;box-shadow:0 4px 14px rgba(124,58,237,.35)}
 .radd.on{background:#3b1d6e}
 .rnote{font-size:11.5px;color:#F5C400;text-align:center;margin:-2px 0 4px}
@@ -410,7 +425,7 @@ html.light img,html.light video,html.light canvas,html.light .th:not(.add),html.
 .gt .gb .gl2{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 /* 10/26 그림 모드: 아기자기한 배경(풀밭·공원·골프장·강아지) — 누를 때마다 랜덤 */
 html.pic #setup{background:var(--scene) center bottom/cover no-repeat fixed,#86c5f0}
-html.pic .raddw{background:none}
+
 html.pic .wrap{background:rgba(6,8,12,.34);border-radius:14px;padding:8px}
 html.pic #setup{text-shadow:0 1px 3px rgba(0,0,0,.9)}
 html.pic .box2,html.pic .pt,html.pic .tl,html.pic .rt,html.pic .lg,html.pic .pd,html.pic .gt,html.pic .code,html.pic .addp,html.pic #chipFold,html.pic #mrows,html.pic #crows,html.pic #vrows,html.pic #rows,html.pic details,html.pic .srch{background:rgba(10,12,18,.74)!important;border-radius:10px}
@@ -456,8 +471,9 @@ function askHere(anchor, o) {
 <div id="setup" class="on">
  <button class="fsb" data-fs>⛶</button>
  <div class="wrap">
-  <div class="tabs"><button data-tab="R">기록</button><button data-tab="T">타이머</button><button data-tab="P">부위</button><button class="tbx" id="ciB">색</button><button class="tbx" id="thB">☀</button></div>
+  <div class="tabs"><button data-tab="R">기록</button><button data-tab="T">타이머</button><button data-tab="P">리포트</button><button class="tbx" id="ciB">색</button><button class="tbx" id="thB">☀</button></div>
   <button class="sec" id="resume" hidden>▶ 이어서 하기</button>
+  <div class="jmp"><button id="jTop" aria-label="맨 위로">↑</button><button id="jBot" aria-label="맨 아래로">↓</button></div>
   <div id="tabR" hidden></div>
   <div id="tabP" hidden></div>
   <div id="tabT">
@@ -664,6 +680,7 @@ const PAT = {
   D: {bpm: 128, tr: {kick: 'X.x.X.x.X.x.X.xx', clap: '....X.......X...', hat: '..x...x...x...x.', snare: '..............rr'}, rb: 'x.xxx.xxx.xxx.xx', bf: [41, 41, 44, 39]},
   E: {bpm: 104, tr: {taiko: 'X..X..X.X..X.Xrr', kick: 'X.......X.......', tom: '...x.......x..x.', clap: '....X.......X...'}, bass: [41, 44, 39, 41]},
   F: {bpm: 174, tr: {kick: 'X.........X.....', snare: '....X.......X...', hat: 'xxXxxxXxxxXxxxXx', sub: 'X.....X...X.....'}, rb: 'x.....x...x...x.', bf: [55, 52, 49, 46]},
+  perk: {bpm: 112, soft: 1, tr: {kick: 'X...x...X...x...', hat: 'x.x.x.x.x.x.x.x.', clap: '....x.......x...'}, softDr: .55, pl: 'x.x...x.x.x...x.', notes: [[784, 988, 1175, 988, 784, 988], [880, 1047, 1319, 1047, 880, 1047], [698, 880, 1047, 880, 698, 880], [784, 988, 1175, 1319, 1175, 988]], pdec: .5},
   calm: {bpm: 60, soft: 1, pad: [[220, 277, 330], [196, 247, 294], [175, 220, 262], [196, 247, 294]]},
   rain: {bpm: 66, soft: 1, bed: {f: 1400, v: .09}, pad: [[175, 220, 262], [165, 208, 247]], drip: 1},
   box: {bpm: 72, soft: 1, pl: 'x.x.x.x.x.x.x.x.', notes: [[1047, 1319, 1568, 1319, 1175, 1568, 1319, 1047], [988, 1175, 1480, 1175, 1047, 1319, 1175, 988], [880, 1047, 1319, 1047, 988, 1175, 1047, 880], [988, 1175, 1568, 1175, 1047, 1319, 1175, 988]], pdec: 1.8, ptype: 'sine'},
@@ -693,7 +710,7 @@ function playStep(p, s, t, spb) {
   if (p.pad && s === 0) pad(t, p.pad[bar % p.pad.length], spb * 16 * 1.05);
   if (M.hot && !p.soft) { snare(t, .22, .06); snare(t + spb / 2, .18, .05); if (s % 4 === 0) kick(t, .7); }
 }
-function sched() { const p = PAT[M.style]; if (!p) return; const spb = 60 / p.bpm / 4; while (M.next < audio.currentTime + .15) { playStep(p, M.step, M.next, spb); M.next += spb; M.step = (M.step + 1) % 16; M.n++; } }
+function sched() { const p = PAT[M.style]; if (!p) return; const spb = 60 / (p.bpm * (M.hot && !p.soft ? 1.15 : 1)) / 4; while (M.next < audio.currentTime + .15) { playStep(p, M.step, M.next, spb); M.next += spb; M.step = (M.step + 1) % 16; M.n++; } }
 function musicStart(style) {
   musicStop(true);
   if (!style || style === 'none') return;
@@ -896,6 +913,8 @@ function paintSetup() {
   $('#sum').textContent = `총 ${fmtLong(tot)} · ${cfg.rt.length}종목 · 운동 ${sets}세트`;
   $('#start').disabled = !cfg.rt.length; $('#start').style.opacity = cfg.rt.length ? 1 : .4;
   $('#resume').hidden = !S.steps;
+  if (S.steps) { let st = S.steps[S.i]; if (st && st.ph !== 'work') st = S.steps.slice(S.i).find(x => x.ph === 'work') || st; const it = cfg.rt[st.ex];
+    $('#resume').innerHTML = `▶ 이어서 하기${it && st.ph === 'work' ? `<small>${esc(it.nm)} ${st.r}라운드 ${st.s}세트부터</small>` : ''}`; }
   paintMusic(); paintCap(); paintVoice();
 }
 function chip(kind, style, label, sel) { const playing = pv.kind === kind + style; return `<button class="chip ${kind === 'r' ? 'rs' : ''} ${sel ? 'on' : ''} ${playing ? 'play' : ''}" data-m="${kind}" data-s="${style}">${label}</button>`; }
@@ -1217,7 +1236,7 @@ function paintRec() {
   const today = dkey(Date.now()), ok = gearOk();
   const cards = RV.q ? allDays().slice().reverse().flatMap(k => dayCards(k)).filter(c => hit(cardTxt(c), RV.q)) : dayCards(RV.k);
   const shown = RV.cat ? cards.filter(c => c.cat === RV.cat) : cards;
-  let h = `<div class="raddw"><button class="radd ${RV.addOn ? 'on' : ''}" id="rAddT">${RV.addOn ? '✕ 추가 닫기' : '＋ 추가'}</button></div><div class="rbar"><button class="chip ${RV.sOn ? 'on' : ''}" id="rS">🔍</button><button class="chip ${RV.grid ? 'on' : ''}" id="rGrid">▦ 목록</button><button class="chip ${RV.pre ? 'on' : ''}" id="rPre">🎨</button>${CATS.map(c => `<button class="chip ${RV.cat === c ? 'on' : ''}" data-rc="${c}">${c}</button>`).join('')}<button class="chip ${ledLive() ? 'live' : ''}" id="rLed">유산소 전광판</button></div>`
+  let h = `<div class="rbar"><button class="chip ${RV.sOn ? 'on' : ''}" id="rS">🔍</button><button class="chip ${RV.grid ? 'on' : ''}" id="rGrid">▦ 목록</button><button class="chip ${RV.pre ? 'on' : ''}" id="rPre">🎨</button>${CATS.map(c => `<button class="chip ${RV.cat === c ? 'on' : ''}" data-rc="${c}">${c}</button>`).join('')}<button class="chip ${ledLive() ? 'live' : ''}" id="rLed">유산소 전광판</button><button class="chip addc ${RV.addOn ? 'on' : ''}" id="rAddT">${RV.addOn ? '✕ 닫기' : '＋ 추가'}</button></div>`
     + (RV.sOn ? `<input class="srch" id="rQ" placeholder="종목·캡션·준비물 검색 (초성 가능: ㅊㄱ)" value="${esc(RV.q)}">` : '');
   if (RV.addOn) h += `<div class="addp"><div class="ah">＋ 추가<small>${md(kDate(RV.k))}에 넣음</small></div><div class="addg">
     <button id="aGal"><i>🖼</i><b>갤러리</b><small>여러 장·영상</small></button>
@@ -1228,7 +1247,7 @@ function paintRec() {
     <div class="addn">사진 시각은 파일 이름(20261024_154239) → 없으면 파일 시각으로 자동 · 넣은 뒤 제목·시각·분류를 그 자리에서 고치면 됨 · 영상은 넣은 뒤 눌러서 「📸 이 장면 담기」로 사진 컷 저장</div>
     <input type="file" id="fGal" accept="image/*,video/*" multiple hidden><input type="file" id="fCam" accept="image/*" capture="environment" hidden></div>`;
   h += `<input type="file" id="fCard" accept="image/*,video/*" multiple hidden><input type="file" id="fCardCam" accept="image/*" capture="environment" hidden>`;
-  if (RV.grid && !RV.q) { box.innerHTML = h + gridHTML(today); bindRecTop(box); box.querySelectorAll('[data-gt]').forEach(b => b.onclick = () => { RV.k = +b.dataset.gt; RV.grid = false; RV.cat = ''; paintRec(); $('#setup').scrollTop = 0; }); gridThumbs(box); return; }
+  if (RV.grid && !RV.q) { box.innerHTML = h + gridHTML(today); bindRecTop(box); box.querySelectorAll('[data-gp]').forEach(b => b.onclick = () => { RV.gp = RV.gp === b.dataset.gp ? '' : b.dataset.gp; paintRec(); }); box.querySelectorAll('[data-gt]').forEach(b => b.onclick = () => { RV.k = +b.dataset.gt; RV.grid = false; RV.cat = ''; paintRec(); $('#setup').scrollTop = 0; }); gridThumbs(box); return; }
   if (!RV.q) {
     if (RV.fb && RV.k === RV.fb) h += `<div class="rnote">오늘은 아직 기록이 없어 직전 날을 보여줘요 · 오늘로 가려면 ›</div>`;
     h += `<div class="lnav"><button class="nb" data-rn="-1">‹</button><div class="ld">${md(kDate(RV.k))}${RV.k === today ? '<span class="today">오늘</span>' : ''}<small>${shown.length}건</small></div><button class="nb" data-rn="1">›</button></div>`;
@@ -1314,9 +1333,11 @@ function bindRecTop(box) {
 }
 /* ▦ 목록: 날짜마다 썸네일 1장 + 부위·요약 (바둑판) — 누르면 그 날로 */
 function gridHTML(today) {
-  const ds = allDays().filter(k => dayCards(k).some(c => !RV.cat || c.cat === RV.cat)).reverse();
-  if (!ds.length) return '<p class="hint">아직 기록이 없어요</p>';
-  return `<p class="sum">${ds.length}일 · 누르면 그 날 기록</p><div class="gridv">` + ds.map(k => {
+  const all = allDays().filter(k => dayCards(k).some(c => !RV.cat || c.cat === RV.cat)), have = PROWS.filter(p => all.some(k => partsOf(k).has(p)));
+  const ds = all.filter(k => !RV.gp || partsOf(k).has(RV.gp)).reverse();
+  const chips = `<div class="rbar" style="margin:4px 0 0">${have.map(p => `<button class="chip ${RV.gp === p ? 'on' : ''}" data-gp="${p}">${p}</button>`).join('')}</div>`;
+  if (!ds.length) return chips + '<p class="hint">해당 기록이 없어요</p>';
+  return chips + `<p class="sum">${ds.length}일${RV.gp ? ` · ${RV.gp}` : ''} · 누르면 그 날 기록</p><div class="gridv">` + ds.map(k => {
     const cs = dayCards(k).filter(c => !RV.cat || c.cat === RV.cat), d = dayInfo(k), pc = cs.find(c => (c.ph || []).length || c.vd);
     const lab = dayLabel(k) || d.parts || cs.filter(c => /근력|유산소/.test(c.cat)).map(c => c.ti).slice(0, 2).join('·') || cs[0].ti || '기록';
     const L = (d.items.length ? d.items.map(shortItem) : cs.filter(c => !c.auto).map(c => c.ti)).filter(Boolean);
@@ -1587,7 +1608,7 @@ function paintParts() {
     h += `<p class="sum">「${esc(PW.q)}」 ${hits.length}일</p>` + hits.map(x => dayBlock(x.k, today, PW.q)).join('');
   } else {
     h += `<div class="lnav"><button class="nb" data-pn="-1">‹</button><div class="ld">${md(kDate(days[0]))} ~ ${md(kDate(days[6]))}${days.includes(today) ? '<span class="today">오늘 가운데</span>' : ''}<small>앞 3일 · 뒤 3일</small></div><button class="nb" data-pn="1">›</button></div>`
-      + `<div id="pList"><div class="p2g"><div>${partTable(days, today)}${colorRow()}</div><div>${nextBox(today)}${tplBox()}</div></div>`
+      + `<div id="pList"><div class="p2g"><div>${partTable(days, today)}${legBox()}${PW.op && days.includes(PW.op) ? dayBlock(PW.op, today) : ''}${colorRow()}</div><div>${nextBox(today)}${tplBox()}</div></div>`
       + days.filter(k => k <= today).reverse().filter(k => dayLabel(k) || dayInfo(k).items.length).map(k => dayBlock(k, today)).join('') + `${histBox()}</div>`;
   }
   box.innerHTML = h;
@@ -1596,7 +1617,9 @@ function paintParts() {
   $('#pT').onclick = () => { PW.k = today; paintParts(); };
   $('#pCp').onclick = () => copyTxt(days.filter(k => dayLabel(k)).map(k => `${md(kDate(k))} ${dayLabel(k)}\n` + dayInfo(k).items.map((t, i) => `${CIRC[i] || i + 1} ${t}`).join('\n')).join('\n\n'));
   box.querySelectorAll('[data-pn]').forEach(b => b.onclick = () => { const d = kDate(PW.k); d.setDate(d.getDate() + 7 * +b.dataset.pn); const k = dkey(d); if (k > today) return toast('오늘이 가운데인 표가 마지막이에요'); PW.k = k; paintParts(); });
-  box.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { const el = document.getElementById('pd' + b.dataset.go); if (el) el.scrollIntoView({block: 'start', behavior: 'smooth'}); });
+  /* 10/26 표 칸을 누르면 그 날 종목이 표 바로 아래 펼쳐짐 (다시 누르면 닫힘) */
+  box.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { const k = +b.dataset.go; PW.op = PW.op === k ? 0 : k; paintParts(); });
+  bindLeg(box);
   box.querySelectorAll('[data-dp]').forEach(el => el.addEventListener('blur', () => { const [k, f] = el.dataset.dp.split('|'); setDay(k, {[f]: el.innerText.trim()}); paintParts(); }));
   box.querySelectorAll('[data-di]').forEach(el => {
     el.addEventListener('keydown', e => { if (e.key !== 'Enter') return; e.preventDefault(); const [k, i] = el.dataset.di.split('|'), L = dayInfo(k).items.slice(); L[+i] = el.innerText.trim(); L.splice(+i + 1, 0, ''); setDay(k, {items: L}); paintParts(); const n = box.querySelector(`[data-di="${k}|${+i + 1}"]`); if (n) n.focus(); });
@@ -1664,10 +1687,31 @@ function partsOf(k) {
 const pastDays = today => allDays().filter(k => k <= today).reverse();
 function lastOfP(p, today) { const k = pastDays(today).find(k => partsOf(k).has(p)); if (!k) return '—'; const n = Math.round((kDate(today) - kDate(k)) / 864e5); return n ? `<b class="ago">${n}</b>일 전` : '<b class="ago">오늘</b>'; }
 function weekAvg(p, today) { /* 최근 4주 평균 · 주 몇 회 */ const t0 = kDate(today).getTime(), n = pastDays(today).filter(k => t0 - kDate(k).getTime() < 28 * 864e5 && partsOf(k).has(p)).length; return `4주 평균 주 ${(n / 4).toFixed(1).replace(/\.0$/, '')}회`; }
+/* 10/26 표 칸 한 글자: 앞·옆·뒤 어깨 등 (아래 설명에서 고침) */
+const LEG0 = [['어깨', '앞', '앞어깨, 프론트, 밀리터리, 숄더프레스, 오버헤드프레스'], ['어깨', '옆', '옆어깨, 사이드, 레터럴'], ['어깨', '뒤', '뒤어깨, 리어, 후면, 페이스풀'],
+  ['가슴', '윗', '윗가슴, 인클라인'], ['가슴', '아', '아랫가슴, 딥스, 디클라인'], ['하체', '앞', '앞하체, 레그익스텐션, 스쿼트, 레그프레스'], ['하체', '뒤', '뒤하체, 레그컬, 루마니안, 힙'],
+  ['하체', '안', '모으기, 어덕션'], ['하체', '밖', '벌리기, 어브덕션'], ['복근', '푸', '푸크크크'], ['목', '앞', '넥브릿지(앞)'], ['목', '뒤', '넥브릿지(뒤)']].map(([p, c, kw]) => ({p, c, kw}));
+const legGet = () => ls.get('wt.leg', LEG0), legSet = L => ls.set('wt.leg', L);
+function dayTxt(k) { const d = dayInfo(k); return nz([d.parts, ...d.items, ...dayCards(k).filter(c => !c.auto).map(c => (c.ti || '') + ' ' + (c.cap || ''))].join(' ')); }
+function letters(p, k) { const t = dayTxt(k); return [...new Set(legGet().filter(x => x.p === p && x.c && String(x.kw || '').split(/[,，]/).map(w => nz(w)).some(w => w && t.includes(w))).map(x => x.c))].join(''); }
+function legBox() {
+  const L = legGet(), by = {}; L.forEach(x => (by[x.p] = by[x.p] || []).push(x));
+  const sum = Object.entries(by).map(([p, a]) => `<b>${esc(p)}</b>${a.map(x => `<i>${esc(x.c)}</i>`).join('·')}`).join('  ');
+  if (!PW.leg) return `<div class="leg">표 글자 ${sum} · ○ = 그 부위 함 <button class="mini" id="legE">✎ 고치기</button></div>`;
+  return `<div class="leg box2"><h3>표 글자 설명<small>부위 · 글자 · 이런 말이 들어가면 그 글자(쉼표로 구분) · 그 자리에서 고침</small></h3>${L.map((x, i) => `<div class="lg2"><span class="lp" contenteditable="true" data-lg="${i}|p">${esc(x.p)}</span><span class="lc" contenteditable="true" data-lg="${i}|c">${esc(x.c)}</span><span class="lk" contenteditable="true" data-lg="${i}|kw">${esc(x.kw)}</span><button class="mini" data-lgx="${i}">✕</button></div>`).join('')}<div class="rbar" style="margin:6px 0 0"><button class="chip add" id="legA">＋ 추가</button><button class="chip" id="legR">기본값</button><button class="chip on" id="legE">닫기</button></div></div>`;
+}
+function bindLeg(box) {
+  const e = box.querySelector('#legE'); if (e) e.onclick = () => { PW.leg = !PW.leg; paintParts(); };
+  box.querySelectorAll('[data-lg]').forEach(el => { el.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); el.blur(); } });
+    el.addEventListener('blur', () => { const [i, f] = el.dataset.lg.split('|'), L = legGet(), v = el.innerText.trim(); if (!L[+i] || L[+i][f] === v) return; L[+i][f] = v; legSet(L); setTimeout(paintParts, 0); }); });
+  box.querySelectorAll('[data-lgx]').forEach(b => b.onclick = () => arm2(b, '삭제할까요?', () => { const L = legGet(); L.splice(+b.dataset.lgx, 1); legSet(L); paintParts(); }));
+  const a = box.querySelector('#legA'); if (a) a.onclick = () => { const L = legGet(); L.push({p: '어깨', c: '', kw: ''}); legSet(L); paintParts(); const n = box.querySelector(`[data-lg="${L.length - 1}|c"]`); if (n) n.focus(); };
+  const r = box.querySelector('#legR'); if (r) r.onclick = () => arm2(r, '기본값으로?', () => { legSet(LEG0); paintParts(); });
+}
 function partTable(days, today) {
   const P = days.map(partsOf);
   return `<table class="pt"><tr><th>부위</th>${days.map(k => `<th class="${k === today ? 'td' : ''}${k > today ? ' fu' : ''}">${DOW[kDate(k).getDay()]}<small>${k % 100}</small>${k === today ? '<span class="tdl">오늘</span>' : ''}</th>`).join('')}</tr>`
-    + PROWS.filter(p => p !== '기타' || P.some(s => s.has('기타'))).map(p => `<tr><td><b data-pcl="${p}" style="color:${pcOf(p) || '#fff'}">${p}</b><small>${lastOfP(p, today)}</small></td>${days.map((k, i) =>  P[i].has(p) ? `<td class="o" style="color:${pcOf(p) || '#4FE3DC'};background:${(pcOf(p) || '#4FE3DC')}${'2e'}" data-go="${k}" title="${esc(dayInfo(k).items.join(' / '))}">○</td>` : `<td class="${k > today ? 'fu' : ''}"></td>`).join('')}</tr>`).join('') + `</table>`;
+    + PROWS.filter(p => p !== '기타' || P.some(s => s.has('기타'))).map(p => `<tr><td><b data-pcl="${p}" style="color:${pcOf(p) || '#fff'}">${p}</b><small>${lastOfP(p, today)}</small></td>${days.map((k, i) =>  P[i].has(p) ? (lt => `<td class="o${lt ? ' lt' : ''}${PW.op === k ? ' pdo' : ''}" style="color:${pcOf(p) || '#4FE3DC'};background:${(pcOf(p) || '#4FE3DC')}${'2e'}" data-go="${k}" title="${esc(dayInfo(k).items.join(' / '))}">${lt || '○'}</td>`)(letters(p, k)) : `<td class="${k > today ? 'fu' : ''}"></td>`).join('')}</tr>`).join('') + `</table>`;
 }
 /* 4분할 다음 차례: 부위 기록으로 판단 (가슴 → 등 → 하체 → 어깨+복부) */
 const SPLIT_P = {'가슴날': ['가슴'], '등날': ['윗등', '아랫등'], '하체날': ['하체'], '어깨+복부날': ['어깨']};
@@ -1777,7 +1821,7 @@ function bindLines(box, repaint) {
 }
 function dayBlock(k, today, q) {
   const d = dayInfo(k);
-  return `<div class="pd" id="pd${k}"><div class="ph3"><span class="d">${md(kDate(k))}${k === today ? ' 오늘' : ''}</span><span class="pp" contenteditable="true" data-dp="${k}|parts" data-ph="부위">${esc(d.parts)}</span><span class="du" contenteditable="true" data-dp="${k}|dur" data-ph="시간">${esc(d.dur)}</span><button class="mini" data-open="${k}" style="margin-left:auto">기록 보기</button></div>`
+  return `<div class="pd"><div class="ph3"><span class="d">${md(kDate(k))}${k === today ? ' 오늘' : ''}</span><span class="pp" contenteditable="true" data-dp="${k}|parts" data-ph="부위">${esc(d.parts)}</span><span class="du" contenteditable="true" data-dp="${k}|dur" data-ph="시간">${esc(d.dur)}</span><button class="mini" data-open="${k}" style="margin-left:auto">기록 보기</button></div>`
     + d.items.map((t, i) => `<div class="it2"><span class="n">${CIRC[i] || i + 1}</span><span class="x" contenteditable="true" data-di="${k}|${i}" data-ph="종목">${q && t.includes(q.trim()) ? hl(esc(t), esc(q.trim())) : esc(t)}</span></div>`).join('')
     + `<div class="it2"><span class="n"></span><button class="gc add" data-dadd="${k}">＋ 종목</button></div></div>`;
 }
@@ -1962,6 +2006,8 @@ $('#ciB').onclick = () => { ls.set('wt.ci', (ls.get('wt.ci', 1) + 1) % 3); apply
 $('#thB').onclick = () => { const cur = ls.get('wt.look', ls.get('wt.light', false) ? 'light' : 'dark'), nx = {dark: 'light', light: 'pic', pic: 'dark'}[cur] || 'dark'; ls.set('wt.look', nx); ls.set('wt.light', nx === 'light');
   if (nx === 'pic') { const o = ls.get('wt.scene', 0); let r = Math.floor(Math.random() * SCENES.length); if (r === o) r = (r + 1) % SCENES.length; ls.set('wt.scene', r); toast('그림 · ' + SCENES[r][0] + ' (다시 누르면 밤 모드)'); } applyLook(); };
 applyLook();
+$('#jTop').onclick = () => $('#setup').scrollTo({top: 0, behavior: 'smooth'});
+$('#jBot').onclick = () => $('#setup').scrollTo({top: $('#setup').scrollHeight, behavior: 'smooth'});
 
 /* ================= 타이머 ================= */
 const S ={steps: null, i: 0, endAt: 0, left: 0, paused: false, t0: 0, raf: 0, lastSec: -1, said: {}};
@@ -2045,7 +2091,10 @@ function tick() {
   if (S.steps[S.i].ph === 'done') return paint();
   S.left = (S.endAt - now) / 1000;
   const sec = Math.ceil(S.left);
-  if (sec !== S.lastSec) { S.lastSec = sec; cues(S.steps[S.i], sec); if (sec <= 3 && sec >= 1) { beep(740, 90, .22); vib(60); } paint(); }
+  if (sec !== S.lastSec) { S.lastSec = sec; cues(S.steps[S.i], sec);
+    /* 10/26 막판 가속: 운동 남은 15초 → 빨라짐 · 휴식 끝무렵(길이의 25%, 최소 8초) → 차분 → 경쾌 */
+    { const cs = S.steps[S.i]; if (cs.ph === 'work' && sec <= 15 && cs.d >= 25 && M.style && !M.hot) M.hot = true;
+      if (isRest(cs.ph) && cs.d >= 20 && sec <= Math.max(8, Math.round(cs.d * .25)) && M.style && M.style !== 'perk' && PAT[M.style] && PAT[M.style].soft) musicStart('perk'); } if (sec <= 3 && sec >= 1) { beep(740, 90, .22); vib(60); } paint(); }
   else paintArc();
 }
 function paintArc() {
@@ -2065,7 +2114,8 @@ function paint() {
   $('#phase').textContent = NAMES[s.ph];
   $('#time').textContent = s.ph === 'done' ? '✓' : fmt(S.left);
   /* 윗줄(조금 크게) = 「한」 지금까지 한 것 / 아랫줄(작게) = 「남은」 남은 라운드·세트 */
-  const ln = (tg, t, cls) => `<div class="ln ${cls || ''}"><span class="tg">${tg}</span><span>${t}</span></div>`;
+  const TG = {'할': ['TO DO', 'td'], '한': ['DONE', 'dn'], '지금': ['NOW', 'nw'], '남은': ['LEFT', 'lf']};
+  const ln = (tg, t, cls) => `<div class="ln ${cls || ''}"><span class="tg ${TG[tg][1]}">${TG[tg][0]}</span><span>${t}</span></div>`;
   let pos;
   if (s.ph === 'done') pos = `${cfg.rt.length}종목 완료`;
   else if (isOne(s)) pos = '한 번에';
@@ -2074,9 +2124,10 @@ function paint() {
     const done = S.steps.slice(0, S.i + (s.ph === 'work' ? 0 : 1)).filter(x => x.ph === 'work' && x.ex === s.ex).length;
     const leftSets = mine - done - (s.ph === 'work' ? 1 : 0);
     const roundsLeft = s.ph === 'irest' || s.ph === 'prep' ? it.rounds : it.rounds - s.r;
-    const top = s.ph === 'irest' || s.ph === 'prep' ? ln('할', `${it.rounds}라운드 × ${it.sets}세트`)
-      : s.ph === 'work' ? ln('지금', `${s.r}라운드 · ${s.s}세트째`) : ln('한', `${s.r}라운드 · ${s.s}세트${s.ph === 'rrest' ? ' (라운드 끝)' : ''}`);
-    pos = top + ln('남은', `${roundsLeft}라운드 · ${leftSets}세트`, 'sm');
+    /* 10/26 기준 통일: 모두 「라운드 · 세트(전체 세트 수)」 */
+    const doneSets = done, curSet = done + 1;
+    pos = s.ph === 'irest' || s.ph === 'prep' ? ln('할', `${it.rounds}라운드 · ${mine}세트`)
+      : (s.ph === 'work' ? ln('지금', `${s.r}라운드 · ${curSet}세트째`) : ln('한', `${s.r}라운드 · ${doneSets}세트${s.ph === 'rrest' ? ' (라운드 끝)' : ''}`)) + ln('남은', `${roundsLeft}라운드 · ${leftSets}세트`, 'sm');
   }
   $('#pos').innerHTML = pos;
   $('#next').textContent = s.ph === 'done' ? '기록 저장됨 · 설정 → 운동 기록' : n ? `다음 ${nsub || (n.ph === 'work' && n.ex !== s.ex ? (cfg.rt[n.ex] || {}).nm : NAMES[n.ph])}${n.d ? ' ' + fmt(n.d) : ''}` : '';
