@@ -420,6 +420,7 @@ html.pic .tabs{background:rgba(6,8,12,.85);border-radius:0 0 12px 12px}
 .gt .gi .gd{position:absolute;left:6px;top:6px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:800;border-radius:99px;padding:1px 7px}
 .gt .gi .gd.td{background:#F5C400;color:#111}
 .gt .gi .gn{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.65);color:#ddd;font-size:10px;border-radius:99px;padding:1px 6px}
+.gt .gi .gpk{position:absolute;right:6px;top:6px;background:rgba(0,0,0,.7);color:#fff;font-size:11px;font-weight:800;border-radius:99px;padding:2px 8px;border:1px solid rgba(255,255,255,.35)}
 .gt .gb{padding:6px 8px 8px;font-size:11.5px;line-height:1.45;color:#bbb}
 .gt .gb b{display:block;color:#fff;font-size:13px;margin-bottom:1px}
 .gt .gb .gl2{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
@@ -1247,7 +1248,7 @@ function paintRec() {
     <div class="addn">사진 시각은 파일 이름(20261024_154239) → 없으면 파일 시각으로 자동 · 넣은 뒤 제목·시각·분류를 그 자리에서 고치면 됨 · 영상은 넣은 뒤 눌러서 「📸 이 장면 담기」로 사진 컷 저장</div>
     <input type="file" id="fGal" accept="image/*,video/*" multiple hidden><input type="file" id="fCam" accept="image/*" capture="environment" hidden></div>`;
   h += `<input type="file" id="fCard" accept="image/*,video/*" multiple hidden><input type="file" id="fCardCam" accept="image/*" capture="environment" hidden>`;
-  if (RV.grid && !RV.q) { box.innerHTML = h + gridHTML(today); bindRecTop(box); box.querySelectorAll('[data-gp]').forEach(b => b.onclick = () => { RV.gp = RV.gp === b.dataset.gp ? '' : b.dataset.gp; paintRec(); }); box.querySelectorAll('[data-gt]').forEach(b => b.onclick = () => { RV.k = +b.dataset.gt; RV.grid = false; RV.cat = ''; paintRec(); $('#setup').scrollTop = 0; }); gridThumbs(box); return; }
+  if (RV.grid && !RV.q) { box.innerHTML = h + gridHTML(today); bindRecTop(box); box.querySelectorAll('[data-gp]').forEach(b => b.onclick = () => { RV.gp = RV.gp === b.dataset.gp ? '' : b.dataset.gp; paintRec(); }); box.querySelectorAll('[data-gpk]').forEach(b => b.onclick = e => { e.stopPropagation(); pickThumb(+b.dataset.gpk); }); box.querySelectorAll('[data-gt]').forEach(b => b.onclick = () => { RV.k = +b.dataset.gt; RV.grid = false; RV.cat = ''; paintRec(); $('#setup').scrollTop = 0; }); gridThumbs(box); return; }
   if (!RV.q) {
     if (RV.fb && RV.k === RV.fb) h += `<div class="rnote">오늘은 아직 기록이 없어 직전 날을 보여줘요 · 오늘로 가려면 ›</div>`;
     h += `<div class="lnav"><button class="nb" data-rn="-1">‹</button><div class="ld">${md(kDate(RV.k))}${RV.k === today ? '<span class="today">오늘</span>' : ''}<small>${shown.length}건</small></div><button class="nb" data-rn="1">›</button></div>`;
@@ -1333,6 +1334,7 @@ function bindRecTop(box) {
 }
 /* ▦ 목록: 날짜마다 썸네일 1장 + 부위·요약 (바둑판) — 누르면 그 날로 */
 function gridHTML(today) {
+  const TS = ls.get('wt.gth', {});
   const all = allDays().filter(k => dayCards(k).some(c => !RV.cat || c.cat === RV.cat)), have = PROWS.filter(p => all.some(k => partsOf(k).has(p)));
   const ds = all.filter(k => !RV.gp || partsOf(k).has(RV.gp)).reverse();
   const chips = `<div class="rbar" style="margin:4px 0 0">${have.map(p => `<button class="chip ${RV.gp === p ? 'on' : ''}" data-gp="${p}">${p}</button>`).join('')}</div>`;
@@ -1342,8 +1344,19 @@ function gridHTML(today) {
     const lab = dayLabel(k) || d.parts || cs.filter(c => /근력|유산소/.test(c.cat)).map(c => c.ti).slice(0, 2).join('·') || cs[0].ti || '기록';
     const L = (d.items.length ? d.items.map(shortItem) : cs.filter(c => !c.auto).map(c => c.ti)).filter(Boolean);
     let th = '', ik = '';
-    if (pc) { if (pc.vd) th = `background-image:url('${dirOf(pc.pk || pc.k)}/${pc.vd}.jpg')`; else { const p0 = pc.ph[0]; if (isIdbK(p0)) ik = isVid(p0) ? '' : p0; else th = `background-image:url('${dirOf(pc.pk || pc.k)}/${p0}.jpg');${trStyle(pc, p0)}`; } }
-    return `<button class="gt" data-gt="${k}"><span class="gi" style="${th}" ${ik ? `data-gidb="${ik}"` : ''}>${th || ik ? '' : '🏋'}<span class="gd ${k === today ? 'td' : ''}">${md(kDate(k))}${k === today ? ' 오늘' : ''}</span><span class="gn">${cs.length}건</span></span><span class="gb"><b>${esc(lab)}</b><span class="gl2">${esc(L.slice(0, 4).join(' · ') || cs.map(c => c.ti).filter(Boolean).slice(0, 3).join(' · '))}</span></span></button>`; }).join('') + `</div>`;
+    if (TS[k]) ik = 'th:' + k; else if (pc) { if (pc.vd) th = `background-image:url('${dirOf(pc.pk || pc.k)}/${pc.vd}.jpg')`; else { const p0 = pc.ph[0]; if (isIdbK(p0)) ik = isVid(p0) ? '' : p0; else th = `background-image:url('${dirOf(pc.pk || pc.k)}/${p0}.jpg');${trStyle(pc, p0)}`; } }
+    return `<button class="gt" data-gt="${k}"><span class="gi" style="${th}" ${ik ? `data-gidb="${ik}"` : ''}>${th || ik ? '' : '🏋'}<span class="gd ${k === today ? 'td' : ''}">${md(kDate(k))}${k === today ? ' 오늘' : ''}</span><span class="gn">${cs.length}건</span><span class="gpk" data-gpk="${k}" role="button" aria-label="대표 사진 고르기">🖼️ 대표</span></span><span class="gb"><b>${esc(lab)}</b><span class="gl2">${esc(L.slice(0, 4).join(' · ') || cs.map(c => c.ti).filter(Boolean).slice(0, 3).join(' · '))}</span></span></button>`; }).join('') + `</div>`;
+}
+/* 🖼️ 대표 사진 고르기 (그날 사진 · 새로 붙여넣기 · 글자 썸네일) — THP 공통 부품 */
+async function pickThumb(k) {
+  const TS = ls.get('wt.gth', {}), photos = [];
+  for (const c of dayCards(k)) { for (const p of (c.ph || [])) { if (isVid(p)) continue; const u = isIdbK(p) ? await idbURL(p) : fileURL(c, p); if (u) photos.push({url: u, label: c.ti || '', key: p}); } if (c.vd) photos.push({url: `${dirOf(c.pk || c.k)}/${c.vd}.jpg`, label: c.ti || '', key: 'vd:' + c.vd}); }
+  let spec = TS[k] && TS[k].spec; if (spec && spec.mode === 'photo' && spec.pkey) { const f = photos.find(x => x.key === spec.pkey); spec = f ? Object.assign({}, spec, {src: f.url}) : Object.assign({}, spec, {src: ''}); }
+  THP.open({photos, aspect: 4 / 3, spec, title: `${md(kDate(k))} 대표 사진`,
+    onReset: async () => { const T = ls.get('wt.gth', {}); delete T[k]; ls.set('wt.gth', T); await idb.put('th:' + k, null); delete urlCache['th:' + k]; paintRec(); toast('자동(첫 사진)으로'); },
+    onSave: async r => { const blob = await (await fetch(r.th)).blob(); await idb.put('th:' + k, blob); if (urlCache['th:' + k]) URL.revokeObjectURL(urlCache['th:' + k]); delete urlCache['th:' + k];
+      const sp = Object.assign({}, r.spec); if (sp.mode === 'photo') { const f = photos.find(x => x.url === sp.src); sp.pkey = f ? f.key : ''; sp.src = ''; }
+      const T = ls.get('wt.gth', {}); T[k] = {spec: sp, at: Date.now()}; ls.set('wt.gth', T); paintRec(); toast('대표 사진 바꿈'); }});
 }
 function gridThumbs(box) { box.querySelectorAll('[data-gidb]').forEach(async el => { const u = await idbURL(el.dataset.gidb); if (u) { el.style.backgroundImage = `url('${u}')`; el.firstChild && el.firstChild.nodeType === 3 && el.firstChild.remove(); } }); }
 /* ---- 사진: idb 키(rp: 사진 · rv: 영상) 또는 rec/ 폴더 파일 ---- */
@@ -2181,5 +2194,154 @@ paintSetup();
 setTab('R');
 })();
 </script>
-<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script></body>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script><script>/* THP 대표 사진(썸네일) 고르기 v1 — 그날 사진에서 고르기 · 새로 붙여넣기 · 글자로 만들기
+   THP.open({photos:[{url,label}], aspect:4/3, spec:이전 spec, title:'대표 사진', onSave:r=>{r.th(dataURL), r.spec}, onReset:()=>{}})
+   드래그로 자르기(틀 이동·모서리로 크기), 글자색·배경색·글씨체·크기·프레임(나무 액자/폴라로이드/네온/메모지) */
+(function(){if(window.THP)return;
+const FONTS=[['Jua','주아'],['Black Han Sans','검은고딕'],['Do Hyeon','도현'],['Gaegu','개구'],['Nanum Pen Script','손글씨'],['Noto Sans KR','고딕']];
+const FG=['#ffffff','#111111','#ffe066','#ff6b6b','#4dabf7','#69db7c','#f783ac','#ff922b'];
+const BG=['#1d1f24','#ffffff','#fff3bf','#ffe3e3','#d0ebff','#d3f9d8','#e5dbff','#2b8a3e'];
+const FR=[['none','없음'],['wood','나무 액자'],['polar','폴라로이드'],['neon','네온'],['memo','메모지·스티커']];
+const LS={get(k,d){try{const v=localStorage.getItem('thp_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('thp_'+k,JSON.stringify(v))}catch(e){}}};
+let css=false;function addCss(){if(css)return;css=true;
+ const l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Jua&family=Black+Han+Sans&family=Do+Hyeon&family=Gaegu:wght@700&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@900&display=swap';document.head.appendChild(l);
+ const s=document.createElement('style');s.textContent=`
+.thp{position:fixed;inset:0;z-index:2147483000;background:#0e0f12;color:#eee;display:flex;flex-direction:column;font:13px/1.4 system-ui,-apple-system,"Malgun Gothic",sans-serif}
+.thp *{box-sizing:border-box}.thp button{font:inherit;color:inherit;cursor:pointer}
+.thp .hd{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid #2a2d35}
+.thp .hd b{flex:1;font-size:14px}
+.thp .tb{display:flex;gap:4px;padding:6px 10px}
+.thp .tb button{flex:1;height:36px;border-radius:10px;border:1px solid #2f333c;background:#191b21;font-weight:700}
+.thp .tb button.on{background:#7048e8;border-color:#7048e8;color:#fff}
+.thp .bd{flex:1;overflow:auto;padding:6px 10px 10px;display:flex;flex-direction:column;gap:8px}
+.thp .ft{display:flex;gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid #2a2d35}
+.thp .bt{height:38px;padding:0 14px;border-radius:10px;border:1px solid #2f333c;background:#191b21;font-weight:700;white-space:nowrap}
+.thp .bt.pri{background:#7048e8;border-color:#7048e8;color:#fff;flex:1}
+.thp .bt.x{min-width:38px;padding:0}
+.thp .add{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.thp .add button{height:56px;border-radius:12px;border:1px dashed #7048e8;background:#1a1530;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:18px}
+.thp .add button b{font-size:12px}
+.thp .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:5px}
+.thp .grid button{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:2px solid transparent;padding:0;background:#000}
+.thp .grid button.on{border-color:#ffd43b}
+.thp .grid img{width:100%;height:100%;object-fit:cover;display:block}
+.thp .lbl{font-size:11px;color:#9aa0aa;font-weight:600}
+.thp .stage{position:relative;margin:0 auto;width:fit-content;touch-action:none;user-select:none;-webkit-user-select:none;background:#000;border-radius:8px;overflow:hidden;max-width:100%}
+.thp .stage img{display:block;max-width:100%;max-height:52vh;pointer-events:none}
+.thp .box{position:absolute;border:3px solid #8b5cf6;box-shadow:0 0 0 9999px rgba(0,0,0,.55);cursor:move;touch-action:none}
+.thp .box i{position:absolute;width:30px;height:30px;touch-action:none}
+.thp .box i::after{content:"";position:absolute;width:16px;height:16px;border:5px solid #c4b5fd}
+.thp .box .nw{left:-15px;top:-15px;cursor:nwse-resize}.thp .box .nw::after{left:8px;top:8px;border-right:0;border-bottom:0}
+.thp .box .ne{right:-15px;top:-15px;cursor:nesw-resize}.thp .box .ne::after{right:8px;top:8px;border-left:0;border-bottom:0}
+.thp .box .sw{left:-15px;bottom:-15px;cursor:nesw-resize}.thp .box .sw::after{left:8px;bottom:8px;border-right:0;border-top:0}
+.thp .box .se{right:-15px;bottom:-15px;cursor:nwse-resize}.thp .box .se::after{right:8px;bottom:8px;border-left:0;border-top:0}
+.thp .hint{font-size:11px;color:#9aa0aa;text-align:center}
+.thp textarea{width:100%;min-height:64px;resize:vertical;border-radius:10px;border:1px solid #2f333c;background:#191b21;color:#eee;padding:8px;font:inherit;font-size:14px}
+.thp .row{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.thp .swc{width:28px;height:28px;border-radius:50%;border:2px solid #444;padding:0}
+.thp .swc.on{outline:3px solid #ffd43b;outline-offset:1px}
+.thp .ch{height:30px;padding:0 10px;border-radius:15px;border:1px solid #2f333c;background:#191b21;font-size:13px}
+.thp .ch.on{background:#ffd43b;color:#111;border-color:#ffd43b;font-weight:700}
+.thp .pv{display:flex;justify-content:center}.thp .pv canvas{max-width:100%;max-height:34vh;border-radius:6px;box-shadow:0 6px 20px #0008}
+.thp input[type=range]{flex:1;accent-color:#7048e8}
+.thp .tst{position:fixed;left:50%;bottom:70px;transform:translateX(-50%);background:#fff;color:#111;border-radius:12px;padding:5px 12px;font-size:12px;z-index:2147483001}
+@media (min-width:760px){.thp .bd.two{display:grid;grid-template-columns:1fr 1fr;align-items:start}.thp .stage img{max-height:70vh}.thp .pv canvas{max-height:60vh}}
+`;document.head.appendChild(s)}
+const ld=src=>new Promise((ok,no)=>{const i=new Image();if(!/^(data|blob):/.test(src)&&!src.startsWith(location.origin)&&!src.startsWith('/'))i.crossOrigin='anonymous';i.onload=()=>ok(i);i.onerror=no;i.src=src});
+const fileUrl=f=>new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(f)});
+function toast(root,m){const t=document.createElement('div');t.className='tst';t.textContent=m;root.appendChild(t);setTimeout(()=>t.remove(),1800)}
+/* 프레임 그리기 */
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function wrap(c,text,maxW){const out=[];String(text||'').split('\n').forEach(par=>{let line='';for(const ch of par){const t=line+ch;if(c.measureText(t).width>maxW&&line){out.push(line);line=ch}else line=t}out.push(line)});return out}
+function drawText(cv,o){const W=cv.width,H=cv.height,c=cv.getContext('2d');c.clearRect(0,0,W,H);
+ let ix=0,iy=0,iw=W,ih=H; // 글자 영역
+ const f=o.frame;
+ if(f==='wood'){const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,'#8b5a2b');g.addColorStop(.5,'#a0703c');g.addColorStop(1,'#6b4220');c.fillStyle=g;c.fillRect(0,0,W,H);
+  c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=2;for(let k=0;k<14;k++){c.beginPath();c.moveTo(0,k*H/14+6);c.bezierCurveTo(W*.3,k*H/14-4,W*.6,k*H/14+10,W,k*H/14);c.stroke()}
+  const b=W*.07;c.fillStyle='#f5efe0';c.fillRect(b,b,W-2*b,H-2*b);const m=b+W*.03;c.fillStyle=o.bg;c.fillRect(m,m,W-2*m,H-2*m);c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=2;c.strokeRect(m,m,W-2*m,H-2*m);ix=m;iy=m;iw=W-2*m;ih=H-2*m}
+ else if(f==='polar'){c.fillStyle='#e9ecef';c.fillRect(0,0,W,H);const s=W*.05,bw=W-2*s,bh=H-2*s;c.save();c.shadowColor='rgba(0,0,0,.3)';c.shadowBlur=14;c.shadowOffsetY=4;c.fillStyle='#fff';c.fillRect(s,s,bw,bh);c.restore();
+  const p=bw*.06;ix=s+p;iy=s+p;iw=bw-2*p;ih=bh-p-bh*.2;c.fillStyle=o.bg;c.fillRect(ix,iy,iw,ih);
+  c.fillStyle='#868e96';c.font=`${Math.round(H*.06)}px "Nanum Pen Script",cursive`;c.textAlign='right';c.textBaseline='middle';c.fillText(o.cap||new Date().toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'}),s+bw-p,iy+ih+(bh*.2)/2+p*.2)}
+ else if(f==='neon'){c.fillStyle='#0b0b14';c.fillRect(0,0,W,H);const m=W*.06;c.save();c.shadowColor=o.fg;c.shadowBlur=22;c.strokeStyle=o.fg;c.lineWidth=5;rr(c,m,m,W-2*m,H-2*m,20);c.stroke();c.stroke();c.restore();
+  c.fillStyle=o.bg==='#1d1f24'?'#0b0b14':o.bg;rr(c,m+6,m+6,W-2*m-12,H-2*m-12,16);c.globalAlpha=o.bg==='#1d1f24'?1:.18;c.fill();c.globalAlpha=1;ix=m;iy=m;iw=W-2*m;ih=H-2*m}
+ else if(f==='memo'){c.fillStyle='#dee2e6';c.fillRect(0,0,W,H);const m=W*.08;c.save();c.translate(W/2,H/2);c.rotate(-.025);c.shadowColor='rgba(0,0,0,.25)';c.shadowBlur=12;c.shadowOffsetY=6;c.fillStyle=o.bg;c.fillRect(-W/2+m,-H/2+m,W-2*m,H-2*m);c.restore();
+  c.save();c.translate(W/2,m*.9);c.rotate(.04);c.fillStyle='rgba(255,212,59,.75)';c.fillRect(-W*.12,-12,W*.24,26);c.restore();
+  c.font=`${Math.round(H*.12)}px serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('⭐',W-m*1.2,H-m*1.2);ix=m;iy=m;iw=W-2*m;ih=H-2*m}
+ else {c.fillStyle=o.bg;c.fillRect(0,0,W,H)}
+ // 글자
+ const pad=iw*.07,maxW=iw-2*pad;let fs=Math.round(H*(o.size||.14));const fam=`"${o.font}",sans-serif`;let lines;
+ for(;fs>10;fs-=2){c.font=`${o.font==='Gaegu'?'700 ':o.font==='Noto Sans KR'?'900 ':''}${fs}px ${fam}`;lines=wrap(c,o.text||'글자를 넣어 주세요',maxW);if(lines.length*fs*1.25<=ih-2*pad)break}
+ c.textAlign='center';c.textBaseline='middle';const lh=fs*1.25,top=iy+ih/2-(lines.length-1)*lh/2;
+ if(f==='neon'){c.save();c.shadowColor=o.fg;c.shadowBlur=16;c.fillStyle=o.fg;lines.forEach((t,k)=>c.fillText(t,ix+iw/2,top+k*lh));c.restore()}
+ c.fillStyle=o.fg;lines.forEach((t,k)=>c.fillText(t,ix+iw/2,top+k*lh))}
+async function renderText(o,W,H){const cv=document.createElement('canvas');cv.width=W;cv.height=H;try{await document.fonts.load(`${o.font==='Gaegu'?'700 ':o.font==='Noto Sans KR'?'900 ':''}40px "${o.font}"`,'가A');await document.fonts.load('40px "Nanum Pen Script"','가')}catch(e){}drawText(cv,o);return cv}
+async function renderCrop(src,cr,W,H){const im=await ld(src);const cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');c.drawImage(im,cr[0]*im.naturalWidth,cr[1]*im.naturalHeight,cr[2]*im.naturalWidth,cr[3]*im.naturalHeight,0,0,W,H);return cv}
+
+function open(opt){addCss();opt=Object.assign({photos:[],aspect:4/3,title:'대표 사진',w:480},opt||{});
+ const A=opt.aspect,W=opt.w,H=Math.round(W/A);const prev=opt.spec||{};
+ let mode=prev.mode==='text'?'text':'photo';let src=prev.mode==='photo'?prev.src:(opt.photos[0]&&opt.photos[0].url)||'';let crop=prev.mode==='photo'&&prev.crop?prev.crop.slice():null;
+ const ts=Object.assign({text:'',fg:'#ffffff',bg:'#1d1f24',font:'Jua',frame:'none',size:.14},LS.get('style',{}),prev.mode==='text'?prev:{});
+ const extra=[];// 새로 붙인 사진
+ const root=document.createElement('div');root.className='thp';root.setAttribute('role','dialog');
+ root.innerHTML=`<div class=hd><b>🖼️ ${opt.title} 고르기</b><button class="bt x" data-a=x aria-label="닫기">✕</button></div>
+ <div class=tb><button data-m=photo>📷 사진에서</button><button data-m=text>✍️ 글자로</button></div><div class=bd></div>
+ <div class=ft>${opt.onReset?'<button class=bt data-a=reset>↺ 자동(첫 사진)</button>':''}<button class="bt pri" data-a=save>✔ 대표로 저장</button></div>
+ <input type=file accept="image/*" multiple hidden data-f=g><input type=file accept="image/*" capture=environment hidden data-f=c>`;
+ document.body.appendChild(root);const bd=root.querySelector('.bd');
+ const close=()=>{root.remove();document.removeEventListener('paste',onPaste);document.removeEventListener('keydown',onKey)};
+ async function addFiles(fs){for(const f of fs){if(!/^image/.test(f.type))continue;const u=await fileUrl(f);extra.unshift({url:u,label:'새 사진',file:f});src=u;crop=null}mode='photo';draw()}
+ const onPaste=e=>{const fs=[...(e.clipboardData||{}).files||[]].filter(f=>/^image/.test(f.type));if(fs.length){e.preventDefault();addFiles(fs)}else if(mode==='text'&&document.activeElement.tagName!=='TEXTAREA'){const t=e.clipboardData.getData('text');if(t){ts.text=t;draw()}}};
+ const onKey=e=>{if(e.key==='Escape')close()};
+ document.addEventListener('paste',onPaste);document.addEventListener('keydown',onKey);
+ root.querySelectorAll('[data-f]').forEach(i=>i.onchange=()=>{addFiles([...i.files]);i.value=''});
+ root.querySelector('[data-a=x]').onclick=close;
+ root.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{mode=b.dataset.m;draw()});
+ if(opt.onReset)root.querySelector('[data-a=reset]').onclick=()=>{opt.onReset();close()};
+ root.querySelector('[data-a=save]').onclick=async()=>{let cv,spec;
+  try{if(mode==='text'){if(!ts.text.trim()){toast(root,'글자를 먼저 넣어 주세요');return}cv=await renderText(ts,W,H);spec={mode:'text',text:ts.text,fg:ts.fg,bg:ts.bg,font:ts.font,frame:ts.frame,size:ts.size};LS.set('style',{fg:ts.fg,bg:ts.bg,font:ts.font,frame:ts.frame,size:ts.size})}
+  else{if(!src){toast(root,'사진을 먼저 골라 주세요');return}cv=await renderCrop(src,crop||[0,0,1,1],W,H);const ex=extra.find(x=>x.url===src);spec={mode:'photo',src:ex?'':src,crop:crop||[0,0,1,1],isNew:!!ex}}
+  const th=cv.toDataURL('image/jpeg',.85);const ex=extra.find(x=>x.url===src);
+  await opt.onSave&&opt.onSave({th,spec,newFile:mode==='photo'&&ex?ex.file:null,canvas:cv});close()}catch(e){console.error(e);toast(root,'저장 실패: '+(e.message||e))}};
+ function draw(){root.querySelectorAll('[data-m]').forEach(b=>b.classList.toggle('on',b.dataset.m===mode));bd.classList.toggle('two',true);
+  if(mode==='photo')drawPhoto();else drawTextUI()}
+ function drawPhoto(){const all=[...extra,...opt.photos];
+  bd.innerHTML=`<div><div class=add><button data-p=g>🖼️<b>갤러리</b></button><button data-p=c>📸<b>사진 찍기</b></button><button data-p=v>📋<b>붙여넣기</b></button></div>
+  <div class=lbl style="margin:6px 0 3px">그날 사진 ${opt.photos.length}장 · 눌러서 고르기</div><div class=grid>${all.map((p,k)=>`<button data-k=${k} class="${p.url===src?'on':''}" aria-label="${p.label||'사진'}"><img src="${p.url}" loading=lazy alt=""></button>`).join('')||'<span class=hint>사진이 없어요 — 위에서 붙여 넣으세요</span>'}</div></div>
+  <div><div class=stage></div><div class=hint style="margin-top:4px">보라색 틀을 끌어 옮기고, 모서리를 끌어 크기 조절</div></div>`;
+  bd.querySelector('[data-p=g]').onclick=()=>root.querySelector('[data-f=g]').click();
+  bd.querySelector('[data-p=c]').onclick=()=>root.querySelector('[data-f=c]').click();
+  bd.querySelector('[data-p=v]').onclick=async()=>{try{const its=await navigator.clipboard.read();const fs=[];for(const it of its){const t=it.types.find(x=>x.startsWith('image/'));if(t){const b=await it.getType(t);fs.push(new File([b],'paste.png',{type:t}))}}if(fs.length)addFiles(fs);else toast(root,'붙여넣을 사진이 없어요')}catch(e){toast(root,'Ctrl+V로 붙여 넣어 주세요')}};
+  bd.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{src=all[+b.dataset.k].url;crop=null;drawPhoto()});
+  if(src)stage(bd.querySelector('.stage'))}
+ function stage(st){st.innerHTML=`<img alt=""><div class=box><i class=nw></i><i class=ne></i><i class=sw></i><i class=se></i></div>`;const im=st.querySelector('img'),bx=st.querySelector('.box');
+  im.onload=()=>{const iw=im.clientWidth,ih=im.clientHeight;const ir=im.naturalWidth/im.naturalHeight;
+   if(!crop){let w=1,h=ir/A;if(h>1){h=1;w=A/ir}crop=[(1-w)/2,(1-h)/2,w,h]}
+   const put=()=>{bx.style.left=crop[0]*iw+'px';bx.style.top=crop[1]*ih+'px';bx.style.width=crop[2]*iw+'px';bx.style.height=crop[3]*ih+'px'};put();
+   let drag=null;bx.onpointerdown=e=>{e.preventDefault();bx.setPointerCapture(e.pointerId);drag={k:e.target.tagName==='I'?e.target.className:'mv',x:e.clientX,y:e.clientY,c:crop.slice()}};
+   bx.onpointermove=e=>{if(!drag)return;const dx=(e.clientX-drag.x)/iw,dy=(e.clientY-drag.y)/ih;let[x,y,w,h]=drag.c;
+    if(drag.k==='mv'){x=Math.min(Math.max(0,x+dx),1-w);y=Math.min(Math.max(0,y+dy),1-h)}
+    else{const sx=drag.k.includes('w')?-1:1;let nw=Math.max(.08,w+sx*dx);let nh=nw*iw/A/ih;
+     const ax=drag.k.includes('w')?x+w:x,ay=drag.k.includes('n')?y+h:y;
+     const maxW=drag.k.includes('w')?ax:1-ax,maxH=drag.k.includes('n')?ay:1-ay;if(nw>maxW){nw=maxW;nh=nw*iw/A/ih}if(nh>maxH){nh=maxH;nw=nh*ih*A/iw}
+     w=nw;h=nh;x=drag.k.includes('w')?ax-w:ax;y=drag.k.includes('n')?ay-h:ay}
+    crop=[x,y,w,h];put()};
+   bx.onpointerup=bx.onpointercancel=()=>{drag=null}};
+  im.src=src}
+ function drawTextUI(){bd.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px"><textarea placeholder="여기에 글을 쓰거나 붙여 넣으세요">${(ts.text||'').replace(/</g,'&lt;')}</textarea>
+  <div class=lbl>글자색</div><div class=row data-g=fg>${FG.map(c=>`<button class="swc ${c===ts.fg?'on':''}" style="background:${c}" data-v="${c}" aria-label="${c}"></button>`).join('')}<input type=color value="${ts.fg}" data-c=fg aria-label="직접"></div>
+  <div class=lbl>배경색</div><div class=row data-g=bg>${BG.map(c=>`<button class="swc ${c===ts.bg?'on':''}" style="background:${c}" data-v="${c}" aria-label="${c}"></button>`).join('')}<input type=color value="${ts.bg}" data-c=bg aria-label="직접"></div>
+  <div class=lbl>글씨체</div><div class=row data-g=font>${FONTS.map(([f,n])=>`<button class="ch ${f===ts.font?'on':''}" data-v="${f}" style="font-family:'${f}'">${n}</button>`).join('')}</div>
+  <div class=lbl>프레임</div><div class=row data-g=frame>${FR.map(([f,n])=>`<button class="ch ${f===ts.frame?'on':''}" data-v="${f}">${n}</button>`).join('')}</div>
+  <div class=row><span class=lbl>크기</span><input type=range min=.07 max=.3 step=.01 value="${ts.size}"></div></div>
+  <div class=pv><canvas width=${W} height=${H}></canvas></div>`;
+  const cv=bd.querySelector('canvas');const re=()=>renderText(ts,W,H).then(c=>{cv.getContext('2d').clearRect(0,0,W,H);cv.getContext('2d').drawImage(c,0,0)});re();
+  bd.querySelector('textarea').oninput=e=>{ts.text=e.target.value;re()};
+  bd.querySelectorAll('[data-g] [data-v]').forEach(b=>b.onclick=()=>{const g=b.closest('[data-g]').dataset.g;ts[g]=b.dataset.v;b.parentNode.querySelectorAll('[data-v]').forEach(x=>x.classList.toggle('on',x===b));re()});
+  bd.querySelectorAll('[data-c]').forEach(i=>i.oninput=()=>{ts[i.dataset.c]=i.value;re()});
+  bd.querySelector('input[type=range]').oninput=e=>{ts.size=+e.target.value;re()}}
+ draw();return {close}}
+window.THP={open,renderText,renderCrop,FRAMES:FR};
+})();
+</script>
+</body>
 </html>
