@@ -418,6 +418,14 @@ html.pic .tabs{background:rgba(6,8,12,.85);border-radius:0 0 12px 12px}
 .gridv.gs{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}.gridv.gs .gb{font-size:10.5px}.gridv.gs .gb b{font-size:12px}
 .gridv.gl{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}.gridv.gl .gb{font-size:13px}.gridv.gl .gb b{font-size:15px}
 .gridv.gs .gpkt{display:none}
+.gwk{margin:10px 0 2px;padding:5px 8px;border-radius:8px;background:#151515;border:1px solid #262626;color:#ddd;font-size:12.5px;font-weight:800;cursor:pointer;user-select:none}.gwk small{color:#888;font-weight:500;margin-left:4px}
+.gt .gi .gdr{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.7);color:#fff;font-size:15px;line-height:1;border-radius:7px;padding:4px 7px;touch-action:none;cursor:grab;border:1px solid rgba(255,255,255,.3)}
+.gt.gdrag{opacity:.35}.gt.gdto{outline:3px dashed #F5C400;outline-offset:2px}.gghost{position:fixed;z-index:999;pointer-events:none;opacity:.9;transform:rotate(2deg);box-shadow:0 12px 30px rgba(0,0,0,.6)}
+.galg{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;margin-top:6px}.gal{border-radius:10px;overflow:hidden;background:#121212;border:1px solid #262626;cursor:pointer}.gal .gi{display:block;aspect-ratio:4/3;background:#1c1c1c center/cover no-repeat}.gal small{display:block;padding:4px 6px;font-size:11px;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#galv{position:fixed;inset:0;z-index:998;background:rgba(0,0,0,.94);display:flex;flex-direction:column;align-items:center;justify-content:center}#galv[hidden]{display:none}#galv .gvt{position:absolute;top:12px;left:12px;right:12px;color:#fff;font-weight:800;font-size:14px}
+#galv .gvs{width:100%;height:78vh;display:flex;align-items:center;justify-content:center;touch-action:pan-y}#galv .gvs img{max-width:96vw;max-height:78vh;border-radius:8px;pointer-events:none}
+#galv .gvp,#galv .gvn{position:absolute;top:50%;transform:translateY(-50%);width:64px;height:110px;border:0;border-radius:12px;background:rgba(255,255,255,.12);color:#fff;font-size:34px}#galv .gvp{left:6px}#galv .gvn{right:6px}
+#galv .gvb{position:absolute;bottom:16px;display:flex;gap:8px}#galv .gvb button{border:0;border-radius:99px;padding:10px 22px;font-weight:800;font-size:15px;background:#F5C400;color:#111}#galv .gvb button+button{background:#333;color:#fff}
 .gszr{display:flex;gap:4px;align-items:center;justify-content:flex-end;margin-top:4px}.gszr button{border:1px solid #333;background:#151515;color:#bbb;border-radius:99px;padding:2px 10px;font-size:11.5px}.gszr button.on{background:#F5C400;color:#111;border-color:#F5C400;font-weight:800}
 .gt .ged{float:right;border:0;background:none;color:#888;font-size:13px;padding:0 2px;cursor:pointer}
 .gt.edit{outline:2px solid #F5C400}.gt.edit [contenteditable]{outline:1px dashed #F5C400;border-radius:4px;padding:1px 3px;background:#1a1a1a;color:#fff;-webkit-line-clamp:unset;display:block}
@@ -1346,7 +1354,9 @@ function gridHTML(today) {
   const ds = all.filter(k => !RV.gp || partsOf(k).has(RV.gp)).reverse();
   const chips = `<div class="rbar" style="margin:4px 0 0">${have.map(p => `<button class="chip ${RV.gp === p ? 'on' : ''}" data-gp="${p}">${p}</button>`).join('')}</div>`;
   if (!ds.length) return chips + '<p class="hint">해당 기록이 없어요</p>';
-  return chips + `<div class="gszr"><span class="g" style="font-size:11px;margin-right:auto">${ds.length}일${RV.gp ? ` · ${RV.gp}` : ''} · 누르면 그 날 기록 · ✎ 글 고치기</span>${[['s','작게'],['m','보통'],['l','크게']].map(([v, n]) => `<button data-gsz="${v}" class="${GZ === v ? 'on' : ''}">${n}</button>`).join('')}</div><div class="gridv ${GZ === 's' ? 'gs' : GZ === 'l' ? 'gl' : ''}">` + ds.map(k => {
+  const head = chips + `<div class="gszr"><span class="g" style="font-size:11px;margin-right:auto">${ds.length}일${RV.gp ? ` · ${RV.gp}` : ''} · ⠿ 끌어서 순서 · ✎ 글</span><button data-galb class="${RV.galb ? 'on' : ''}">앨범</button>${ls.get('wt.gord', []).length ? `<button data-gord>${RV.gordArm ? '되돌릴까요?' : '순서 원래대로'}</button>` : ''}${[['s','작게'],['m','보통'],['l','크게']].map(([v, n]) => `<button data-gsz="${v}" class="${GZ === v ? 'on' : ''}">${n}</button>`).join('')}</div>`;
+  const gcls = `gridv ${GZ === 's' ? 'gs' : GZ === 'l' ? 'gl' : ''}`;
+  const card = k => {
     const cs = dayCards(k).filter(c => !RV.cat || c.cat === RV.cat), d = dayInfo(k), pc = cs.find(c => (c.ph || []).length || c.vd);
     const lab = dayLabel(k) || d.parts || cs.filter(c => /근력|유산소/.test(c.cat)).map(c => c.ti).slice(0, 2).join('·') || cs[0].ti || '기록';
     const L = (d.items.length ? d.items.map(shortItem) : cs.filter(c => !c.auto).map(c => c.ti)).filter(Boolean);
@@ -1354,11 +1364,53 @@ function gridHTML(today) {
     const allPh = cs.flatMap(c => (c.ph || []).filter(p => !isVid(p)).map(p => ({c, p}))), shp = SH[k] && allPh.find(x => x.p === SH[k]);
     if (TS[k]) ik = 'th:' + k; else if (shp) { if (isIdbK(shp.p)) ik = shp.p; else th = `background-image:url('${dirOf(shp.c.pk || shp.c.k)}/${shp.p}.jpg');${trStyle(shp.c, shp.p)}`; } else if (pc) { if (pc.vd) th = `background-image:url('${dirOf(pc.pk || pc.k)}/${pc.vd}.jpg')`; else { const p0 = pc.ph[0]; if (isIdbK(p0)) ik = isVid(p0) ? '' : p0; else th = `background-image:url('${dirOf(pc.pk || pc.k)}/${p0}.jpg');${trStyle(pc, p0)}`; } }
     const tx = TX[k] || {}, ed = RV.ged === k, fs = tx.fs ? `font-size:${tx.fs}px;` : '', needSh = !TS[k] && !SH[k] && allPh.length > 1;
-    return `<div class="gt ${ed ? 'edit' : ''}" role="button" tabindex="0" data-gt="${k}" ${needSh ? `data-gsh="${k}"` : ''}><span class="gi" style="${th}" ${ik ? `data-gidb="${ik}"` : ''}>${th || ik ? '' : '🏋'}<span class="gd ${k === today ? 'td' : ''}">${md(kDate(k))}${k === today ? ' 오늘' : ''}</span><span class="gn">${cs.length}건</span><span class="gpk" data-gpk="${k}" role="button" aria-label="대표 사진 고르기">🖼️<span class="gpkt"> 대표</span></span></span><span class="gb" style="${fs}"><span class="ged" data-ged="${k}" role="button" aria-label="글 고치기">✎</span><b ${ed ? 'contenteditable="true" data-gte="t"' : ''}>${esc(tx.t ?? lab)}</b><span class="gl2" ${ed ? 'contenteditable="true" data-gte="l"' : ''}>${esc(tx.l ?? (L.slice(0, 4).join(' · ') || cs.map(c => c.ti).filter(Boolean).slice(0, 3).join(' · ')))}</span>${ed ? `<span class="gedb"><span data-gfs="-1">가−</span><span data-gfs="1">가＋</span><span data-grs="${k}">${RV.grsArm === k ? '되돌릴까요?' : '↺ 원래 글'}</span><span class="ok" data-gok="${k}">완료</span></span>` : ''}</span></div>`; }).join('') + `</div>`;
+    return `<div class="gt ${ed ? 'edit' : ''}" role="button" tabindex="0" data-gt="${k}" ${needSh ? `data-gsh="${k}"` : ''}><span class="gi" style="${th}" ${ik ? `data-gidb="${ik}"` : ''}>${th || ik ? '' : '🏋'}<span class="gd ${k === today ? 'td' : ''}">${md(kDate(k))}${k === today ? ' 오늘' : ''}</span><span class="gn">${cs.length}건</span><span class="gdr" data-gdr="${k}" role="button" aria-label="끌어서 순서 바꾸기">⠿</span><span class="gpk" data-gpk="${k}" role="button" aria-label="대표 사진 고르기">🖼️<span class="gpkt"> 대표</span></span></span><span class="gb" style="${fs}"><span class="ged" data-ged="${k}" role="button" aria-label="글 고치기">✎</span><b ${ed ? 'contenteditable="true" data-gte="t"' : ''}>${esc(tx.t ?? lab)}</b><span class="gl2" ${ed ? 'contenteditable="true" data-gte="l"' : ''}>${esc(tx.l ?? (L.slice(0, 4).join(' · ') || cs.map(c => c.ti).filter(Boolean).slice(0, 3).join(' · ')))}</span>${ed ? `<span class="gedb"><span data-gfs="-1">가−</span><span data-gfs="1">가＋</span><span data-grs="${k}">${RV.grsArm === k ? '되돌릴까요?' : '↺ 원래 글'}</span><span class="ok" data-gok="${k}">완료</span></span>` : ''}</span></div>`; };
+  if (RV.galb) return head + albumHTML(ds, TS);
+  const ORD = ls.get('wt.gord', []), WF = ls.get('wt.gwf', {});
+  const wk = k => { const d = kDate(k), m = new Date(d); m.setDate(d.getDate() - (d.getDay() + 6) % 7); return dkey(m.getTime()); };
+  const groups = []; ds.forEach(k => { const w = wk(k); let g = groups.find(x => x.w === w); if (!g) groups.push(g = {w, ks: []}); g.ks.push(k); });
+  groups.forEach(g => g.ks.sort((a, b) => { const ia = ORD.indexOf(a), ib = ORD.indexOf(b); return ia < 0 && ib < 0 ? b - a : ia < 0 ? -1 : ib < 0 ? 1 : ia - ib; }));
+  return head + groups.map(g => { const st = kDate(g.w), en = new Date(st); en.setDate(st.getDate() + 6); const f = !!WF[g.w], ps = [...new Set(g.ks.flatMap(k => [...partsOf(k)]))].slice(0, 6).join('·');
+    return `<div class="gwk" data-gwk="${g.w}" role="button">${f ? '▸' : '▾'} ${md(st)} ~ ${md(en)} <small>${g.ks.length}일${ps ? ' · ' + ps : ''}</small></div>` + (f ? '' : `<div class="${gcls}" data-gwg="${g.w}">${g.ks.map(card).join('')}</div>`); }).join('');
+}
+/* 앨범: 대표 사진 고른 날만 크게 모아 보기 · 누르면 크게(‹ › · 손가락 따라 넘기기) */
+function albumHTML(ds, TS) { const ks = ds.filter(k => TS[k]); if (!ks.length) return '<p class="hint">대표 사진을 고른 날이 아직 없어요 — 카드의 🖼️ 대표로 골라 보세요</p>';
+  return `<div class="galg">${ks.map(k => `<div class="gal" data-galk="${k}" role="button"><span class="gi" data-gidb="th:${k}"></span><small>${md(kDate(k))} ${esc((ls.get('wt.gtxt', {})[k] || {}).t || dayLabel(k) || dayInfo(k).parts || '')}</small></div>`).join('')}</div>`; }
+async function openAlbum(ks, i) {
+  let el = document.getElementById('galv'); if (!el) { el = document.createElement('div'); el.id = 'galv'; document.body.appendChild(el); }
+  el.hidden = false; el.innerHTML = `<div class="gvt"></div><div class="gvs"><img alt=""></div><button class="gvp" aria-label="이전">‹</button><button class="gvn" aria-label="다음">›</button><div class="gvb"><button data-gvo>열기</button><button data-gvx>닫기</button></div>`;
+  const img = el.querySelector('img'), sl = el.querySelector('.gvs');
+  const show = async (n, dir) => { i = (n + ks.length) % ks.length; const k = ks[i]; img.src = await idbURL('th:' + k); el.querySelector('.gvt').textContent = `${md(kDate(k))} ${(ls.get('wt.gtxt', {})[k] || {}).t || dayLabel(k) || ''} · ${i + 1}/${ks.length}`;
+    if (dir) { sl.style.transition = 'none'; sl.style.transform = `translateX(${dir * 100}%)`; requestAnimationFrame(() => { sl.style.transition = 'transform .25s ease-out'; sl.style.transform = 'none'; }); } };
+  const go = d => { sl.style.transition = 'transform .2s ease-in'; sl.style.transform = `translateX(${-d * 100}%)`; setTimeout(() => show(i + d, d), 190); };
+  el.querySelector('.gvp').onclick = () => go(-1); el.querySelector('.gvn').onclick = () => go(1);
+  el.querySelector('[data-gvx]').onclick = () => { el.hidden = true; el.innerHTML = ''; };
+  el.querySelector('[data-gvo]').onclick = () => { const k = ks[i]; el.hidden = true; el.innerHTML = ''; RV.k = k; RV.grid = false; RV.galb = false; RV.cat = ''; paintRec(); };
+  let sx = null; sl.onpointerdown = e => { sx = e.clientX; sl.setPointerCapture(e.pointerId); sl.style.transition = 'none'; };
+  sl.onpointermove = e => { if (sx == null) return; sl.style.transform = `translateX(${e.clientX - sx}px)`; };
+  sl.onpointerup = sl.onpointercancel = e => { if (sx == null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1); else { sl.style.transition = 'transform .2s'; sl.style.transform = 'none'; } };
+  show(i);
+}
+/* ⠿ 끌어서 순서 바꾸기 (같은 주 안) */
+function bindGridDrag(box) {
+  box.querySelectorAll('[data-gdr]').forEach(h => h.onpointerdown = e => {
+    e.preventDefault(); e.stopPropagation(); const cardEl = h.closest('[data-gt]'), grp = cardEl.parentNode, r = cardEl.getBoundingClientRect();
+    const gh = cardEl.cloneNode(true); gh.classList.add('gghost'); gh.style.width = r.width + 'px'; gh.style.left = r.left + 'px'; gh.style.top = r.top + 'px'; document.body.appendChild(gh); cardEl.classList.add('gdrag');
+    const ox = e.clientX - r.left, oy = e.clientY - r.top; let tgt = null; h.setPointerCapture(e.pointerId);
+    h.onpointermove = ev => { gh.style.left = ev.clientX - ox + 'px'; gh.style.top = ev.clientY - oy + 'px'; const under = document.elementFromPoint(ev.clientX, ev.clientY), c = under && under.closest('[data-gt]');
+      grp.querySelectorAll('.gdto').forEach(x => x.classList.remove('gdto')); tgt = c && c.parentNode === grp && c !== cardEl ? c : null; if (tgt) tgt.classList.add('gdto'); };
+    h.onpointerup = h.onpointercancel = () => { h.onpointermove = h.onpointerup = h.onpointercancel = null; gh.remove(); cardEl.classList.remove('gdrag'); grp.querySelectorAll('.gdto').forEach(x => x.classList.remove('gdto'));
+      if (tgt) { const cs = [...grp.children]; grp.insertBefore(cardEl, cs.indexOf(cardEl) < cs.indexOf(tgt) ? tgt.nextSibling : tgt); ls.set('wt.gord', [...box.querySelectorAll('[data-gt]')].map(x => +x.dataset.gt)); toast('순서 바꿈'); setTimeout(paintRec, 50); } };
+  });
 }
 /* 목록 카드: 크기(작게·보통·크게) · ✎ 글 고치기(그 자리 · 글자 크기) · 선명한 사진 자동 */
 function gtSave(k, patch) { const T = ls.get('wt.gtxt', {}); T[k] = Object.assign(T[k] || {}, patch); ls.set('wt.gtxt', T); }
 function bindGridEdit(box) {
+  bindGridDrag(box);
+  box.querySelectorAll('[data-galb]').forEach(b => b.onclick = () => { RV.galb = !RV.galb; paintRec(); });
+  box.querySelectorAll('[data-gord]').forEach(b => b.onclick = () => { if (!RV.gordArm) { RV.gordArm = 1; b.textContent = '되돌릴까요?'; setTimeout(() => { RV.gordArm = 0; if (b.isConnected) b.textContent = '순서 원래대로'; }, 3000); return; } RV.gordArm = 0; ls.set('wt.gord', []); paintRec(); toast('원래 순서로'); });
+  box.querySelectorAll('[data-gwk]').forEach(b => b.onclick = () => { const W = ls.get('wt.gwf', {}); W[b.dataset.gwk] = !W[b.dataset.gwk]; ls.set('wt.gwf', W); paintRec(); });
+  const gks = [...box.querySelectorAll('[data-galk]')].map(x => +x.dataset.galk); box.querySelectorAll('[data-galk]').forEach((b, n) => b.onclick = () => openAlbum(gks, n));
   box.querySelectorAll('[data-gsz]').forEach(b => b.onclick = () => { ls.set('wt.gsz', b.dataset.gsz); paintRec(); });
   box.querySelectorAll('[data-ged]').forEach(b => b.onclick = e => { e.stopPropagation(); const k = +b.dataset.ged; RV.ged = RV.ged === k ? 0 : k; RV.grsArm = 0; paintRec(); const el = box.ownerDocument.querySelector(`[data-gt="${k}"] [data-gte="t"]`); if (el) el.focus(); });
   box.querySelectorAll('[data-gte]').forEach(el => { const k = +el.closest('[data-gt]').dataset.gt; el.onclick = e => e.stopPropagation(); el.onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter' && el.dataset.gte === 't') { e.preventDefault(); el.blur(); } }; el.onblur = () => gtSave(k, {[el.dataset.gte]: el.innerText.trim()}); });
@@ -2223,7 +2275,7 @@ setTab('R');
    THP.open({photos:[{url,label}], aspect:카드비율, spec, title, defaultText, onSave:r=>{r.th(dataURL), r.spec}, onReset})
    v2: 비율 고르기 · 빈 곳 드래그로 새 틀 · 변 손잡이 · 결과 미리보기
    v3: 남는 칸 채우기(흐림·단색·거울) · 두 손가락 확대(＋－) · 회전(기울기·90°) · 글자 겹쳐 쓰기(opt.overlayText) */
-(function(){if(window.THP&&window.THP.v>=3)return;
+(function(){if(window.THP&&window.THP.v>=4)return;
 const FONTS=[['Jua','주아'],['Black Han Sans','검은고딕'],['Do Hyeon','도현'],['Gaegu','개구'],['Nanum Pen Script','손글씨'],['Noto Sans KR','고딕']];
 const FG=['#ffffff','#111111','#ffe066','#ff6b6b','#4dabf7','#69db7c','#f783ac','#ff922b'];
 const BG=['#1d1f24','#ffffff','#fff3bf','#ffe3e3','#d0ebff','#d3f9d8','#e5dbff','#2b8a3e'];
@@ -2327,7 +2379,11 @@ function bgFill(c,im,sx,sy,sw,sh,W,H,fill,dx,dy,dw,dh){const [r,g,b]=avgColor(im
  const s=document.createElement('canvas');s.width=24;s.height=Math.max(6,Math.round(24*H/W));const sc=s.getContext('2d');
  const cr=Math.max(W/sw,H/sh)*1.25,bw=W/cr,bh=H/cr;sc.drawImage(im,sx+(sw-bw)/2,sy+(sh-bh)/2,bw,bh,0,0,s.width,s.height);
  c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(s,0,0,W,H);c.fillStyle=`rgba(${r},${g},${b},.35)`;c.fillRect(0,0,W,H)}
-function drawOverlay(c,W,H,ov){if(!ov||!ov.on||!String(ov.text||'').trim())return;const fs=Math.round(H*(ov.size||.11));c.save();
+/* v4: 글자 겹쳐 쓰기에 부위·주제 이모지 자동 */
+const EMO=[[/윗가슴|아랫가슴|가슴|체스트|벤치|펙/,'💪'],[/윗등|아랫등|등|랫풀|로우|턱걸이|데드/,'🦍'],[/어깨|숄더|사레/,'🏋️'],[/이두|컬/,'💪'],[/삼두|푸시다운|딥스/,'🦾'],[/하체|스쿼트|레그|다리|런지/,'🦵'],[/복근|복부|크런치|플랭크/,'🔥'],[/목|넥/,'🦒'],[/유산소|러닝|달리기|걷기|계단|사이클/,'🏃'],[/스트레칭|폼롤|요가/,'🧘'],
+ [/식단|점심|저녁|아침|식사|샐러드/,'🥗'],[/요리|레시피|감자전/,'🍳'],[/카페|커피|빵/,'☕'],[/회사|사무실|출근|퇴근/,'🏢'],[/영어|English|미드/i,'🇺🇸'],[/일본어|日本|일어/,'🇯🇵'],[/여행|공항/,'✈️'],[/철학|깨달음/,'💡'],[/뉴스|기사/,'📰']];
+function emojiFor(t){t=String(t||'');const out=[];for(const [re,e] of EMO){if(re.test(t)&&!out.includes(e))out.push(e);if(out.length>=3)break}return out.join('')}
+function drawOverlay(c,W,H,ov){if(!ov||!ov.on||!String(ov.text||'').trim())return;if(ov.emo!==false&&!/\p{Extended_Pictographic}/u.test(ov.text)){const e=emojiFor(ov.text);if(e)ov=Object.assign({},ov,{text:ov.text+' '+e})}const fs=Math.round(H*(ov.size||.11));c.save();
  c.font=`800 ${fs}px "Jua","Noto Sans KR",sans-serif`;const lines=wrap(c,ov.text,W*.9).slice(0,3),lh=fs*1.2,bh=lines.length*lh+fs*.7,top=ov.pos==='top';
  const g=c.createLinearGradient(0,top?0:H-bh*1.4,0,top?bh*1.4:H);g.addColorStop(top?0:1,'rgba(0,0,0,.72)');g.addColorStop(top?1:0,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(0,top?0:H-bh*1.4,W,bh*1.4);
  c.fillStyle='#fff';c.textAlign='left';c.textBaseline='middle';c.shadowColor='rgba(0,0,0,.6)';c.shadowBlur=6;const y0=top?fs*.35+lh/2:H-bh+fs*.35+lh/2;lines.forEach((t,k)=>c.fillText(t,W*.05,y0+k*lh));c.restore()}
@@ -2343,7 +2399,7 @@ function open(opt){addCss();opt=Object.assign({photos:[],aspect:4/3,title:'대�
  const ARS=[['원본','o'],['자유','f'],['카드 비율','c'],['1:1',1],['4:3',4/3],['3:4',.75],['16:9',16/9]];
  const FILLS=[['blur','흐림'],['solid','단색'],['mirror','거울']];
  let ar=prev.ar!==undefined?prev.ar:LS.get('ar','c');let fill=prev.fill||LS.get('fill','blur');let rot=+prev.rot||0;let zoom=1;
- const ov=Object.assign({on:false,text:opt.overlayText||'',pos:'bottom',size:.11},LS.get('ov',{}),prev.ov||{});if(!prev.ov&&opt.overlayText)ov.text=opt.overlayText;
+ const ov=Object.assign({on:false,text:opt.overlayText||'',pos:'bottom',size:.11,emo:true},LS.get('ov',{}),prev.ov||{});if(!prev.ov&&opt.overlayText)ov.text=opt.overlayText;
  let mode=prev.mode==='text'||(!opt.photos.length&&prev.mode!=='photo')?'text':'photo';
  let src=prev.mode==='photo'&&prev.src?prev.src:(opt.photos[0]&&opt.photos[0].url)||'';let crop=prev.mode==='photo'&&prev.src&&prev.crop?prev.crop.slice():null;
  const ts=Object.assign({text:opt.defaultText||'',fg:'#ffffff',bg:'#1d1f24',font:'Jua',frame:'none',size:.14},LS.get('style',{}),prev.mode==='text'?prev:{});
@@ -2366,7 +2422,7 @@ function open(opt){addCss();opt=Object.assign({photos:[],aspect:4/3,title:'대�
  if(opt.onReset)root.querySelector('[data-a=reset]').onclick=()=>{opt.onReset();close()};
  root.querySelector('[data-a=save]').onclick=async()=>{let cv,spec;
   try{if(mode==='text'){if(!ts.text.trim()){toast(root,'글자를 먼저 넣어 주세요');return}cv=await renderText(ts,W,H);spec={mode:'text',text:ts.text,fg:ts.fg,bg:ts.bg,font:ts.font,frame:ts.frame,size:ts.size};LS.set('style',{fg:ts.fg,bg:ts.bg,font:ts.font,frame:ts.frame,size:ts.size})}
-  else{if(!src){toast(root,'사진을 먼저 골라 주세요');return}cv=await renderCrop(src,crop||[0,0,1,1],W,H,O());const ex=extra.find(x=>x.url===src);spec={mode:'photo',src:ex?'':src,crop:crop||[0,0,1,1],ar,fill,rot,ov:Object.assign({},ov),isNew:!!ex};LS.set('ar',ar);LS.set('fill',fill);LS.set('ov',{on:ov.on,pos:ov.pos,size:ov.size})}
+  else{if(!src){toast(root,'사진을 먼저 골라 주세요');return}cv=await renderCrop(src,crop||[0,0,1,1],W,H,O());const ex=extra.find(x=>x.url===src);spec={mode:'photo',src:ex?'':src,crop:crop||[0,0,1,1],ar,fill,rot,ov:Object.assign({},ov),isNew:!!ex};LS.set('ar',ar);LS.set('fill',fill);LS.set('ov',{on:ov.on,pos:ov.pos,size:ov.size,emo:ov.emo})}
   const th=cv.toDataURL('image/jpeg',.85);const ex=extra.find(x=>x.url===src);
   await opt.onSave&&opt.onSave({th,spec,newFile:mode==='photo'&&ex?ex.file:null,canvas:cv});close()}catch(e){console.error(e);toast(root,'저장 실패: '+(e.message||e))}};
  function draw(){root.querySelectorAll('[data-m]').forEach(b=>b.classList.toggle('on',b.dataset.m===mode));bd.classList.add('tp-two');
@@ -2379,7 +2435,7 @@ function open(opt){addCss();opt=Object.assign({photos:[],aspect:4/3,title:'대�
    <div class=tp-lbl>비율</div><div class=tp-row>${ARS.map(([n,v])=>`<button class="tp-ch ${String(v)===String(ar)?'on':''}" data-ar="${v}">${n}</button>`).join('')}</div></div>
   <div class=tp-col><div class=tp-lbl>결과 미리보기</div><div class="tp-pv tp-pvs"><canvas width=${W} height=${H}></canvas></div>
    <div class=tp-row><span class=tp-lbl>남는 칸</span>${chips(FILLS,fill,'fl')}</div>
-   <div class=tp-ov><div class=tp-row><span class=tp-lbl>글자 겹쳐 쓰기</span><button class="tp-ch ${ov.on?'on':''}" data-ovon>${ov.on?'켜짐':'꺼짐'}</button>${chips([['top','위'],['bottom','아래']],ov.pos,'ovp')}</div>
+   <div class=tp-ov><div class=tp-row><span class=tp-lbl>글자 겹쳐 쓰기</span><button class="tp-ch ${ov.on?'on':''}" data-ovon>${ov.on?'켜짐':'꺼짐'}</button>${chips([['top','위'],['bottom','아래']],ov.pos,'ovp')}<button class="tp-ch ${ov.emo!==false?'on':''}" data-ovemo>이모지 자동</button></div>
     <input type=text data-ovt value="${String(ov.text||'').replace(/"/g,'&quot;')}" placeholder="예: 10/25 목·30분"><div class=tp-row><span class=tp-lbl>크기</span><input type=range min=.06 max=.2 step=.01 value="${ov.size}" data-ovs></div></div>
    <div class=tp-add><button data-p=g>🖼️ 갤러리</button><button data-p=c>📸 사진 찍기</button><button data-p=v>📋 붙여넣기</button></div>
    <div class=tp-lbl>그날 사진 ${opt.photos.length}장${extra.length?` + 새 사진 ${extra.length}장`:''} · 눌러서 고르기</div><div class=tp-grid>${all.map((p,k)=>`<button data-k=${k} class="${p.url===src?'on':''}" aria-label="${p.label||'사진'}"><img src="${p.url}" loading=lazy alt=""></button>`).join('')||'<span class=tp-hint>사진이 없어요 — 위에서 붙여 넣으세요</span>'}</div></div>`;
@@ -2392,6 +2448,7 @@ function open(opt){addCss();opt=Object.assign({photos:[],aspect:4/3,title:'대�
   bd.querySelector('[data-ovon]').onclick=e=>{ov.on=!ov.on;e.target.classList.toggle('on',ov.on);e.target.textContent=ov.on?'켜짐':'꺼짐';preview()};
   bd.querySelectorAll('[data-ovp]').forEach(b=>b.onclick=()=>{ov.pos=b.dataset.ovp;ov.on=true;bd.querySelectorAll('[data-ovp]').forEach(x=>x.classList.toggle('on',x===b));const t=bd.querySelector('[data-ovon]');t.classList.add('on');t.textContent='켜짐';preview()});
   bd.querySelector('[data-ovt]').oninput=e=>{ov.text=e.target.value;if(!ov.on&&ov.text){ov.on=true;const t=bd.querySelector('[data-ovon]');t.classList.add('on');t.textContent='켜짐'}preview()};
+  bd.querySelector('[data-ovemo]').onclick=e=>{ov.emo=ov.emo===false;e.target.classList.toggle('on',ov.emo!==false);preview()};
   bd.querySelector('[data-ovs]').oninput=e=>{ov.size=+e.target.value;preview()};
   const setRot=v=>{rot=Math.round(v*2)/2;crop=null;drawPhoto()};
   bd.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>setRot(((rot+ +b.dataset.r)%360+540)%360-180));
@@ -2452,7 +2509,7 @@ function open(opt){addCss();opt=Object.assign({photos:[],aspect:4/3,title:'대�
 async function sharpest(urls){let best=-1,bi=0;for(let i=0;i<urls.length;i++){try{const im=await ld(urls[i]);const s=document.createElement('canvas'),w=96,h=Math.max(8,Math.round(96*im.naturalHeight/im.naturalWidth));s.width=w;s.height=h;const c=s.getContext('2d');c.drawImage(im,0,0,w,h);const d=c.getImageData(0,0,w,h).data,g=new Float32Array(w*h);
  for(let p=0;p<w*h;p++)g[p]=d[p*4]*.3+d[p*4+1]*.59+d[p*4+2]*.11;let m=0,q=0,n=0;for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){const p=y*w+x,v=4*g[p]-g[p-1]-g[p+1]-g[p-w]-g[p+w];m+=v;q+=v*v;n++}
  let mean=0;for(let p=0;p<w*h;p++)mean+=g[p];mean/=w*h;const sc=(q/n-(m/n)**2)*(mean>25&&mean<235?1:.3);if(sc>best){best=sc;bi=i}}catch(e){}}return bi}
-window.THP={v:3,open,renderText,renderCrop,sharpest,FRAMES:FR};
+window.THP={v:4,emojiFor,open,renderText,renderCrop,sharpest,FRAMES:FR};
 })();
 </script>
 </body>
