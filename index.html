@@ -198,6 +198,7 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 .th{width:87px;height:87px;border-radius:6px;background:#222 center/cover no-repeat;cursor:pointer;display:inline-block;position:relative;overflow:hidden;flex:none}
 .th.vd::after{content:"▶";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;text-shadow:0 0 6px #000;pointer-events:none}
 .th video{width:100%;height:100%;object-fit:cover;pointer-events:none}
+#tabR[data-ps=s] .th{width:56px;height:56px}#tabR[data-ps=l] .th{width:150px;height:150px}@media(min-width:700px){#tabR[data-ps=l] .th{width:210px;height:210px}}.psz{display:inline-flex;gap:0}.psz .chip{border-radius:0;margin:0;padding-left:9px;padding-right:9px}.psz .chip:first-child{border-radius:99px 0 0 99px}.psz .chip:last-child{border-radius:0 99px 99px 0}
 .th.add{background:#141414;border:1px dashed #444;color:#888;font-size:11px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
 .th.add i{font-style:normal;font-size:20px;line-height:1}
 .del{margin-left:auto;font-size:11px;color:#888;border:1px solid #333;border-radius:99px;padding:1px 8px;background:none}
@@ -1252,7 +1253,7 @@ function paintRec() {
   const today = dkey(Date.now()), ok = gearOk();
   const cards = RV.q ? allDays().slice().reverse().flatMap(k => dayCards(k)).filter(c => hit(cardTxt(c), RV.q)) : dayCards(RV.k);
   const shown = RV.cat ? cards.filter(c => c.cat === RV.cat) : cards;
-  let h = `<div class="rbar"><button class="chip ${RV.sOn ? 'on' : ''}" id="rS">🔍</button><button class="chip ${RV.grid ? 'on' : ''}" id="rGrid">▦ 목록</button><button class="chip ${RV.pre ? 'on' : ''}" id="rPre">🎨</button>${CATS.map(c => `<button class="chip ${RV.cat === c ? 'on' : ''}" data-rc="${c}">${c}</button>`).join('')}<button class="chip ${ledLive() ? 'live' : ''}" id="rLed">유산소 전광판</button><button class="chip addc ${RV.addOn ? 'on' : ''}" id="rAddT">${RV.addOn ? '✕ 닫기' : '＋ 추가'}</button></div>`
+  let h = `<div class="rbar"><button class="chip ${RV.sOn ? 'on' : ''}" id="rS">🔍</button><button class="chip ${RV.grid ? 'on' : ''}" id="rGrid">▦ 목록</button><button class="chip ${RV.pre ? 'on' : ''}" id="rPre">🎨</button><span class="psz">${[['s','작게'],['m','보통'],['l','크게']].map(([k, t]) => `<button class="chip ${(ls.get('wt.psz', 'm')) === k ? 'on' : ''}" data-psz="${k}">${t}</button>`).join('')}</span>${CATS.map(c => `<button class="chip ${RV.cat === c ? 'on' : ''}" data-rc="${c}">${c}</button>`).join('')}<button class="chip ${ledLive() ? 'live' : ''}" id="rLed">유산소 전광판</button><button class="chip addc ${RV.addOn ? 'on' : ''}" id="rAddT">${RV.addOn ? '✕ 닫기' : '＋ 추가'}</button></div>`
     + (RV.sOn ? `<input class="srch" id="rQ" placeholder="종목·캡션·준비물 검색 (초성 가능: ㅊㄱ)" value="${esc(RV.q)}">` : '');
   if (RV.addOn) h += `<div class="addp"><div class="ah">＋ 추가<small>${md(kDate(RV.k))}에 넣음</small></div><div class="addg">
     <button id="aGal"><i>🖼</i><b>갤러리</b><small>여러 장·영상</small></button>
@@ -1300,12 +1301,12 @@ function paintRec() {
     if (Object.keys(P).length) editCard(id, P);
     const s2 = box.querySelector('[data-sum]'); if (s2) { const v = s2.innerText.replace(/\n+$/, ''); if (v !== sumText(RV.k, cards)) setDay(RV.k, {sum: v}); }
     if (document.activeElement && box.contains(document.activeElement)) document.activeElement.blur();
-    vib(15); toast('저장되었습니다', 1000); }; });
+    vib(15); toast('저장되었습니다', 2500); }; });
   /* 글 고치는 중이면 그 칸 바로 아래에 큰 「💾 저장」 → 누르면 저장 + 「저장되었습니다」 1초 */
   box.querySelectorAll('[data-e],[data-sum]').forEach(el => { if (el.getAttribute('contenteditable') !== 'true') return;
-    el.addEventListener('focus', () => { box.querySelectorAll('.svIn').forEach(x => x.remove()); const bt = document.createElement('button'); bt.className = 'svIn'; bt.textContent = '💾 저장';
+    el.addEventListener('focus', () => { if (!box.querySelector('.svIn')) RV.svY = window.scrollY; box.querySelectorAll('.svIn').forEach(x => x.remove()); const bt = document.createElement('button'); bt.className = 'svIn'; bt.textContent = '💾 저장';
       bt.onpointerdown = e => e.preventDefault(); bt.onmousedown = e => e.preventDefault();
-      bt.onclick = () => { el.blur(); bt.remove(); vib(15); toast('저장되었습니다', 1000); }; el.after(bt); });
+      bt.onclick = () => { el.blur(); bt.remove(); vib(15); toast('저장되었습니다', 2500); setTimeout(() => window.scrollTo({top: RV.svY || 0, behavior: 'smooth'}), 120); }; el.after(bt); });
     el.addEventListener('blur', () => setTimeout(() => { const n = el.nextElementSibling; if (n && n.classList.contains('svIn') && document.activeElement !== el) n.remove(); }, 250)); });
   const sm = box.querySelector('[data-sum]'); if (sm) sm.addEventListener('blur', () => { const v = sm.innerText.replace(/\n+$/, ''); if (v !== sumText(RV.k, cards)) setDay(RV.k, {sum: v}); });
   box.querySelectorAll('[data-tm]').forEach(b => b.onclick = () => { const c = find(b.dataset.tm); if (!c || c.auto || b.querySelector('input')) return;
@@ -1353,6 +1354,7 @@ function paintRec() {
 }
 /* 기록 탭 위쪽 버튼 (일반·목록 공통) */
 function bindRecTop(box) {
+  box.dataset.ps = ls.get('wt.psz', 'm'); box.querySelectorAll('[data-psz]').forEach(b => b.onclick = () => { ls.set('wt.psz', b.dataset.psz); paintRec(); toast('사진 ' + b.textContent); });
   $('#rS').onclick = () => { RV.sOn = !RV.sOn; if (!RV.sOn) RV.q = ''; paintRec(); if (RV.sOn) $('#rQ').focus(); };
   if ($('#rQ')) $('#rQ').oninput = e => { RV.q = e.target.value; const p = e.target.selectionStart; paintRec(); const q = $('#rQ'); q.focus(); q.setSelectionRange(p, p); };
   box.querySelectorAll('[data-rc]').forEach(b => b.onclick = () => { RV.cat = RV.cat === b.dataset.rc ? '' : b.dataset.rc; paintRec(); });
