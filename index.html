@@ -198,7 +198,7 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 .th{width:87px;height:87px;border-radius:6px;background:#222 center/cover no-repeat;cursor:pointer;display:inline-block;position:relative;overflow:hidden;flex:none}
 .th.vd::after{content:"▶";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;text-shadow:0 0 6px #000;pointer-events:none}
 .th video{width:100%;height:100%;object-fit:cover;pointer-events:none}
-#tabR[data-ps=s] .th{width:56px;height:56px}#tabR[data-ps=l] .th{width:150px;height:150px}@media(min-width:700px){#tabR[data-ps=l] .th{width:210px;height:210px}}.psz{display:inline-flex;gap:0}.psz .chip{border-radius:0;margin:0;padding-left:9px;padding-right:9px}.psz .chip:first-child{border-radius:99px 0 0 99px}.psz .chip:last-child{border-radius:0 99px 99px 0}
+#tabR[data-ps=s] .th{width:56px;height:56px}#tabR[data-ps=l] .ph2 .th{width:100%;height:auto;aspect-ratio:4/3}#tabR[data-ps=l] .ph2 .th.add{aspect-ratio:auto;height:48px;flex-direction:row}.gridv.gl{grid-template-columns:1fr}.galg.gs{grid-template-columns:repeat(auto-fill,minmax(105px,1fr))}.galg.gl{grid-template-columns:1fr}.svC{background:#333!important;color:#ddd!important;flex:0 0 30%}.svRow{display:flex;gap:6px}.svRow .svIn{flex:1}.psz{display:inline-flex;gap:0}.psz .chip{border-radius:0;margin:0;padding-left:9px;padding-right:9px}.psz .chip:first-child{border-radius:99px 0 0 99px}.psz .chip:last-child{border-radius:0 99px 99px 0}
 .th.add{background:#141414;border:1px dashed #444;color:#888;font-size:11px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
 .th.add i{font-style:normal;font-size:20px;line-height:1}
 .del{margin-left:auto;font-size:11px;color:#888;border:1px solid #333;border-radius:99px;padding:1px 8px;background:none}
@@ -1248,12 +1248,22 @@ function editCard(id, patch) {
   if (String(id).startsWith('u')) { const L = recMine(), c = L.find(x => x.id === id); if (c) { Object.assign(c, patch); ls.set('wt.rec', L); return; } }
   const e = recEd(); e[id] = Object.assign(e[id] || {}, patch); ls.set('wt.recEd', e);
 }
+/* 사진 크기 3단계(작게·보통·크게) — 기록·목록·앨범 공통 · 버튼 하나로 순환 · 두 손가락 벌리기/오므리기 */
+const PSZN = {s: '작게', m: '보통', l: '크게'};
+function PSZ() { return ls.get('wt.psz', ls.get('wt.gsz', 'm')); }
+function setPsz(v) { if (v === PSZ()) return; ls.set('wt.psz', v); ls.set('wt.gsz', v); paintRec(); toast('사진 ' + PSZN[v], 900); }
+function pinchInit(box) { if (box._pz) return; box._pz = 1; let d0 = 0, done = 0;
+  const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  box.addEventListener('touchstart', e => { if (e.touches.length === 2) { d0 = dist(e.touches); done = 0; } }, {passive: true});
+  box.addEventListener('touchmove', e => { if (e.touches.length !== 2 || !d0) return; e.preventDefault(); if (done) return; const r = dist(e.touches) / d0, o = ['s', 'm', 'l'], i = o.indexOf(PSZ());
+    if (r > 1.3 && i < 2) { done = 1; setPsz(o[i + 1]); } else if (r < 0.75 && i > 0) { done = 1; setPsz(o[i - 1]); } }, {passive: false});
+  box.addEventListener('touchend', e => { if (e.touches.length < 2) d0 = 0; }, {passive: true}); }
 function paintRec() {
-  const box = $('#tabR'); if (!box) return;
+  const box = $('#tabR'); if (!box) return; box.dataset.ps = PSZ(); pinchInit(box);
   const today = dkey(Date.now()), ok = gearOk();
   const cards = RV.q ? allDays().slice().reverse().flatMap(k => dayCards(k)).filter(c => hit(cardTxt(c), RV.q)) : dayCards(RV.k);
   const shown = RV.cat ? cards.filter(c => c.cat === RV.cat) : cards;
-  let h = `<div class="rbar"><button class="chip ${RV.sOn ? 'on' : ''}" id="rS">🔍</button><button class="chip ${RV.grid ? 'on' : ''}" id="rGrid">▦ 목록</button><button class="chip ${RV.pre ? 'on' : ''}" id="rPre">🎨</button><span class="psz">${[['s','작게'],['m','보통'],['l','크게']].map(([k, t]) => `<button class="chip ${(ls.get('wt.psz', 'm')) === k ? 'on' : ''}" data-psz="${k}">${t}</button>`).join('')}</span>${CATS.map(c => `<button class="chip ${RV.cat === c ? 'on' : ''}" data-rc="${c}">${c}</button>`).join('')}<button class="chip ${ledLive() ? 'live' : ''}" id="rLed">유산소 전광판</button><button class="chip addc ${RV.addOn ? 'on' : ''}" id="rAddT">${RV.addOn ? '✕ 닫기' : '＋ 추가'}</button></div>`
+  let h = `<div class="rbar"><button class="chip ${RV.sOn ? 'on' : ''}" id="rS">🔍</button><button class="chip ${RV.grid ? 'on' : ''}" id="rGrid">▦ 목록</button><button class="chip ${RV.pre ? 'on' : ''}" id="rPre">🎨</button><button class="chip" id="rPsz">사진 ${PSZN[PSZ()]}</button>${CATS.map(c => `<button class="chip ${RV.cat === c ? 'on' : ''}" data-rc="${c}">${c}</button>`).join('')}<button class="chip ${ledLive() ? 'live' : ''}" id="rLed">유산소 전광판</button><button class="chip addc ${RV.addOn ? 'on' : ''}" id="rAddT">${RV.addOn ? '✕ 닫기' : '＋ 추가'}</button></div>`
     + (RV.sOn ? `<input class="srch" id="rQ" placeholder="종목·캡션·준비물 검색 (초성 가능: ㅊㄱ)" value="${esc(RV.q)}">` : '');
   if (RV.addOn) h += `<div class="addp"><div class="ah">＋ 추가<small>${md(kDate(RV.k))}에 넣음</small></div><div class="addg">
     <button id="aGal"><i>🖼</i><b>갤러리</b><small>여러 장·영상</small></button>
@@ -1304,10 +1314,13 @@ function paintRec() {
     vib(15); toast('저장되었습니다', 2500); }; });
   /* 글 고치는 중이면 그 칸 바로 아래에 큰 「💾 저장」 → 누르면 저장 + 「저장되었습니다」 1초 */
   box.querySelectorAll('[data-e],[data-sum]').forEach(el => { if (el.getAttribute('contenteditable') !== 'true') return;
-    el.addEventListener('focus', () => { if (!box.querySelector('.svIn')) RV.svY = window.scrollY; box.querySelectorAll('.svIn').forEach(x => x.remove()); const bt = document.createElement('button'); bt.className = 'svIn'; bt.textContent = '💾 저장';
-      bt.onpointerdown = e => e.preventDefault(); bt.onmousedown = e => e.preventDefault();
-      bt.onclick = () => { el.blur(); bt.remove(); vib(15); toast('저장되었습니다', 2500); setTimeout(() => window.scrollTo({top: RV.svY || 0, behavior: 'smooth'}), 120); }; el.after(bt); });
-    el.addEventListener('blur', () => setTimeout(() => { const n = el.nextElementSibling; if (n && n.classList.contains('svIn') && document.activeElement !== el) n.remove(); }, 250)); });
+    el.addEventListener('focus', () => { if (!box.querySelector('.svRow')) RV.svY = window.scrollY; box.querySelectorAll('.svRow').forEach(x => x.remove()); const org = el.innerText;
+      const row = document.createElement('div'); row.className = 'svRow'; row.innerHTML = '<button class="svIn">💾 저장</button><button class="svIn svC">↺ 취소</button>';
+      const [bt, bc] = row.children, back = () => setTimeout(() => window.scrollTo({top: RV.svY || 0, behavior: 'smooth'}), 120);
+      row.onpointerdown = e => e.preventDefault(); row.onmousedown = e => e.preventDefault();
+      bt.onclick = () => { el.blur(); row.remove(); vib(15); toast('저장되었습니다', 2500); back(); };
+      bc.onclick = () => { el.innerText = org; el.blur(); row.remove(); toast('취소 — 원래 글로', 1500); back(); }; el.after(row); });
+    el.addEventListener('blur', () => setTimeout(() => { const n = el.nextElementSibling; if (n && n.classList.contains('svRow') && document.activeElement !== el) n.remove(); }, 250)); });
   const sm = box.querySelector('[data-sum]'); if (sm) sm.addEventListener('blur', () => { const v = sm.innerText.replace(/\n+$/, ''); if (v !== sumText(RV.k, cards)) setDay(RV.k, {sum: v}); });
   box.querySelectorAll('[data-tm]').forEach(b => b.onclick = () => { const c = find(b.dataset.tm); if (!c || c.auto || b.querySelector('input')) return;
     b.innerHTML = `<input value="${esc(c.t || '')}" placeholder="15:40 또는 18:25~18:40">`; const i = b.firstChild; i.focus(); i.select();
@@ -1354,22 +1367,22 @@ function paintRec() {
 }
 /* 기록 탭 위쪽 버튼 (일반·목록 공통) */
 function bindRecTop(box) {
-  box.dataset.ps = ls.get('wt.psz', 'm'); box.querySelectorAll('[data-psz]').forEach(b => b.onclick = () => { ls.set('wt.psz', b.dataset.psz); paintRec(); toast('사진 ' + b.textContent); });
   $('#rS').onclick = () => { RV.sOn = !RV.sOn; if (!RV.sOn) RV.q = ''; paintRec(); if (RV.sOn) $('#rQ').focus(); };
   if ($('#rQ')) $('#rQ').oninput = e => { RV.q = e.target.value; const p = e.target.selectionStart; paintRec(); const q = $('#rQ'); q.focus(); q.setSelectionRange(p, p); };
   box.querySelectorAll('[data-rc]').forEach(b => b.onclick = () => { RV.cat = RV.cat === b.dataset.rc ? '' : b.dataset.rc; paintRec(); });
   $('#rAddT').onclick = () => { RV.addOn = !RV.addOn; RV.pz = false; if (RV.addOn) RV.grid = false; paintRec(); };
+  $('#rPsz').onclick = () => setPsz({s: 'm', m: 'l', l: 's'}[PSZ()]);
   $('#rGrid').onclick = () => { RV.grid = !RV.grid; ls.set('wt.grid', RV.grid); paintRec(); };
   $('#rLed').onclick = openLed;
 }
 /* ▦ 목록: 날짜마다 썸네일 1장 + 부위·요약 (바둑판) — 누르면 그 날로 */
 function gridHTML(today) {
-  const TS = ls.get('wt.gth', {}), TX = ls.get('wt.gtxt', {}), SH = ls.get('wt.gsharp', {}), GZ = ls.get('wt.gsz', 'm');
+  const TS = ls.get('wt.gth', {}), TX = ls.get('wt.gtxt', {}), SH = ls.get('wt.gsharp', {}), GZ = PSZ();
   const all = allDays().filter(k => dayCards(k).some(c => !RV.cat || c.cat === RV.cat)), have = PROWS.filter(p => all.some(k => partsOf(k).has(p)));
   const ds = all.filter(k => !RV.gp || partsOf(k).has(RV.gp)).reverse();
   const chips = `<div class="rbar" style="margin:4px 0 0">${have.map(p => `<button class="chip ${RV.gp === p ? 'on' : ''}" data-gp="${p}">${p}</button>`).join('')}</div>`;
   if (!ds.length) return chips + '<p class="hint">해당 기록이 없어요</p>';
-  const head = chips + `<div class="gszr"><span class="g" style="font-size:11px;margin-right:auto">${ds.length}일${RV.gp ? ` · ${RV.gp}` : ''} · ⠿ 끌어서 순서 · ✎ 글</span><button data-galb class="${RV.galb ? 'on' : ''}">앨범</button>${ls.get('wt.gord', []).length ? `<button data-gord>${RV.gordArm ? '되돌릴까요?' : '순서 원래대로'}</button>` : ''}${[['s','작게'],['m','보통'],['l','크게']].map(([v, n]) => `<button data-gsz="${v}" class="${GZ === v ? 'on' : ''}">${n}</button>`).join('')}</div>`;
+  const head = chips + `<div class="gszr"><span class="g" style="font-size:11px;margin-right:auto">${ds.length}일${RV.gp ? ` · ${RV.gp}` : ''} · ⠿ 끌어서 순서 · ✎ 글</span><button data-galb class="${RV.galb ? 'on' : ''}">앨범</button>${ls.get('wt.gord', []).length ? `<button data-gord>${RV.gordArm ? '되돌릴까요?' : '순서 원래대로'}</button>` : ''}</div>`;
   const gcls = `gridv ${GZ === 's' ? 'gs' : GZ === 'l' ? 'gl' : ''}`;
   const card = k => {
     const cs = dayCards(k).filter(c => !RV.cat || c.cat === RV.cat), d = dayInfo(k), pc = cs.find(c => (c.ph || []).length || c.vd);
@@ -1390,7 +1403,7 @@ function gridHTML(today) {
 }
 /* 앨범: 대표 사진 고른 날만 크게 모아 보기 · 누르면 크게(‹ › · 손가락 따라 넘기기) */
 function albumHTML(ds, TS) { const ks = ds.filter(k => TS[k]); if (!ks.length) return '<p class="hint">대표 사진을 고른 날이 아직 없어요 — 카드의 🖼️ 대표로 골라 보세요</p>';
-  return `<div class="galg">${ks.map(k => `<div class="gal" data-galk="${k}" role="button"><span class="gi" data-gidb="th:${k}"></span><small>${md(kDate(k))} ${esc((ls.get('wt.gtxt', {})[k] || {}).t || dayLabel(k) || dayInfo(k).parts || '')}</small></div>`).join('')}</div>`; }
+  return `<div class="galg ${PSZ() === 's' ? 'gs' : PSZ() === 'l' ? 'gl' : ''}">${ks.map(k => `<div class="gal" data-galk="${k}" role="button"><span class="gi" data-gidb="th:${k}"></span><small>${md(kDate(k))} ${esc((ls.get('wt.gtxt', {})[k] || {}).t || dayLabel(k) || dayInfo(k).parts || '')}</small></div>`).join('')}</div>`; }
 async function openAlbum(ks, i) {
   let el = document.getElementById('galv'); if (!el) { el = document.createElement('div'); el.id = 'galv'; document.body.appendChild(el); }
   el.hidden = false; el.innerHTML = `<div class="gvt"></div><div class="gvs"><img alt=""></div><button class="gvp" aria-label="이전">‹</button><button class="gvn" aria-label="다음">›</button><div class="gvb"><button data-gvo>열기</button><button data-gvx>닫기</button></div>`;
