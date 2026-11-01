@@ -222,7 +222,7 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 .ln .lx{flex:none;color:#666;font-size:11px;padding:0 4px;background:none;border:0}
 .p2g{display:grid;gap:0 10px}@media (min-width:700px){.p2g{grid-template-columns:1fr 1fr}}
 .cbt{display:flex;gap:3px;margin-left:auto}.cbt button{font-size:11px;color:#999;border:1px solid #333;border-radius:99px;padding:1px 7px;background:none}
-.cbt .del{margin-left:0}
+.cbt .del{margin-left:0}.cbt .sv{color:#F5C400;border-color:#F5C40066}
 .ins{display:block;margin:-4px 0 -2px -3px;width:16px;height:16px;border-radius:50%;border:1px dashed #555;background:#0b0b0b;color:#888;font-size:11px;line-height:13px;padding:0;position:relative;z-index:1}
 .ins:active{border-color:#F5C400;color:#F5C400}
 .ln .mv2{flex:none;display:flex;gap:2px;align-self:center}.ln .mv2 button{font-size:10px;color:#777;border:1px solid #2a2a2a;border-radius:5px;padding:0 5px;background:none;line-height:16px}
@@ -1052,7 +1052,7 @@ function copyTxt(t) {
   function fb() { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); ok(); } catch (x) {} a.remove(); }
 }
 let toastT = 0;
-function toast(t) { const el = $('#toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => el.style.display = 'none', 1600); }
+function toast(t, ms) { const el = $('#toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => el.style.display = 'none', ms || 1600); }
 /* 검색: 띄어쓰기 무시·초성(ㅇㄷ→윗등) */
 const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
 const cho = t => [...t].map(c => { const k = c.charCodeAt(0) - 0xAC00; return k >= 0 && k < 11172 ? CHO[Math.floor(k / 588)] : c; }).join('');
@@ -1279,7 +1279,7 @@ function paintRec() {
     const media = (c.vd ? `<span class="th vd" data-pv="${c.id}|v" style="background-image:url('${dirOf(c.pk || c.k)}/${c.vd}.jpg')"></span>` : '')
       + (c.ph || []).map((p, i) => thHTML(c, p, i)).join('')
       + (c.auto ? '' : `<span class="th add" data-padd="${c.id}"><i>＋</i>사진</span>`);
-    const delB = `<span class="cbt">${RV.q ? '' : `<button data-mv="${c.id}|-1" aria-label="위로">↑</button><button data-mv="${c.id}|1" aria-label="아래로">↓</button>`}${c.auto ? '' : `<button data-ed="${c.id}">✎ 수정</button>`}<button class="del ${RV.delArm === c.id ? 'arm' : ''}" data-del="${c.id}">${RV.delArm === c.id ? '정말 삭제' : '🗑'}</button></span>`;
+    const delB = `<span class="cbt">${RV.q ? '' : `<button data-mv="${c.id}|-1" aria-label="위로">↑</button><button data-mv="${c.id}|1" aria-label="아래로">↓</button>`}${c.auto ? '' : `<button class="sv" data-sv="${c.id}">💾 저장</button><button data-ed="${c.id}">✎ 수정</button>`}<button class="del ${RV.delArm === c.id ? 'arm' : ''}" data-del="${c.id}">${RV.delArm === c.id ? '정말 삭제' : '🗑'}</button></span>`;
     return head + `<div style="--cc:${ccOf(c.cat)}" class="tl c-${c.cat}${c.plan && !(setsOf(c) || []).some(x => x.d) && !(c.ph || []).length ? ' plan' : ''}" data-cid="${c.id}"><div class="hd2"><span class="tm ${c.t && !c.tq ? '' : 'q'}" data-tm="${c.id}" data-raw="${esc(c.t || '')}">${c.t ? cute(c.t) + (c.tq ? '쯤' : '') : '시각 ✎'}</span><span class="ti" ${ce} data-e="${c.id}|ti" data-ph="제목">${esc(c.ti)}</span><span class="ct" data-cc="${c.id}">${c.cat}</span>${c.plan && !(setsOf(c) || []).some(x => x.d) && !(c.ph || []).length ? '<span class="pl">아직</span>' : ''}${(S => S && S.length && S.every(x => x.d) ? '<span class="dn2">✓ 완료</span>' : '')(c.auto ? null : setsOf(c))}${delB}</div>`
       + (media ? `<div class="ph2">${media}</div>` : '')
       + (RV.cAdd === c.id ? `<div class="cadd"><button data-ca="gal">🖼 갤러리·영상</button><button data-ca="cam">📷 찍기</button><button data-ca="clip">📋 붙여넣기</button><button data-ca="x">닫기</button><div class="pz2" tabindex="0" id="pz2">PC: 여기를 누르고 Ctrl+V (여러 장 가능)</div></div>` : '')
@@ -1294,6 +1294,13 @@ function paintRec() {
   const find = id => cards.find(c => c.id === id);
   /* 그 자리에서 고치기: 글자를 누르면 바로 편집 → 다른 곳 누르면 저장 */
   box.querySelectorAll('[data-e]').forEach(el => el.addEventListener('blur', () => { const [id, f] = el.dataset.e.split('|'), v = el.innerText.replace(/\n+$/, ''); const c = find(id); if (c && (c[f] || '') === v) return; editCard(id, {[f]: v}); }));
+  /* 💾 저장: 이 카드의 제목·설명·내 메모(+종목 한 줄씩)를 바로 저장 → 「저장되었습니다」 1초 */
+  box.querySelectorAll('[data-sv]').forEach(b => { b.onpointerdown = e => e.preventDefault(); b.onclick = () => { const id = b.dataset.sv, c = find(id), P = {};
+    box.querySelectorAll(`[data-e^="${id}|"]`).forEach(el => { const f = el.dataset.e.split('|')[1], v = el.innerText.replace(/\n+$/, ''); if (!c || (c[f] || '') !== v) P[f] = v; });
+    if (Object.keys(P).length) editCard(id, P);
+    const s2 = box.querySelector('[data-sum]'); if (s2) { const v = s2.innerText.replace(/\n+$/, ''); if (v !== sumText(RV.k, cards)) setDay(RV.k, {sum: v}); }
+    if (document.activeElement && box.contains(document.activeElement)) document.activeElement.blur();
+    vib(15); toast('저장되었습니다', 1000); }; });
   const sm = box.querySelector('[data-sum]'); if (sm) sm.addEventListener('blur', () => { const v = sm.innerText.replace(/\n+$/, ''); if (v !== sumText(RV.k, cards)) setDay(RV.k, {sum: v}); });
   box.querySelectorAll('[data-tm]').forEach(b => b.onclick = () => { const c = find(b.dataset.tm); if (!c || c.auto || b.querySelector('input')) return;
     b.innerHTML = `<input value="${esc(c.t || '')}" placeholder="15:40 또는 18:25~18:40">`; const i = b.firstChild; i.focus(); i.select();
