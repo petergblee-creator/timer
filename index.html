@@ -215,6 +215,13 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 .pt th:first-child,.pt td:first-child{text-align:left;width:25%}
 .pt td:first-child b{font-size:12px}.pt td:first-child small{display:block;color:#777;font-size:10px;font-weight:400}
 .pt td.o{color:#F5C400;font-weight:800;background:#1d1a0c;cursor:pointer}
+.pt tr.oxr td{font-weight:800;font-size:12px;border-bottom:2px solid #333}.pt td.ox.o1{color:#4ADE80;cursor:pointer}.pt td.ox.x1{color:#FF6B6B;opacity:.7}
+.mo{background:#111;border-radius:10px;padding:6px 6px 8px;margin:4px 0 8px}
+.oxm{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px}.oxm b{font-size:13px}.oxm .nb{flex:none;width:64px;height:30px;border-radius:9px;background:#262626;color:#fff;border:0;font-size:18px;font-weight:900}
+.mog{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}.mog em{font-style:normal;text-align:center;color:#777;font-size:10px}
+.mog i{font-style:normal;text-align:center;font-size:12px;font-weight:800;border-radius:5px;padding:1px 0;min-height:30px;line-height:1.1}.mog i small{display:block;font-size:9px;color:#888;font-weight:400}
+.mog i.o1{color:#4ADE80;background:#4ADE8022;cursor:pointer}.mog i.x1{color:#FF6B6B;background:#FF6B6B12;cursor:pointer}.mog i.td{outline:1px solid #F5C400}.mog i.fu{opacity:.35}
+.mos{margin-top:6px;font-size:12px;text-align:center;border-top:1px solid #222;padding-top:6px}.mos b.o1{color:#4ADE80}.mos b.x1{color:#FF6B6B}.mos span{color:#888;font-size:11px}
 .box2{border:1px solid #262626;border-radius:10px;padding:7px 9px;margin:6px 0;background:#111}
 .box2 h3{font-size:13px;margin:0 0 4px;display:flex;align-items:baseline;gap:4px;flex-wrap:wrap}.box2 h3 small{font-size:10.5px;color:#888;font-weight:400}
 .box2 .li{font-size:12px;line-height:1.55;padding-left:12px;position:relative}.box2 .li::before{content:"•";position:absolute;left:2px;color:#777}
@@ -1726,18 +1733,18 @@ function paintParts() {
     h += `<p class="sum">「${esc(PW.q)}」 ${hits.length}일</p>` + hits.map(x => dayBlock(x.k, today, PW.q)).join('');
   } else {
     h += `<div class="lnav"><button class="nb" data-pn="-1">‹</button><div class="ld">${md(kDate(days[0]))} ~ ${md(kDate(days[6]))}${days.includes(today) ? '<span class="today">오늘 가운데</span>' : ''}<small>앞 3일 · 뒤 3일</small></div><button class="nb" data-pn="1">›</button></div>`
-      + `<div id="pList"><div class="p2g"><div>${partTable(days, today)}${legBox()}${PW.op && days.includes(PW.op) ? dayBlock(PW.op, today) : ''}${colorRow()}</div><div>${nextBox(today)}${tplBox()}</div></div>`
+      + `<div id="pList"><div class="p2g"><div>${monthBox(today)}${partTable(days, today)}${legBox()}${PW.op && days.includes(PW.op) ? dayBlock(PW.op, today) : ''}${colorRow()}</div><div>${nextBox(today)}${tplBox()}</div></div>`
       + days.filter(k => k <= today).reverse().filter(k => dayLabel(k) || dayInfo(k).items.length).map(k => dayBlock(k, today)).join('') + `${histBox()}</div>`;
   }
   box.innerHTML = h;
   $('#pS').onclick = () => { PW.sOn = !PW.sOn; if (!PW.sOn) PW.q = ''; paintParts(); if (PW.sOn) $('#pQ').focus(); };
   if ($('#pQ')) $('#pQ').oninput = e => { PW.q = e.target.value; const p = e.target.selectionStart; paintParts(); const q = $('#pQ'); q.focus(); q.setSelectionRange(p, p); };
-  $('#pT').onclick = () => { PW.k = today; paintParts(); };
+  $('#pT').onclick = () => { PW.k = today; PW.m = 0; paintParts(); };
   $('#pCp').onclick = () => copyTxt(days.filter(k => dayLabel(k)).map(k => `${md(kDate(k))} ${dayLabel(k)}\n` + dayInfo(k).items.map((t, i) => `${CIRC[i] || i + 1} ${t}`).join('\n')).join('\n\n'));
-  box.querySelectorAll('[data-pn]').forEach(b => b.onclick = () => { const d = kDate(PW.k); d.setDate(d.getDate() + 7 * +b.dataset.pn); const k = dkey(d); if (k > today) return toast('오늘이 가운데인 표가 마지막이에요'); PW.k = k; paintParts(); });
+  box.querySelectorAll('[data-pn]').forEach(b => b.onclick = () => { const d = kDate(PW.k); d.setDate(d.getDate() + 7 * +b.dataset.pn); const k = dkey(d); if (k > today) return toast('오늘이 가운데인 표가 마지막이에요'); PW.k = k; PW.m = 0; paintParts(); });
   /* 10/26 표 칸을 누르면 그 날 종목이 표 바로 아래 펼쳐짐 (다시 누르면 닫힘) */
   box.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { const k = +b.dataset.go; PW.op = PW.op === k ? 0 : k; paintParts(); });
-  bindLeg(box);
+  bindLeg(box); bindMonth(box, today);
   box.querySelectorAll('[data-dp]').forEach(el => el.addEventListener('blur', () => { const [k, f] = el.dataset.dp.split('|'); setDay(k, {[f]: el.innerText.trim()}); paintParts(); }));
   box.querySelectorAll('[data-di]').forEach(el => {
     el.addEventListener('keydown', e => { if (e.key !== 'Enter') return; e.preventDefault(); const [k, i] = el.dataset.di.split('|'), L = dayInfo(k).items.slice(); L[+i] = el.innerText.trim(); L.splice(+i + 1, 0, ''); setDay(k, {items: L}); paintParts(); const n = box.querySelector(`[data-di="${k}|${+i + 1}"]`); if (n) n.focus(); });
@@ -1759,7 +1766,25 @@ function paintParts() {
     cfg.rt = rt; const nm = sp + ' (다음에 할 것)', j = cfg.rts.findIndex(x => x.nm === nm); j >= 0 ? (cfg.rts[j].rt = clone(rt)) : cfg.rts.push({nm, rt: clone(rt)}); cfg.rtName = nm; openItem = -1; saveC(); paintSetup(); setTab('T'); toast(`${rt.length}종목 타이머 루틴 · 「${nm}」로 저장`); });
   box.querySelectorAll('[data-whp]').forEach(b => b.onclick = () => { const C = ls.get('wt.whc', {}), p = b.dataset.whp; C[p] = !C[p]; ls.set('wt.whc', C); paintParts(); });
   box.querySelectorAll('[data-tp]').forEach(b => b.onclick = () => { PW.tp = PW.tp === b.dataset.tp ? '' : b.dataset.tp; paintParts(); });
-  if (!PW.q) swipeOn($('#pList'), d => { const x = kDate(PW.k); x.setDate(x.getDate() + 7 * d); const k = dkey(x); if (k > today) return toast('오늘이 가운데인 표가 마지막이에요'); PW.k = k; paintParts(); });
+  if (!PW.q) swipeOn($('#pList'), d => { const x = kDate(PW.k); x.setDate(x.getDate() + 7 * d); const k = dkey(x); if (k > today) return toast('오늘이 가운데인 표가 마지막이에요'); PW.k = k; PW.m = 0; paintParts(); });
+}
+/* 11/8 이 달 운동 O/X 달력 + 맨 아래 합계 (했음 N일 · 안 함 M일) */
+function monthBox(today) {
+  const c = kDate(PW.m || PW.k || today), y = c.getFullYear(), m = c.getMonth(), n = new Date(y, m + 1, 0).getDate(), pad = new Date(y, m, 1).getDay();
+  let on = 0, off = 0, cells = '';
+  for (let i = 0; i < pad; i++) cells += '<i></i>';
+  for (let d = 1; d <= n; d++) { const k = y * 10000 + (m + 1) * 100 + d;
+    if (k > today) { cells += `<i class="fu"><small>${d}</small></i>`; continue; }
+    const ok = partsOf(k).size > 0; ok ? on++ : off++;
+    cells += `<i class="${ok ? 'o1' : 'x1'}${k === today ? ' td' : ''}" data-mgo="${k}"><small>${d}</small>${ok ? 'O' : 'X'}</i>`; }
+  const tot = on + off, pct = tot ? Math.round(on / tot * 100) : 0;
+  return `<div class="mo"><div class="oxm"><button class="nb" data-mn="-1">‹</button><b>${m + 1}월 운동</b><button class="nb" data-mn="1">›</button></div>`
+    + `<div class="mog">${[...DOW].map(w => `<em>${w}</em>`).join('')}${cells}</div>`
+    + `<div class="mos">${m + 1}월 합계 · <b class="o1">O 운동 ${on}일</b> · <b class="x1">X 안 함 ${off}일</b> <span>(${tot}일 중 ${pct}%)</span></div></div>`;
+}
+function bindMonth(box, today) {
+  box.querySelectorAll('[data-mn]').forEach(b => b.onclick = () => { const c = kDate(PW.m || PW.k || today); c.setDate(1); c.setMonth(c.getMonth() + +b.dataset.mn); const k = dkey(c); if (k > today) return toast('이번 달이 마지막이에요'); PW.m = k; paintParts(); });
+  box.querySelectorAll('[data-mgo]').forEach(b => b.onclick = () => { PW.k = +b.dataset.mgo; PW.m = PW.k; paintParts(); });
 }
 /* 부위 × 요일 ○표 (운동 기록판과 같은 모양) */
 const PCOL = {'가슴': '#FF7A45', '윗등': '#4FB3FF', '아랫등': '#2F7FE0', '등': '#4FB3FF', '하체': '#4ADE80', '어깨': '#B48CFF', '이두': '#FFD23F', '삼두': '#F59E0B', '복근': '#F472B6', '목': '#22D3EE', '유산소': '#93C5FD', '기타': '#aaaaaa'};
@@ -1829,6 +1854,7 @@ function bindLeg(box) {
 function partTable(days, today) {
   const P = days.map(partsOf);
   return `<table class="pt"><tr><th>부위</th>${days.map(k => `<th class="${k === today ? 'td' : ''}${k > today ? ' fu' : ''}">${DOW[kDate(k).getDay()]}<small>${k % 100}</small>${k === today ? '<span class="tdl">오늘</span>' : ''}</th>`).join('')}</tr>`
+    + `<tr class="oxr"><td><b>운동</b><small>했으면 O</small></td>${days.map((k, i) => k > today ? '<td class="fu"></td>' : (P[i].size ? `<td class="ox o1" data-go="${k}">O</td>` : '<td class="ox x1">X</td>')).join('')}</tr>`
     + PROWS.filter(p => p !== '기타' || P.some(s => s.has('기타'))).map(p => `<tr><td><b data-pcl="${p}" style="color:${pcOf(p) || '#fff'}">${p}</b><small>${lastOfP(p, today)}</small></td>${days.map((k, i) =>  P[i].has(p) ? (lt => `<td class="o${lt ? ' lt' : ''}${PW.op === k ? ' pdo' : ''}" style="color:${pcOf(p) || '#4FE3DC'};background:${(pcOf(p) || '#4FE3DC')}${'2e'}" data-go="${k}" title="${esc(dayInfo(k).items.join(' / '))}">${lt || '○'}</td>`)(letters(p, k)) : `<td class="${k > today ? 'fu' : ''}"></td>`).join('')}</tr>`).join('') + `</table>`;
 }
 /* 4분할 다음 차례: 부위 기록으로 판단 (가슴 → 등 → 하체 → 어깨+복부) */
