@@ -221,6 +221,9 @@ mark{background:#F5C400;color:#111;border-radius:3px;animation:fl .5s 6 alternat
 .mog{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}.mog em{font-style:normal;text-align:center;color:#777;font-size:10px}
 .mog i{font-style:normal;text-align:center;font-size:12px;font-weight:800;border-radius:5px;padding:1px 0;min-height:30px;line-height:1.1}.mog i small{display:block;font-size:9px;color:#888;font-weight:400}
 .mog i.o1{color:#4ADE80;background:#4ADE8022;cursor:pointer}.mog i.x1{color:#FF6B6B;background:#FF6B6B12;cursor:pointer}.mog i.td{outline:1px solid #F5C400}.mog i.fu{opacity:.35}
+.fdb{flex:none;height:30px;padding:0 12px;border-radius:15px;background:#1e1e1e;color:#ddd;border:1px solid #333;font-size:12px;font-weight:700}
+.pt tr.psr td{border-bottom:2px solid #333;vertical-align:top}.pt td.ps{cursor:pointer;font-size:10.5px;line-height:1.25;font-weight:800;word-break:keep-all}.pt td.ps span{display:block}.pt td.ps em{font-style:normal;font-weight:600;opacity:.85;display:block;font-size:10px}
+.pt tr.pfr td{text-align:center;padding:5px 0;border-bottom:0}.mos b.lf{color:#aaa}
 .mos{margin-top:6px;font-size:12px;text-align:center;border-top:1px solid #222;padding-top:6px}.mos b.o1{color:#4ADE80}.mos b.x1{color:#FF6B6B}.mos span{color:#888;font-size:11px}
 .box2{border:1px solid #262626;border-radius:10px;padding:7px 9px;margin:6px 0;background:#111}
 .box2 h3{font-size:13px;margin:0 0 4px;display:flex;align-items:baseline;gap:4px;flex-wrap:wrap}.box2 h3 small{font-size:10.5px;color:#888;font-weight:400}
@@ -1771,20 +1774,23 @@ function paintParts() {
 /* 11/8 이 달 운동 O/X 달력 + 맨 아래 합계 (했음 N일 · 안 함 M일) */
 function monthBox(today) {
   const c = kDate(PW.m || PW.k || today), y = c.getFullYear(), m = c.getMonth(), n = new Date(y, m + 1, 0).getDate(), pad = new Date(y, m, 1).getDay();
-  let on = 0, off = 0, cells = '';
+  let on = 0, off = 0, left = 0, cells = '';
   for (let i = 0; i < pad; i++) cells += '<i></i>';
   for (let d = 1; d <= n; d++) { const k = y * 10000 + (m + 1) * 100 + d;
-    if (k > today) { cells += `<i class="fu"><small>${d}</small></i>`; continue; }
+    if (k > today) { left++; cells += `<i class="fu"><small>${d}</small></i>`; continue; }
     const ok = partsOf(k).size > 0; ok ? on++ : off++;
     cells += `<i class="${ok ? 'o1' : 'x1'}${k === today ? ' td' : ''}" data-mgo="${k}"><small>${d}</small>${ok ? 'O' : 'X'}</i>`; }
   const tot = on + off, pct = tot ? Math.round(on / tot * 100) : 0;
-  return `<div class="mo"><div class="oxm"><button class="nb" data-mn="-1">‹</button><b>${m + 1}월 운동</b><button class="nb" data-mn="1">›</button></div>`
-    + `<div class="mog">${[...DOW].map(w => `<em>${w}</em>`).join('')}${cells}</div>`
-    + `<div class="mos">${m + 1}월 합계 · <b class="o1">O 운동 ${on}일</b> · <b class="x1">X 안 함 ${off}일</b> <span>(${tot}일 중 ${pct}%)</span></div></div>`;
+  /* 11/8 달력은 기본 접힘 · 합계 줄은 항상 보임 · 아직 안 온 날 = 남은 날(미정) */
+  return `<div class="mo"><div class="oxm"><button class="nb" data-mn="-1">‹</button><b>${m + 1}월 운동</b><button class="fdb" id="moF">${PW.moO ? '달력 접기 ▴' : '달력 펴기 ▾'}</button><button class="nb" data-mn="1">›</button></div>`
+    + (PW.moO ? `<div class="mog">${[...DOW].map(w => `<em>${w}</em>`).join('')}${cells}</div>` : '')
+    + `<div class="mos">${m + 1}월 합계 · <b class="o1">O 운동 ${on}일</b> · <b class="x1">X 안 함 ${off}일</b>${left ? ` · <b class="lf">남은 날 ${left}일</b>` : ''} <span>(지난 ${tot}일 중 ${pct}%)</span></div></div>`;
 }
 function bindMonth(box, today) {
   box.querySelectorAll('[data-mn]').forEach(b => b.onclick = () => { const c = kDate(PW.m || PW.k || today); c.setDate(1); c.setMonth(c.getMonth() + +b.dataset.mn); const k = dkey(c); if (k > today) return toast('이번 달이 마지막이에요'); PW.m = k; paintParts(); });
   box.querySelectorAll('[data-mgo]').forEach(b => b.onclick = () => { PW.k = +b.dataset.mgo; PW.m = PW.k; paintParts(); });
+  const mf = box.querySelector('#moF'); if (mf) mf.onclick = () => { PW.moO = !PW.moO; paintParts(); };
+  const pf = box.querySelector('#ptF'); if (pf) pf.onclick = () => { PW.ptO = !PW.ptO; paintParts(); };
 }
 /* 부위 × 요일 ○표 (운동 기록판과 같은 모양) */
 const PCOL = {'가슴': '#FF7A45', '윗등': '#4FB3FF', '아랫등': '#2F7FE0', '등': '#4FB3FF', '하체': '#4ADE80', '어깨': '#B48CFF', '이두': '#FFD23F', '삼두': '#F59E0B', '복근': '#F472B6', '목': '#22D3EE', '유산소': '#93C5FD', '기타': '#aaaaaa'};
@@ -1855,7 +1861,10 @@ function partTable(days, today) {
   const P = days.map(partsOf);
   return `<table class="pt"><tr><th>부위</th>${days.map(k => `<th class="${k === today ? 'td' : ''}${k > today ? ' fu' : ''}">${DOW[kDate(k).getDay()]}<small>${k % 100}</small>${k === today ? '<span class="tdl">오늘</span>' : ''}</th>`).join('')}</tr>`
     + `<tr class="oxr"><td><b>운동</b><small>했으면 O</small></td>${days.map((k, i) => k > today ? '<td class="fu"></td>' : (P[i].size ? `<td class="ox o1" data-go="${k}">O</td>` : '<td class="ox x1">X</td>')).join('')}</tr>`
-    + PROWS.filter(p => p !== '기타' || P.some(s => s.has('기타'))).map(p => `<tr><td><b data-pcl="${p}" style="color:${pcOf(p) || '#fff'}">${p}</b><small>${lastOfP(p, today)}</small></td>${days.map((k, i) =>  P[i].has(p) ? (lt => `<td class="o${lt ? ' lt' : ''}${PW.op === k ? ' pdo' : ''}" style="color:${pcOf(p) || '#4FE3DC'};background:${(pcOf(p) || '#4FE3DC')}${'2e'}" data-go="${k}" title="${esc(dayInfo(k).items.join(' / '))}">${lt || '○'}</td>`)(letters(p, k)) : `<td class="${k > today ? 'fu' : ''}"></td>`).join('')}</tr>`).join('') + `</table>`;
+    /* 11/8 O/X 바로 밑 = 그날 한 부위+글자(예: 가슴 윗아) · 부위별 줄은 기본 접힘 */
+    + `<tr class="psr"><td><b>부위</b><small>그날 한 것</small></td>${days.map((k, i) => k > today || !P[i].size ? `<td class="${k > today ? 'fu' : ''}"></td>` : `<td class="ps" data-go="${k}">${PROWS.filter(p => P[i].has(p)).map(p => `<span style="color:${pcOf(p) || '#ddd'}">${p}${(lt => lt ? `<em>${lt}</em>` : '')(letters(p, k))}</span>`).join('')}</td>`).join('')}</tr>`
+    + `<tr class="pfr"><td colspan="${days.length + 1}"><button class="fdb" id="ptF">${PW.ptO ? '부위별 자세히 접기 ▴' : '부위별 자세히 펴기 ▾'}</button></td></tr>`
+    + (!PW.ptO ? '' : PROWS.filter(p => p !== '기타' || P.some(s => s.has('기타'))).map(p => `<tr><td><b data-pcl="${p}" style="color:${pcOf(p) || '#fff'}">${p}</b><small>${lastOfP(p, today)}</small></td>${days.map((k, i) =>  P[i].has(p) ? (lt => `<td class="o${lt ? ' lt' : ''}${PW.op === k ? ' pdo' : ''}" style="color:${pcOf(p) || '#4FE3DC'};background:${(pcOf(p) || '#4FE3DC')}${'2e'}" data-go="${k}" title="${esc(dayInfo(k).items.join(' / '))}">${lt || '○'}</td>`)(letters(p, k)) : `<td class="${k > today ? 'fu' : ''}"></td>`).join('')}</tr>`).join('')) + `</table>`;
 }
 /* 4분할 다음 차례: 부위 기록으로 판단 (가슴 → 등 → 하체 → 어깨+복부) */
 const SPLIT_P = {'가슴날': ['가슴'], '등날': ['윗등', '아랫등'], '하체날': ['하체'], '어깨+복부날': ['어깨']};
