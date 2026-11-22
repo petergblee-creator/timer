@@ -386,9 +386,23 @@ html.light img,html.light video,html.light canvas,html.light .th:not(.add),html.
 #led .lb2 button.sm{padding:8px 10px;font-size:12px;min-width:0;border-width:1px}
 #led .lb2 #ledGo{border-color:#F5C400;color:#F5C400}
 #led .lb2 #ledGo.run{background:transparent;color:#FF4D2E;border-color:#FF4D2E}
-#ledCh{text-align:center;font-size:15px;font-weight:800;line-height:1.3;color:#F5C400;opacity:.9;transition:opacity .3s;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:keep-all}
-#ledCh.fade{opacity:0}
-@media (min-aspect-ratio:4/3){#ledCh{font-size:17px}}
+#ledCh,#ledMf .mw{overflow:hidden;position:relative}
+#ledCh{height:2.7em;font-size:15px;font-weight:800;line-height:1.3;color:#F5C400;display:flex;align-items:center;justify-content:center}
+#ledCh>span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-align:center;word-break:keep-all}
+/* 11/23 바뀔 때 위로 슬라이드 */
+.sl{transition:transform .35s ease,opacity .35s ease}.sl.up{transform:translateY(-110%);opacity:0}.sl.dn{transform:translateY(110%);opacity:0;transition:none}
+#ledGo{font-family:var(--goF,inherit)}
+#ledSave.ask{border-color:#F5C400!important;color:#F5C400!important;font-weight:800}
+/* 11/23 선언문 영어(번호)+한글 — 숫자 위, 10초마다 */
+#ledMf{flex:none;padding:4px 6px 2px;text-align:center}
+#ledMf .mw{min-height:3.6em}
+#ledMf .mi{display:block}
+#ledMf .en{font-family:var(--mfF,inherit);font-size:clamp(17px,4.6vmin,40px);line-height:1.2;color:#f3ecdc;letter-spacing:.3px}
+#ledMf .en b{color:#F5C400;margin-right:.35em;font-weight:700}
+#ledMf .ko{font-size:clamp(11px,2.4vmin,20px);color:#9a927f;margin-top:3px;word-break:keep-all}
+#led .lc.f{min-width:0}
+/* 폴드 펼친 화면: 문구 크게·색 다르게·칸 꽉 차게 */
+@media (min-aspect-ratio:4/5) and (min-width:560px){#led .lb2{min-height:20vh}#ledCh{height:20vh;color:#5EEAD4}#ledCh>span{-webkit-line-clamp:unset;display:block;line-height:1.15}}
 /* 펼친 화면·가로 분할: 버튼을 오른쪽 세로로 */
 @media (min-aspect-ratio:9/10){.ctrl{position:absolute;right:3vmin;top:50%;transform:translateY(-50%);flex-direction:column;align-items:center;padding:0;gap:2.5vmin}.ctrl #prev,.ctrl #nxt{margin:0}.ctrl button{width:12vmin;height:12vmin;font-size:6vmin}.core,#cap{margin-right:18vmin}#cap{margin-left:4vmin}}
 /* 10/25 삭제 규칙: 팝업 없이 — 1번 누르면 「삭제할까요?」, 3초 안에 한 번 더 누르면 실행 */
@@ -546,7 +560,7 @@ function askHere(anchor, o) {
  </div>
 </div>
 <div id="pv" hidden><div id="pvTop"><div id="pvCap"></div><button id="pvX" data-pt="x" aria-label="닫기">✕</button></div><div id="pvStage"><button class="pvn" data-pv="-1">‹</button><div id="pvBox"></div><button class="pvn" data-pv="1">›</button></div><div id="pvHint"></div><div id="pvTools"></div></div>
-<div id="led" hidden><div class="lt"><div class="seg" id="ledM"></div><span style="flex:1"></span><button id="ledC">색</button><button id="ledSnd">소리</button><button id="ledFs">⛶</button><button id="ledX">닫기</button></div><div class="lrow" id="ledTy"></div><div class="lrow" id="ledPg"></div><div id="ledStage"><canvas id="ledCv"></canvas><div id="ledInfo"></div></div><div class="lrow" id="ledP"></div><div class="lrow lruns" id="ledRuns"></div><div class="lb2"><button id="ledGo">시작</button><div id="ledCh"></div><div class="lbR"><button id="ledRs" class="sm">초기화</button><button id="ledSave" class="sm">끝·기록</button></div></div></div>
+<div id="led" hidden><div class="lt"><div class="seg" id="ledM"></div><span style="flex:1"></span><button id="ledFn">글꼴</button><button id="ledC">색</button><button id="ledSnd">소리</button><button id="ledFs">⛶</button><button id="ledX">닫기</button></div><div class="lrow" id="ledTy"></div><div class="lrow" id="ledPg"></div><div class="lrow" id="ledF" hidden></div><div id="ledMf"><div class="mw"><span class="mi sl"></span></div></div><div id="ledStage"><canvas id="ledCv"></canvas><div id="ledInfo"></div></div><div class="lrow" id="ledP"></div><div class="lrow lruns" id="ledRuns"></div><div class="lb2"><button id="ledGo">시작</button><div id="ledCh"><span class="sl"></span></div><div class="lbR"><button id="ledRs" class="sm">초기화</button><button id="ledSave" class="sm">끝·기록</button></div></div></div>
 <script src="rec/data.js?v=7"></script>
 
 <div id="toast"></div>
@@ -2128,14 +2142,55 @@ $('#ledX').onclick = () => { $('#led').hidden = true; cancelAnimationFrame(LED.r
 $('#ledC').onclick = () => { ls.set('wt.ledC', (ls.get('wt.ledC', 0) + 1) % LCOL.length); LED.key = ''; };
 $('#ledSnd').onclick = () => { LSET.snd = !LSET.snd; ensureAudio(); saveLS(); paintLed(); };
 $('#ledGo').onclick = () => { ledToggle(); ledPoke(); };
-/* 11/22 전광판 힘내는 문구 — 타이머 응원 자막(유산소·운동) 섞어서 10초마다, 언어 설정 따름 */
-const ledCh = {i: 0, list: []};
+/* 11/22 전광판 힘내는 문구 — 타이머 응원 자막 섞어서 · 11/23 위로 슬라이드, 펼친 화면은 5초·크게 */
+const ledWide = () => matchMedia('(min-aspect-ratio:4/5) and (min-width:560px)').matches;
+function slideTo(sp, t, after) { if (!sp.textContent) { sp.innerHTML = t; after && after(); return; } sp.classList.add('up'); setTimeout(() => { sp.classList.remove('up'); sp.classList.add('dn'); sp.innerHTML = t; after && after(); void sp.offsetWidth; sp.classList.remove('dn'); }, 360); }
+function fitCh() { const box = $('#ledCh'), sp = box.firstElementChild; if (!ledWide()) { sp.style.fontSize = ''; return; } let lo = 14, hi = Math.max(20, box.clientHeight * .9); for (let k = 0; k < 9; k++) { const m = (lo + hi) / 2; sp.style.fontSize = m + 'px'; if (sp.scrollHeight <= box.clientHeight && sp.scrollWidth <= box.clientWidth) lo = m; else hi = m; } sp.style.fontSize = lo + 'px'; }
+const ledCh = {i: 0, list: [], t: 0};
 function ledChList() { const a = CAPS('long').concat(CAPS('work')).map(([ko, en]) => vc.capLang === 'ko' ? [ko] : vc.capLang === 'en' ? [en || ko] : [ko, en || ko]).flat(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-function ledChNext() { const el = $('#ledCh'); if (!el || $('#led').hidden) return; if (ledCh.i >= ledCh.list.length) { ledCh.list = ledChList(); ledCh.i = 0; } const t = ledCh.list[ledCh.i++] || ''; if (!el.textContent) { el.textContent = t; return; } el.classList.add('fade'); setTimeout(() => { el.textContent = t; el.classList.remove('fade'); }, 300); }
-setInterval(ledChNext, 10000); ledChNext();
-new MutationObserver(() => { if (!$('#led').hidden && !$('#ledCh').textContent) ledChNext(); }).observe($('#led'), {attributes: true, attributeFilter: ['hidden']});
+function ledChNext() { clearTimeout(ledCh.t); if ($('#led').hidden) return; if (ledCh.i >= ledCh.list.length) { ledCh.list = ledChList(); ledCh.i = 0; } slideTo($('#ledCh').firstElementChild, esc(ledCh.list[ledCh.i++] || ''), fitCh); ledCh.t = setTimeout(ledChNext, ledWide() ? 5000 : 10000); }
+/* 11/23 선언문 영어(번호)+한글 — 11/21 쉐도잉 영상 문장 그대로, 번호 순서로 10초마다 */
+const MF = [
+  ["The fact that I'm still here means I'm not done yet.", '내가 아직 여기 있다는 건, 아직 끝나지 않았다는 뜻이다.'],
+  ["The life I'm building is simple: wisdom, virtue, and body.", '내가 짓는 삶은 단순하다 — 지혜, 덕, 그리고 몸.'],
+  ['The work I do pays the bills. The money I save keeps me free.', '내 일은 생활비를 벌고, 내가 모은 돈은 나를 자유롭게 한다.'],
+  ["The body I carry is the body I'll keep for life.", '지금 지닌 이 몸이 평생 지닐 몸이다.'],
+  ["Since I carry it every day, I keep training, as long as I'm breathing.", '매일 이 몸으로 사니까, 숨 쉬는 한 계속 훈련한다.'],
+  ["The food I don't eat is the fat I don't carry.", '내가 안 먹은 음식은 내가 안 지닐 지방이다.'],
+  ['The goal I set has a deadline. The fact that it has a deadline makes it real.', '내가 세운 목표엔 마감이 있다. 마감이 있다는 사실이 목표를 현실로 만든다.'],
+  ["The place I'm standing in is the only place that matters now.", '지금 서 있는 이곳만이 지금 중요한 곳이다.'],
+  ['The things I start are the things I finish.', '내가 시작한 일은 내가 끝낸다.'],
+  ['Nothing changes until I act.', '내가 움직이기 전엔 아무것도 안 바뀐다.'],
+  ['The space I live in, the bag I carry, the mind I use. I clean them all with my own hands.', '사는 공간, 드는 가방, 쓰는 머리. 전부 내 손으로 정리한다.'],
+  ["The time I have is the one thing money can't buy back.", '내 시간은 돈으로 되살 수 없는 단 하나다.'],
+  ["The fear that I'm not enough is just a feeling, not a fact.", '내가 부족하다는 두려움은 느낌일 뿐, 사실이 아니다.'],
+  ["The mistake I made nine times won't happen a tenth time.", '아홉 번 한 실수를 열 번째는 안 한다.'],
+  ["The people who respect me get my best. The people who don't get nothing.", '나를 존중하는 사람엔 최선을, 아닌 사람엔 아무것도 주지 않는다.'],
+  ["Since AI is the brain, I'm the one who acts. The body and the authority are mine.", 'AI가 두뇌라면, 행동하는 건 나다. 몸과 권한은 내 것이다.'],
+  ["The life I'm living now is a bonus life.", '지금 사는 삶은 보너스 인생이다.'],
+  ["The man I'm becoming is a fast learner, a hard worker, and a man who keeps his word.", '나는 빨리 배우고, 열심히 일하고, 약속을 지키는 사람이 되어 간다.'],
+  ["Mission for today: train, work, clean, and keep my promises. Let's go.", "오늘의 임무 — 운동, 일, 정리, 약속 지키기. 가자."],
+];
+const ledMf = {i: ls.get('wt.ledMfI', 0) % MF.length, t: 0};
+function ledMfNext() { clearTimeout(ledMf.t); if ($('#led').hidden) return; const k = ledMf.i, [en, ko] = MF[k]; ledMf.i = (k + 1) % MF.length; ls.set('wt.ledMfI', ledMf.i); slideTo($('#ledMf .mi'), `<div class="en"><b>${k + 1}</b>${esc(en)}</div><div class="ko">${esc(ko)}</div>`); ledMf.t = setTimeout(ledMfNext, 10000); }
+/* 11/23 글꼴 고르기 — 정지 버튼(한글) · 선언문 영어(5가지) · 다음에도 유지 */
+const GOF = [['', '기본'], ['Black Han Sans', '검은고딕'], ['Do Hyeon', '도현'], ['Jua', '주아'], ['Gaegu', '개구']];
+const MFF = [['Bebas Neue', 'Bebas'], ['Black Ops One', 'Ops'], ['Cinzel', 'Cinzel'], ['Playfair Display', 'Playfair'], ['Permanent Marker', 'Marker']];
+function gfLoad(f) { if (f && !document.getElementById('gf-' + f)) { const l = document.createElement('link'); l.id = 'gf-' + f; l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?family=' + f.replace(/ /g, '+') + (f === 'Gaegu' ? ':wght@700' : '') + '&display=swap'; document.head.appendChild(l); } }
+function ledFontApply() { const g = ls.get('wt.ledGoF', ''), m = ls.get('wt.ledMfF', 'Bebas Neue'); gfLoad(g); gfLoad(m); const st = $('#led').style; st.setProperty('--goF', g ? `"${g}"` : 'inherit'); st.setProperty('--mfF', `"${m}"`); }
+function paintLedF() { const g = ls.get('wt.ledGoF', ''), m = ls.get('wt.ledMfF', 'Bebas Neue'), box = $('#ledF');
+  box.innerHTML = '<span class="lhint">정지</span>' + GOF.map(([f, l]) => `<button class="lc f ${g === f ? 'on' : ''}" data-gf="${f}" style="${f ? `font-family:'${f}'` : ''}">${l}</button>`).join('') + '<span class="lhint">　영어</span>' + MFF.map(([f, l]) => `<button class="lc f ${m === f ? 'on' : ''}" data-mf="${f}" style="font-family:'${f}'">${l}</button>`).join('');
+  MFF.forEach(([f]) => gfLoad(f)); GOF.forEach(([f]) => gfLoad(f));
+  box.querySelectorAll('[data-gf]').forEach(b => b.onclick = () => { ls.set('wt.ledGoF', b.dataset.gf); ledFontApply(); paintLedF(); });
+  box.querySelectorAll('[data-mf]').forEach(b => b.onclick = () => { ls.set('wt.ledMfF', b.dataset.mf); ledFontApply(); paintLedF(); }); }
+$('#ledFn').onclick = () => { const b = $('#ledF'); b.hidden = !b.hidden; $('#ledFn').classList.toggle('on', !b.hidden); if (!b.hidden) paintLedF(); LED.key = ''; ledPoke(); };
+ledFontApply();
+new MutationObserver(() => { if (!$('#led').hidden) { ledCh.i = ledCh.list.length; ledChNext(); ledMfNext(); } else { clearTimeout(ledCh.t); clearTimeout(ledMf.t); } }).observe($('#led'), {attributes: true, attributeFilter: ['hidden']});
+addEventListener('resize', () => { if (!$('#led').hidden) fitCh(); });
+/* 11/23 끝·기록: 두 번 누르기 — 1번 「HH:MM 기록 · 맞습니까?」, 4초 안에 한 번 더 누르면 저장 */
+let ledAskT = 0;
+$('#ledSave').onclick = () => { const b = $('#ledSave'); ledPoke(); if (b.classList.contains('ask')) { clearTimeout(ledAskT); b.classList.remove('ask'); b.textContent = '끝·기록'; return ledSave(); } b.classList.add('ask'); b.textContent = `${hm(Date.now())} 기록 · 맞습니까?`; clearTimeout(ledAskT); ledAskT = setTimeout(() => { b.classList.remove('ask'); b.textContent = '끝·기록'; }, 4000); };
 $('#ledRs').onclick = () => ledReset();
-$('#ledSave').onclick = ledSave;
 $('#ledFs').onclick = () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => {})); } catch (x) {} };
 document.addEventListener('keydown', e => { if ($('#led').hidden || e.target.isContentEditable) return; if (e.code === 'Space') { e.preventDefault(); ledToggle(); } });
 if (CD.mode === 't' && CD.t.running && CD.t.endAt <= Date.now() && !(pgOn() && CD.pi != null)) { CD.t.running = false; CD.t.remain = 0; CD.runs.push({t: 1, ms: CD.dur, e: CD.t.endAt}); ledDone = true; saveCD(); }
