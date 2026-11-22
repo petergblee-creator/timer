@@ -379,11 +379,16 @@ html.light img,html.light video,html.light canvas,html.light .th:not(.add),html.
 #ledStage{flex:1;min-height:0;position:relative;background:#0c0b09;border:1px solid #24201a;border-radius:6px;overflow:hidden}
 #ledCv{position:absolute;inset:0;width:100%;height:100%}
 #ledInfo{position:absolute;left:8px;bottom:5px;right:8px;color:#77705f;font-size:11px;z-index:1}
-#led .lb2{display:flex;gap:6px}
-#led .lb2 button{flex:1;padding:13px;font-size:16px;font-weight:900;border-radius:10px}
-#led .lb2 button.sm{flex:0 0 auto;padding:13px 14px;font-size:13px}
-#led .lb2 #ledGo.run{background:#FF4D2E;color:#fff;border-color:#FF4D2E}
-@media (min-aspect-ratio:4/3){#led .lb2 button{padding:9px}}
+/* 11/22 아래 줄: 왼쪽 버튼 · 가운데 힘내는 문구(10초마다) · 오른쪽 버튼 — 버튼은 작게, 테두리만 */
+#led .lb2{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+#led .lb2 .lbR{display:flex;gap:6px}
+#led .lb2 button{padding:8px 16px;font-size:14px;font-weight:800;border-radius:10px;background:transparent;border:2px solid #77705f;color:#d8d1c4;min-width:64px}
+#led .lb2 button.sm{padding:8px 10px;font-size:12px;min-width:0;border-width:1px}
+#led .lb2 #ledGo{border-color:#F5C400;color:#F5C400}
+#led .lb2 #ledGo.run{background:transparent;color:#FF4D2E;border-color:#FF4D2E}
+#ledCh{text-align:center;font-size:15px;font-weight:800;line-height:1.3;color:#F5C400;opacity:.9;transition:opacity .3s;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:keep-all}
+#ledCh.fade{opacity:0}
+@media (min-aspect-ratio:4/3){#ledCh{font-size:17px}}
 /* 펼친 화면·가로 분할: 버튼을 오른쪽 세로로 */
 @media (min-aspect-ratio:9/10){.ctrl{position:absolute;right:3vmin;top:50%;transform:translateY(-50%);flex-direction:column;align-items:center;padding:0;gap:2.5vmin}.ctrl #prev,.ctrl #nxt{margin:0}.ctrl button{width:12vmin;height:12vmin;font-size:6vmin}.core,#cap{margin-right:18vmin}#cap{margin-left:4vmin}}
 /* 10/25 삭제 규칙: 팝업 없이 — 1번 누르면 「삭제할까요?」, 3초 안에 한 번 더 누르면 실행 */
@@ -541,7 +546,7 @@ function askHere(anchor, o) {
  </div>
 </div>
 <div id="pv" hidden><div id="pvTop"><div id="pvCap"></div><button id="pvX" data-pt="x" aria-label="닫기">✕</button></div><div id="pvStage"><button class="pvn" data-pv="-1">‹</button><div id="pvBox"></div><button class="pvn" data-pv="1">›</button></div><div id="pvHint"></div><div id="pvTools"></div></div>
-<div id="led" hidden><div class="lt"><div class="seg" id="ledM"></div><span style="flex:1"></span><button id="ledC">색</button><button id="ledSnd">소리</button><button id="ledFs">⛶</button><button id="ledX">닫기</button></div><div class="lrow" id="ledTy"></div><div class="lrow" id="ledPg"></div><div id="ledStage"><canvas id="ledCv"></canvas><div id="ledInfo"></div></div><div class="lrow" id="ledP"></div><div class="lrow lruns" id="ledRuns"></div><div class="lb2"><button id="ledGo">시작</button><button id="ledRs" class="sm">초기화</button><button id="ledSave" class="sm">끝·기록</button></div></div>
+<div id="led" hidden><div class="lt"><div class="seg" id="ledM"></div><span style="flex:1"></span><button id="ledC">색</button><button id="ledSnd">소리</button><button id="ledFs">⛶</button><button id="ledX">닫기</button></div><div class="lrow" id="ledTy"></div><div class="lrow" id="ledPg"></div><div id="ledStage"><canvas id="ledCv"></canvas><div id="ledInfo"></div></div><div class="lrow" id="ledP"></div><div class="lrow lruns" id="ledRuns"></div><div class="lb2"><button id="ledGo">시작</button><div id="ledCh"></div><div class="lbR"><button id="ledRs" class="sm">초기화</button><button id="ledSave" class="sm">끝·기록</button></div></div></div>
 <script src="rec/data.js?v=7"></script>
 
 <div id="toast"></div>
@@ -2123,6 +2128,12 @@ $('#ledX').onclick = () => { $('#led').hidden = true; cancelAnimationFrame(LED.r
 $('#ledC').onclick = () => { ls.set('wt.ledC', (ls.get('wt.ledC', 0) + 1) % LCOL.length); LED.key = ''; };
 $('#ledSnd').onclick = () => { LSET.snd = !LSET.snd; ensureAudio(); saveLS(); paintLed(); };
 $('#ledGo').onclick = () => { ledToggle(); ledPoke(); };
+/* 11/22 전광판 힘내는 문구 — 타이머 응원 자막(유산소·운동) 섞어서 10초마다, 언어 설정 따름 */
+const ledCh = {i: 0, list: []};
+function ledChList() { const a = CAPS('long').concat(CAPS('work')).map(([ko, en]) => vc.capLang === 'ko' ? [ko] : vc.capLang === 'en' ? [en || ko] : [ko, en || ko]).flat(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function ledChNext() { const el = $('#ledCh'); if (!el || $('#led').hidden) return; if (ledCh.i >= ledCh.list.length) { ledCh.list = ledChList(); ledCh.i = 0; } const t = ledCh.list[ledCh.i++] || ''; if (!el.textContent) { el.textContent = t; return; } el.classList.add('fade'); setTimeout(() => { el.textContent = t; el.classList.remove('fade'); }, 300); }
+setInterval(ledChNext, 10000); ledChNext();
+new MutationObserver(() => { if (!$('#led').hidden && !$('#ledCh').textContent) ledChNext(); }).observe($('#led'), {attributes: true, attributeFilter: ['hidden']});
 $('#ledRs').onclick = () => ledReset();
 $('#ledSave').onclick = ledSave;
 $('#ledFs').onclick = () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => {})); } catch (x) {} };
